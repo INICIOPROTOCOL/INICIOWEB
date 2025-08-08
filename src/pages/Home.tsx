@@ -4,7 +4,7 @@ import ServiceCard from '@/components/ServiceCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Key, Calculator, Gavel, Users, Star, Award, TrendingUp, CheckCircle } from 'lucide-react';
+import { ArrowRight, Key, Calculator, Gavel, Users, Star, Award, TrendingUp, CheckCircle, MessageCircle, Building, Car, Scale, FileText, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import heroImage from '@/assets/hero-bg.jpg';
 import property1 from '@/assets/property-1.jpg';
@@ -55,58 +55,40 @@ const Home = () => {
       title: 'Ventas',
       description: 'Asesoramiento completo para la venta de tu propiedad al mejor precio del mercado.',
       icon: Key,
-      features: [
-        'Valuación profesional gratuita',
-        'Marketing digital especializado',
-        'Gestión de documentación',
-        'Acompañamiento hasta la escritura'
-      ],
       href: '/ventas'
+    },
+    {
+      title: 'Alquileres',
+      description: 'Gestión integral de alquileres, desde la búsqueda hasta la administración.',
+      icon: Building,
+      href: '/alquileres'
     },
     {
       title: 'Tasaciones',
       description: 'Valuaciones profesionales realizadas por martilleros matriculados.',
       icon: Calculator,
-      features: [
-        'Informe técnico detallado',
-        'Análisis de mercado',
-        'Certificación oficial',
-        'Entrega en 48hs'
-      ],
       href: '/tasaciones'
     },
     {
       title: 'Legales',
       description: 'Asesoría jurídica especializada en derecho inmobiliario.',
       icon: Gavel,
-      features: [
-        'Revisión de contratos',
-        'Gestión de escrituras',
-        'Asesoría fiscal',
-        'Resolución de conflictos'
-      ],
       href: '/legales'
     },
     {
-      title: 'Nosotros',
-      description: 'Conoce nuestro equipo de profesionales y nuestra trayectoria.',
-      icon: Users,
-      features: [
-        'Más de 20 años de experiencia',
-        'Equipo multidisciplinario',
-        'Presencia nacional',
-        'Atención personalizada'
-      ],
-      href: '/nosotros'
+      title: 'Contabilidad',
+      description: 'Servicios contables especializados para el sector inmobiliario.',
+      icon: FileText,
+      href: '/contabilidad'
+    },
+    {
+      title: 'Administraciones',
+      description: 'Administración profesional de propiedades y consorcios.',
+      icon: Settings,
+      href: '/administraciones'
     }
   ];
 
-  const stats = [
-    { number: '2000+', label: 'Propiedades Vendidas', icon: Award },
-    { number: '98%', label: 'Clientes Satisfechos', icon: Star },
-    { number: '15+', label: 'Años de Experiencia', icon: TrendingUp },
-    { number: '24/7', label: 'Atención al Cliente', icon: CheckCircle }
-  ];
 
   return (
     <div className="min-h-screen">
@@ -119,14 +101,14 @@ const Home = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
             <Badge variant="outline" className="mb-6 bg-card/90 backdrop-blur-sm text-foreground border-border/50">
-              🏆 #1 Inmobiliaria en CABA
+              #Pinta algo aca?
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Encuentra tu
-              <span className="bg-gradient-accent bg-clip-text text-transparent"> hogar ideal</span>
+              Encuentra el
+              <span className="bg-gradient-to-r from-[#ff7b25] to-[#ff5e00] bg-clip-text text-transparent"> lugar que buscas</span>
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              La plataforma inmobiliaria más completa de Argentina. Más de 10,000 propiedades disponibles para venta y alquiler.
+              La Plataforma inmobiliaria mas completa para la busqueda de tu propiedad
             </p>
           </div>
           
@@ -136,39 +118,137 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div 
-                  key={index} 
-                  className="text-center animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Icon className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div className="text-3xl font-bold text-primary mb-1">{stat.number}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+      {/* Breve Presentación de la Inmobiliaria */}
+      <section className="py-12 sm:py-16 bg-white relative overflow-hidden">
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-[#ec520b]/10 rounded-full blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-[#022550]/10 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 left-1/4 w-2 h-2 bg-[#ec520b]/30 rounded-full animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-[#022550]/40 rounded-full animate-ping"></div>
+        
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
+              Sobre Nosotros
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Tu socio inmobiliario de confianza
+            </h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+              En <span className="font-semibold text-[#022550]">Inicio Negocio Inmobiliarios</span>, combinamos experiencia, tecnología y dedicación personal para brindarte el mejor servicio inmobiliario. Nuestro compromiso es hacer realidad tus proyectos inmobiliarios.
+            </p>
+            
+            {/* Stats visuales */}
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto mb-8">
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-[#ec520b] mb-1">+500</div>
+                <div className="text-xs sm:text-sm text-gray-500">Propiedades vendidas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-[#022550] mb-1">20+</div>
+                <div className="text-xs sm:text-sm text-gray-500">Años de experiencia</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-[#ec520b] mb-1">98%</div>
+                <div className="text-xs sm:text-sm text-gray-500">Clientes satisfechos</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 items-center justify-center text-sm text-gray-500">
+              <div className="flex items-center">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                <span>Legales</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                <span>Contabilidad</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                <span>Administraciones</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sección de Invitación con Botones */}
+      <section className="py-8 sm:py-12 bg-gradient-to-b from-gray-50 to-white relative">        
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            {/* Gradient overlay sutil */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
+            
+            <div className="text-center mb-8 relative">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full mb-4">
+                <Star className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+                Estamos para acompañarte
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
+                Sea cual sea tu objetivo inmobiliario, tenemos la solución perfecta para ti
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
+              {/* Card Ver Propiedades */}
+              <div className="bg-gradient-to-br from-[#022550] to-[#033366] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
+                <div className="relative z-10">
+                  <Building className="h-8 w-8 mb-4 text-white/90" />
+                  <h4 className="text-lg font-semibold mb-2">¿Buscas tu hogar ideal?</h4>
+                  <p className="text-white/80 text-sm mb-4">
+                    Explora nuestra selección de propiedades exclusivas
+                  </p>
+                  <Button 
+                    asChild
+                    className="w-full bg-white text-[#022550] hover:bg-gray-100 font-semibold shadow-lg"
+                  >
+                    <Link to="/propiedades">
+                      Ver Propiedades
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Card Solicitar Tasación */}
+              <div className="bg-gradient-to-br from-[#ec520b] to-[#ff6b1a] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
+                <div className="relative z-10">
+                  <Calculator className="h-8 w-8 mb-4 text-white/90" />
+                  <h4 className="text-lg font-semibold mb-2">¿Estás buscando vender tu propiedad?</h4>
+                  <p className="text-white/80 text-sm mb-4">
+                    Solicita una tasación gratuita y profesional
+                  </p>
+                  <Button 
+                    asChild
+                    className="w-full bg-white text-[#ec520b] hover:bg-gray-100 font-semibold shadow-lg"
+                  >
+                    <Link to="/tasaciones">
+                      Solicitar Tasación
+                      <Calculator className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Featured Properties */}
-      <section className="py-16">
+      <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <Badge variant="outline" className="mb-4">Propiedades Destacadas</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
               Las mejores oportunidades del mercado
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
               Descubre una selección exclusiva de propiedades premium, cuidadosamente elegidas por nuestro equipo de expertos.
             </p>
           </div>
@@ -186,7 +266,7 @@ const Home = () => {
           </div>
           
           <div className="text-center">
-            <Button className="bg-gradient-primary" asChild>
+            <Button className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b]" asChild>
               <Link to="/propiedades">
                 Ver todas las propiedades
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -197,28 +277,73 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="mb-4">Nuestros Servicios</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Soluciones inmobiliarias integrales
+      <section className="py-12 sm:py-16 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute top-20 right-20 w-24 h-24 bg-[#ec520b]/10 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 left-20 w-32 h-32 bg-[#022550]/10 rounded-full blur-2xl"></div>
+        <div className="absolute top-10 left-1/2 w-3 h-3 bg-[#ec520b]/40 rounded-full animate-bounce"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-8 sm:mb-12">
+            <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
+              Nuestros Servicios
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Nuestros Servicios
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Ofrecemos un servicio completo que abarca todas tus necesidades inmobiliarias, desde la búsqueda hasta la escrituración.
+            <p className="text-gray-600 max-w-3xl mx-auto text-sm sm:text-base mb-6">
+              Ofrecemos un servicio completo que abarca todas tus necesidades inmobiliarias, legales y contables
             </p>
+            
+            {/* Indicador visual de cobertura total */}
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
+              <div className="w-2 h-2 bg-[#022550] rounded-full"></div>
+              <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => (
-              <div 
-                key={service.title}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.15}s` }}
-              >
-                <ServiceCard {...service} />
+
+          <div className="flex justify-center">
+            <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl p-4 sm:p-6 w-full max-w-5xl relative overflow-hidden">
+              {/* Gradient overlay interno */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 relative">
+                
+                {services.map((service, index) => {
+                  const IconComponent = service.icon;
+                  return (
+                    <Link key={service.title} to={service.href} className="group">
+                      <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ec520b] hover:to-[#022550] hover:text-white hover:shadow-xl hover:scale-105 min-h-[140px] sm:min-h-[160px] border border-transparent hover:border-white/20">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mb-4 group-hover:bg-white group-hover:text-[#ec520b] transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                          <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-white group-hover:text-[#ec520b]" />
+                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-gray-800 group-hover:text-white transition-colors text-center mb-2">
+                          {service.title}
+                        </span>
+                        <span className="text-xs text-gray-500 group-hover:text-white/80 text-center px-2 leading-tight">
+                          {service.description}
+                        </span>
+                        
+                        {/* Indicador de "más info" */}
+                        <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <ArrowRight className="h-4 w-4 text-white/80" />
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+
               </div>
-            ))}
+              
+              {/* Nota informativa */}
+              <div className="text-center mt-6 pt-4 border-t border-gray-200/50">
+                <p className="text-xs text-gray-500">
+                  <CheckCircle className="inline h-3 w-3 mr-1 text-green-500" />
+                  Todos nuestros servicios incluyen asesoramiento personalizado gratuito
+                </p>
+              </div>
+            </Card>
           </div>
         </div>
       </section>
@@ -242,6 +367,28 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Botón Flotante de WhatsApp */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <a
+          href="https://wa.me/5491123456789?text=Hola,%20estoy%20interesado%20en%20sus%20servicios%20inmobiliarios"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 animate-bounce hover:animate-none"
+          aria-label="Contactar por WhatsApp"
+        >
+          <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8" />
+          
+          {/* Tooltip de información */}
+          <span className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+            ¡Contáctanos por WhatsApp!
+            <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
+          </span>
+          
+          {/* Indicador de pulso */}
+          <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-30"></span>
+        </a>
+      </div>
     </div>
   );
 };

@@ -15,7 +15,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Home className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">InmoReal</span>
+              <span className="text-xl font-bold">Inicio Inmobiliaria</span>
             </div>
             <p className="text-secondary-foreground/80 text-sm">
               Tu socio de confianza en el mercado inmobiliario. Más de 20 años conectando personas con sus hogares ideales.

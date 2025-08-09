@@ -398,7 +398,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Contact Section */}
       <section 
         className="py-16 sm:py-20 relative bg-cover bg-center bg-no-repeat"
@@ -576,7 +576,7 @@ const Home = () => {
       <section className="py-16 bg-gradient-hero">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            ¿Listo para encontrar tu próxima propiedad?
+            ¿Listo para encontrar tu próxima propiedad? suma esto?
           </h2>
           <p className="text-white/90 text-lg mb-8">
             Nuestro equipo de expertos está aquí para ayudarte en cada paso del camino.

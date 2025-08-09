@@ -53,6 +53,9 @@ const Footer = () => {
               </div>
               <span className="text-xl font-bold">Inicio Inmobiliaria</span>
             </div>
+            <span className="text-sm text-white/80">
+              Conrado Cazzola Matricula CPI: 6842.
+            </span>
             <p className="text-white/80 text-sm">
               Tu socio de confianza en el mercado inmobiliario.
             </p>
@@ -151,7 +154,7 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-[#ec520b]" />
-                <span className="text-sm text-white/80">+54 3515155669</span>
+                <span className="text-sm text-white/80">+54 351-5155669</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-[#ec520b]" />
@@ -159,7 +162,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 text-[#ec520b]" />
-                <span className="text-sm text-white/80">Córdoba, Argentina</span>
+                <span className="text-sm text-white/80">Mendiolaza, Córdoba, Argentina</span>
               </div>
             </div>
           </div>
@@ -211,7 +214,7 @@ const Footer = () => {
         <div className="py-6 border-t border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-white/80">
-              © 2025 Inicio Inmobiliaria. Todos los derechos reservados.
+              © 2025 Inicio Negocios Inmobiliarios. Todos los derechos reservados.
             </div>
             <div className="flex space-x-6">
               <Link 

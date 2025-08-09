@@ -152,7 +152,7 @@ const Home = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
             <Badge variant="outline" className="mb-6 bg-card/90 backdrop-blur-sm text-foreground border-border/50">
-              #Pinta algo aca?
+              #Pinta algo aca?.
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Encuentra el

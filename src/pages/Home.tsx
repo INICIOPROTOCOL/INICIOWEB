@@ -105,11 +105,8 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
-            <Badge variant="outline" className="mb-6 bg-card/90 backdrop-blur-sm text-foreground border-border/50">
-              #Pinta algo aca?.
-            </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Encuentra el
+              Encontra el
               <span className="bg-gradient-to-r from-[#ff7b25] to-[#ff5e00] bg-clip-text text-transparent"> lugar que buscas</span>
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
@@ -138,7 +135,7 @@ const Home = () => {
                 Estamos para acompañarte
               </h3>
               <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
-                Sea cual sea tu objetivo inmobiliario, tenemos la solución perfecta para ti
+                Tu compañia en el proceso de tus objetivos inmobiliarios
               </p>
             </div>
 
@@ -241,26 +238,29 @@ const Home = () => {
             <p className="text-gray-600 max-w-3xl mx-auto text-sm sm:text-base mb-6">
               Ofrecemos un servicio completo que abarca todas tus necesidades inmobiliarias, legales y contables
             </p>
-            
           </div>
 
           <div className="flex justify-center">
             <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl p-4 sm:p-6 w-full max-w-5xl relative overflow-hidden">
               {/* Gradient overlay interno */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#ec520b]/10 rounded-3xl"></div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 relative">
                 {services.map((service, index) => {
                   const IconComponent = service.icon;
                   return (
                     <Link key={service.title} to={service.href} className="group">
-                      <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ec520b] hover:to-[#022550] hover:text-white hover:shadow-xl hover:scale-105 min-h-[140px] sm:min-h-[160px] border border-transparent hover:border-white/20">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mb-4 group-hover:bg-white group-hover:text-[#ec520b] transition-all duration-300 shadow-lg group-hover:shadow-xl">
-                          <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-white group-hover:text-[#ec520b]" />
+                      <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ec520b] hover:to-[#ff6b1a] hover:text-white hover:shadow-xl hover:scale-105 min-h-[140px] sm:min-h-[160px] border border-transparent hover:border-white/20">
+                        
+                        {/* Icono: Naranja normal, Azul corporativo en hover para contraste */}
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] group-hover:bg-gradient-to-r group-hover:from-[#022550] group-hover:to-[#033366] rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                          <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-white transition-colors duration-300" />
                         </div>
+                        
                         <span className="text-sm sm:text-base font-semibold text-gray-800 group-hover:text-white transition-colors text-center mb-2">
                           {service.title}
                         </span>
+                        
                         <span className="text-xs text-gray-500 group-hover:text-white/80 text-center px-2 leading-tight">
                           {service.description}
                         </span>
@@ -273,7 +273,6 @@ const Home = () => {
                     </Link>
                   );
                 })}
-
               </div>
               
               {/* Nota informativa */}
@@ -295,13 +294,13 @@ const Home = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16 sm:py-20">
           {/* Header personalizado para mantener el estilo original */}
           <div className="text-center mb-8 sm:mb-12">
-            <Badge variant="outline" className="mb-4 bg-white/20 text-white border-white/30">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
               Contacto
-            </Badge>
+            </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-white/90 text-lg sm:text-xl">
               <span>Podes comunicarte por</span>
               <a 
-                href="https://wa.me/5491123456789" 
+                href="https://wa.me/message/2672WUGF2M56K1" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-300 font-semibold text-sm sm:text-base"
@@ -322,10 +321,10 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Botón Flotante de WhatsApp - SIN animación de pulso */}
+      {/* Botón Flotante de WhatsApp */}
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/5491123456789?text=Hola,%20estoy%20interesado%20en%20sus%20servicios%20inmobiliarios"
+          href="https://wa.me/message/2672WUGF2M56K1"
           target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"

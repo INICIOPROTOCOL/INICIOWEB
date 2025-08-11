@@ -250,7 +250,7 @@ const ContactForm = ({
                   <div className="space-y-2">
                     <label htmlFor="tipoInmueble" className="text-sm font-medium text-gray-700 flex items-center">
                       <Building className="h-4 w-4 mr-2 text-[#ec520b]" />
-                      Información sobre inmuebles
+                      En que te podemos asesorar?
                     </label>
                     <select
                       id="tipoInmueble"

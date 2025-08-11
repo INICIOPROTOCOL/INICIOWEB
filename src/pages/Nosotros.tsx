@@ -14,10 +14,9 @@ import heroImage from '@/assets/hero-bg.jpg';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 const Nosotros = () => {
-    // Scroll to top on mount
     useScrollToTop();
-  // Datos de la empresa
-  const empresaData = {
+  
+    const empresaData = {
     lema: " En INICIO NEGOCIOS INMOBILIARIOS, nos enorgullecemos de asesorar a nuestros clientes en sus objetivos, brindando facilidades para concretar sus operaciones",
     quienesSomos: "Un equipo de profesionales dedicados a los servicios inmobiliarios en Villa Allende, Córdoba.",
     mision: "Acompañarte en cada paso de tus operaciones inmobiliarias, brindándote un servicio integral y de confianza. Por eso hemos creado un equipo que va más allá de lo tradicional, con un departamento de asesoría legal y contable para resolver todas tus inquietudes.",

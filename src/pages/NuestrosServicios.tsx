@@ -20,17 +20,16 @@ import { Link } from 'react-router-dom';
 import heroImage from '@/assets/hero-bg.jpg';
 
 const NuestrosServicios = () => {
-  // Hook para scroll automático al hash O al inicio
   useScrollToHash();
 
-  // Datos detallados de servicios - IDs actualizados para coincidir con Navbar
+  // Datos detallados de servicios - Actualizar colores a naranja corporativo
   const serviciosDetallados = [
     {
       id: 'ventas',
       titulo: 'Ventas',
       descripcionCorta: 'Asesoramiento completo para vender tu propiedad al mejor precio',
       icono: Key,
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Valuación profesional gratuita',
         'Marketing digital especializado',
@@ -58,7 +57,7 @@ const NuestrosServicios = () => {
       titulo: 'Alquileres',
       descripcionCorta: 'Gestión integral de alquileres con garantía de tranquilidad',
       icono: Building,
-      color: 'from-green-500 to-green-600',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Búsqueda personalizada de inquilinos',
         'Verificación de antecedentes',
@@ -86,7 +85,7 @@ const NuestrosServicios = () => {
       titulo: 'Tasaciones',
       descripcionCorta: 'Valuaciones profesionales con certificación oficial',
       icono: Calculator,
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Martilleros matriculados',
         'Metodología técnica certificada',
@@ -114,7 +113,7 @@ const NuestrosServicios = () => {
       titulo: 'Servicios Legales',
       descripcionCorta: 'Asesoría jurídica especializada en derecho inmobiliario',
       icono: Gavel,
-      color: 'from-red-500 to-red-600',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Abogados especializados',
         'Revisión de documentación',
@@ -142,7 +141,7 @@ const NuestrosServicios = () => {
       titulo: 'Servicios Contables',
       descripcionCorta: 'Gestión contable especializada para el sector inmobiliario',
       icono: FileText,
-      color: 'from-yellow-500 to-orange-500',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Contadores públicos matriculados',
         'Liquidación de impuestos',
@@ -170,7 +169,7 @@ const NuestrosServicios = () => {
       titulo: 'Administraciones',
       descripcionCorta: 'Administración profesional de propiedades y consorcios',
       icono: Settings,
-      color: 'from-indigo-500 to-indigo-600',
+      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Administradores matriculados',
         'Gestión de expensas',
@@ -195,6 +194,8 @@ const NuestrosServicios = () => {
     }
   ];
 
+// ...existing code...
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -206,9 +207,6 @@ const NuestrosServicios = () => {
         
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
-            <Badge variant="outline" className="mb-6 bg-white/20 text-white border-white/30">
-              Servicios Profesionales
-            </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Nuestros Servicios
             </h1>
@@ -217,7 +215,7 @@ const NuestrosServicios = () => {
             </p>
             
             {/* Stats rápidas */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <div className="text-2xl font-bold text-white">6</div>
                 <div className="text-sm text-white/80">Servicios Especializados</div>
@@ -234,7 +232,7 @@ const NuestrosServicios = () => {
                 <div className="text-2xl font-bold text-white">3+</div>
                 <div className="text-sm text-white/80">Años de Experiencia</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

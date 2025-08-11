@@ -23,12 +23,12 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 shadow-sm" style={{ backgroundColor: '#022550' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-         <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
-          <img
-            src="src/assets/inicio_ico.png"
-            alt="Logo"
-            className="h-12 max-w-[100px] w-auto object-contain"
-          />
+          <Link rel='icon' type='image/x-icon' to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity" >
+            <img
+              src="/src/assets/inicio_ico.png"
+              alt="Logo"
+              className="h-12 max-w-[100px] w-auto object-contain"
+            />
         </Link>
 
           {/* Desktop Navigation - Menú responsive con hover mejorado */}

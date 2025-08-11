@@ -51,13 +51,13 @@ const Footer = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-lg flex items-center justify-center">
                 <Home className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold">Inicio Inmobiliaria</span>
+              <span className="text-xl font-bold">Inicio Negocios Inmobiliarios</span>
             </div>
             <span className="text-sm text-white/80">
               Conrado Cazzola Matricula CPI: 6842.
             </span>
             <p className="text-white/80 text-sm">
-              Tu socio de confianza en el mercado inmobiliario.
+              Tu inmobiliaria de confianza en el mercado inmobiliario.
             </p>
             <div className="flex space-x-3">
               <Button 
@@ -67,7 +67,7 @@ const Footer = () => {
                 asChild
               >
                 <a 
-                  href="https://www.facebook.com/InicioInmobiliaria" 
+                  href="https://www.facebook.com/inicio.neg.inmob/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   aria-label="Síguenos en Facebook"

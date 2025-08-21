@@ -58,19 +58,19 @@ const Home = () => {
   const services = [
     {
       title: 'Ventas',
-      description: 'Asesoramiento completo para la venta de tu propiedad al mejor precio del mercado.',
+      description: 'Asesoramiento completo para la venta de tu propiedad.',
       icon: Key,
       href: '/nuestros-servicios#ventas'
     },
     {
       title: 'Alquileres',
-      description: 'Gestión integral de alquileres, desde la búsqueda hasta la administración. ',
+      description: 'Gestión integral tanto para el Locador como Locatario. ',
       icon: Building,
       href: '/nuestros-servicios#alquileres'
     },
     {
       title: 'Tasaciones',
-      description: 'Valuaciones profesionales realizadas por martilleros matriculados.',
+      description: 'Valuaciones profesionales.',
       icon: Calculator,
       href: '/nuestros-servicios#tasaciones'
     },
@@ -82,7 +82,7 @@ const Home = () => {
     },
     {
       title: 'Contabilidad',
-      description: 'Servicios contables especializados para el sector inmobiliario.',
+      description: 'Servicios contables.',
       icon: FileText,
       href: '/nuestros-servicios#contabilidad'
     },
@@ -110,7 +110,7 @@ const Home = () => {
               <span className="bg-gradient-to-r from-[#ff7b25] to-[#ff5e00] bg-clip-text text-transparent"> lugar que buscas</span>
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              La Plataforma inmobiliaria mas completa para la busqueda de tu propiedad
+              La inmobiliaria mas completa para la busqueda de tu propiedad
             </p>
           </div>
           
@@ -129,7 +129,7 @@ const Home = () => {
             
             <div className="text-center mb-8 relative">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full mb-4">
-                <Star className="h-6 w-6 text-white" />
+                {/* logo de inicio */}
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
                 Estamos para acompañarte
@@ -141,7 +141,7 @@ const Home = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
               {/* Card Ver Propiedades */}
-              <div className="bg-gradient-to-br from-[#022550] to-[#033366] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
+              {/* <div className="bg-gradient-to-br from-[#022550] to-[#033366] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
                 <div className="relative z-10">
@@ -160,7 +160,7 @@ const Home = () => {
                     </Link>
                   </Button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Card Solicitar Tasación */}
               <div className="bg-gradient-to-br from-[#ec520b] to-[#ff6b1a] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">

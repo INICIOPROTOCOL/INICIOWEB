@@ -27,7 +27,7 @@ const NuestrosServicios = () => {
     {
       id: 'ventas',
       titulo: 'Ventas',
-      descripcionCorta: 'Asesoramiento completo para vender tu propiedad al mejor precio',
+      descripcionCorta: 'Asesoramiento completo para la venta de tu propiedad.',
       icono: Key,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
@@ -37,12 +37,6 @@ const NuestrosServicios = () => {
         'Tours virtuales 360°',
         'Asesoramiento legal incluido',
         'Gestión completa de documentación'
-      ],
-      beneficios: [
-        'Venta en menor tiempo',
-        'Mejor precio de mercado',
-        'Sin preocupaciones legales',
-        'Acompañamiento total'
       ],
       proceso: [
         'Evaluación y tasación',
@@ -55,22 +49,13 @@ const NuestrosServicios = () => {
     {
       id: 'alquileres',
       titulo: 'Alquileres',
-      descripcionCorta: 'Gestión integral de alquileres con garantía de tranquilidad',
+      descripcionCorta: 'Gestión integral de alquileres.',
       icono: Building,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Búsqueda personalizada de inquilinos',
-        'Verificación de antecedentes',
+        'Verificación de informes y garantías',
         'Gestión de contratos',
-        'Administración de cobros',
-        'Mantenimiento preventivo',
-        'Resolución de conflictos'
-      ],
-      beneficios: [
-        'Inquilinos confiables',
-        'Cobro puntual garantizado',
-        'Propiedad bien cuidada',
-        'Gestión sin estrés'
       ],
       proceso: [
         'Análisis de la propiedad',
@@ -88,17 +73,9 @@ const NuestrosServicios = () => {
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
         'Martilleros matriculados',
-        'Metodología técnica certificada',
         'Análisis comparativo de mercado',
-        'Informe detallado escrito',
-        'Validez legal y bancaria',
+        'Informe detallado',
         'Actualización de valores'
-      ],
-      beneficios: [
-        'Valor real de mercado',
-        'Respaldo legal',
-        'Aceptado por bancos',
-        'Decisiones informadas'
       ],
       proceso: [
         'Inspección técnica',
@@ -122,12 +99,6 @@ const NuestrosServicios = () => {
         'Asesoramiento preventivo',
         'Representación legal'
       ],
-      beneficios: [
-        'Operaciones seguras',
-        'Sin riesgos legales',
-        'Documentación correcta',
-        'Tranquilidad total'
-      ],
       proceso: [
         'Consulta inicial',
         'Análisis del caso',
@@ -150,12 +121,6 @@ const NuestrosServicios = () => {
         'Gestión de AFIP',
         'Informes financieros'
       ],
-      beneficios: [
-        'Ahorro en impuestos',
-        'Cumplimiento normativo',
-        'Optimización fiscal',
-        'Gestión profesional'
-      ],
       proceso: [
         'Análisis fiscal',
         'Planificación tributaria',
@@ -171,18 +136,9 @@ const NuestrosServicios = () => {
       icono: Settings,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
-        'Administradores matriculados',
         'Gestión de expensas',
         'Mantenimiento preventivo',
-        'Control de proveedores',
         'Asambleas y reuniones',
-        'Informes mensuales'
-      ],
-      beneficios: [
-        'Propiedad bien mantenida',
-        'Gastos optimizados',
-        'Gestión transparente',
-        'Valor preservado'
       ],
       proceso: [
         'Diagnóstico inicial',
@@ -193,8 +149,6 @@ const NuestrosServicios = () => {
       link: '/servicios/administraciones'
     }
   ];
-
-// ...existing code...
 
   return (
     <div className="min-h-screen">
@@ -211,28 +165,8 @@ const NuestrosServicios = () => {
               Nuestros Servicios
             </h1>
             <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
-              Soluciones integrales para todas tus necesidades inmobiliarias, legales y contables
+              Soluciones integrales para tus necesidades inmobiliarias, legales y contables
             </p>
-            
-            {/* Stats rápidas */}
-            {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-2xl font-bold text-white">6</div>
-                <div className="text-sm text-white/80">Servicios Especializados</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-2xl font-bold text-white">24/7</div>
-                <div className="text-sm text-white/80">Soporte Disponible</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-2xl font-bold text-white">100%</div>
-                <div className="text-sm text-white/80">Profesional</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-2xl font-bold text-white">3+</div>
-                <div className="text-sm text-white/80">Años de Experiencia</div>
-              </div>
-            </div> */}
           </div>
         </div>
       </section>
@@ -240,18 +174,6 @@ const NuestrosServicios = () => {
       {/* Servicios Detallados */}
       <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
-              Servicios Completos
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Todo lo que necesitas en un solo lugar
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Cada servicio está diseñado para brindarte la mejor experiencia y resultados excepcionales
-            </p>
-          </div>
-
           <div className="space-y-16">
             {serviciosDetallados.map((servicio, index) => {
               const IconComponent = servicio.icono;
@@ -314,55 +236,6 @@ const NuestrosServicios = () => {
                         ))}
                       </div>
                     </div>
-
-                    <Button 
-                      asChild
-                      className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] transform hover:scale-105 transition-all duration-300"
-                    >
-                      <Link to={servicio.link}>
-                        Más información
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-
-                  {/* Visual/Beneficios */}
-                  <div className={!isEven ? 'lg:col-start-1 lg:row-start-1' : ''}>
-                    <Card className="bg-white border-0 shadow-2xl overflow-hidden">
-                      <CardContent className="p-8 relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 to-[#022550]/5"></div>
-                        
-                        <div className="relative z-10 text-center">
-                          <div className={`w-20 h-20 bg-gradient-to-r ${servicio.color} rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl`}>
-                            <IconComponent className="h-10 w-10 text-white" />
-                          </div>
-                          
-                          <h4 className="text-xl font-semibold text-gray-900 mb-6">
-                            Beneficios principales
-                          </h4>
-                          
-                          <div className="space-y-4">
-                            {servicio.beneficios.map((beneficio, idx) => (
-                              <div key={idx} className="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm">
-                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                  <Star className="h-4 w-4 text-green-600" />
-                                </div>
-                                <span className="text-gray-700 font-medium">{beneficio}</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="mt-8 p-4 bg-gradient-to-r from-[#ec520b]/10 to-[#022550]/10 rounded-xl">
-                            <div className="flex items-center justify-center space-x-2">
-                              <Users className="h-5 w-5 text-[#ec520b]" />
-                              <span className="text-sm font-medium text-gray-700">
-                                Atención personalizada garantizada
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
                   </div>
                 </div>
               );

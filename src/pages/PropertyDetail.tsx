@@ -29,27 +29,29 @@ const PropertyDetail = () => {
       <h1 className="text-3xl font-bold text-[#022550] mb-4">{propiedad.titulo}</h1>
       {/* Galería de imágenes, info completa, características, ubicación, etc. */}
       <div className="mb-6">
-        <img src={propiedad.imagenes_propiedad?.[0]?.url_imagen || '/placeholder.svg'} alt={propiedad.titulo} className="w-full h-72 object-cover rounded-lg" />
+        <img src={Array.isArray(propiedad.imagenes_propiedad) && propiedad.imagenes_propiedad.length > 0 ? (propiedad.imagenes_propiedad.find((img: any) => img.es_principal)?.url_imagen || propiedad.imagenes_propiedad[0]?.url_imagen) : '/placeholder.svg'} alt={propiedad.titulo} className="w-full h-72 object-cover rounded-lg" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <div className="text-lg font-semibold mb-2">Descripción</div>
-          <div className="text-gray-700 whitespace-pre-line">{propiedad.descripcion}</div>
+          <div className="text-gray-700 whitespace-pre-line">{propiedad.descripcion || 'Sin descripción'}</div>
         </div>
         <div>
           <div className="text-lg font-semibold mb-2">Características</div>
           <ul className="list-disc pl-5 text-gray-700">
-            {propiedad.caracteristicas?.map((c: any) => <li key={c.id}>{c.nombre}</li>)}
+            {Array.isArray(propiedad.propiedades_caracteristicas) && propiedad.propiedades_caracteristicas.length > 0
+              ? propiedad.propiedades_caracteristicas.map((c: any) => <li key={c.caracteristicas?.id}>{c.caracteristicas?.nombre || 'Sin nombre'}</li>)
+              : <li>Sin características</li>}
           </ul>
         </div>
       </div>
       <div className="mb-4">
         <div className="text-lg font-semibold">Ubicación</div>
-        <div className="text-gray-700">{propiedad.ubicaciones?.ciudad}, {propiedad.ubicaciones?.provincia}</div>
+        <div className="text-gray-700">{propiedad.ubicaciones?.ciudad || 'Sin ciudad'}, {propiedad.ubicaciones?.provincia || 'Sin provincia'}</div>
       </div>
       <div className="mb-4">
         <div className="text-lg font-semibold">Info adicional</div>
-        <div className="text-gray-700 whitespace-pre-line">{propiedad.info_adicional}</div>
+        <div className="text-gray-700 whitespace-pre-line">{propiedad.info_adicional || 'No hay información adicional'}</div>
       </div>
     </section>
   );

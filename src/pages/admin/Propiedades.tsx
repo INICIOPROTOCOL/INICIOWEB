@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
 import { 
@@ -10,7 +11,6 @@ import {
   Camera, 
   DollarSign, 
   Tag, 
-  Loader2,
   Save,
   X,
   Building,
@@ -20,6 +20,7 @@ import {
   Upload,
   Image as ImageIcon
 } from 'lucide-react';
+import Loader from '@/components/ui/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { uploadImageToSupabase } from '@/lib/uploadImage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -123,6 +125,8 @@ interface PropiedadForm {
 }
 
 const Propiedades: React.FC = () => {
+  // Hook de autenticación debe ir aquí
+  const { user: authUser } = useAuth();
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -130,8 +134,40 @@ const Propiedades: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const { showToast } = useToast();
 
-  // Estado para el agente actual (luego se puede integrar con autenticación)
-  const [agenteActual] = useState<number>(1); // Aseguramos que sea number
+  // Estado para el agente actual (id de la tabla usuarios)
+  const [agenteActual, setAgenteActual] = useState<number | null>(null);
+
+  // Obtener el usuario logueado de Supabase Auth y buscar su id en la tabla usuarios
+  useEffect(() => {
+    const fetchAgenteId = async () => {
+      try {
+        // Obtener email del usuario autenticado desde el contexto
+        const email = authUser?.email;
+        console.log('[DEBUG] Email obtenido de useAuth:', email);
+        if (!email) {
+          console.error('[DEBUG] No se encontró email en el usuario autenticado');
+          return;
+        }
+        // Consultar el id en la tabla usuarios (backend debe exponer este endpoint)
+        const url = `${API_URL}/usuarios/by-email?email=${encodeURIComponent(email)}`;
+        console.log('[DEBUG] Consultando backend:', url);
+        const res = await axios.get(url);
+        console.log('[DEBUG] Respuesta backend usuarios/by-email:', res.data);
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setAgenteActual(res.data[0].id);
+          console.log('[DEBUG] agenteActual seteado:', res.data[0].id);
+        } else if (res.data && res.data.id) {
+          setAgenteActual(res.data.id);
+          console.log('[DEBUG] agenteActual seteado:', res.data.id);
+        } else {
+          console.error('[DEBUG] No se encontró usuario en la respuesta del backend');
+        }
+      } catch (err) {
+        console.error('[DEBUG] Error al obtener agente_id:', err);
+      }
+    };
+    fetchAgenteId();
+  }, []);
   
   // Estado para drag & drop
   const [isDragging, setIsDragging] = useState(false);
@@ -294,30 +330,27 @@ const Propiedades: React.FC = () => {
   // Filtrar propiedades
   const propiedadesFiltradas = propiedades.filter(propiedad => {
     // Filtro por tipo de propiedad
-    if (filtroTipo && filtroTipo !== 'todos' && propiedad.tipo_propiedad_id.toString() !== filtroTipo) {
+    if (filtroTipo && filtroTipo !== 'todos' && propiedad.tipo_propiedad_id?.toString() !== filtroTipo) {
       return false;
     }
-    
     // Filtro por tipo de operación
     if (filtroOperacion && filtroOperacion !== 'todas') {
-      const tieneOperacion = propiedad.operaciones_propiedad?.some(
-        op => op.tipo_operacion_id.toString() === filtroOperacion
+      const tieneOperacion = Array.isArray(propiedad.operaciones_propiedad) && propiedad.operaciones_propiedad.some(
+        op => op.tipo_operacion_id?.toString() === filtroOperacion
       );
       if (!tieneOperacion) return false;
     }
-    
     // Filtro por búsqueda de texto
     if (busqueda) {
       const textoBusqueda = busqueda.toLowerCase();
-      const coincide = 
-        propiedad.titulo.toLowerCase().includes(textoBusqueda) ||
+      const coincide =
+        propiedad.titulo?.toLowerCase().includes(textoBusqueda) ||
         propiedad.descripcion?.toLowerCase().includes(textoBusqueda) ||
-        propiedad.direccion.toLowerCase().includes(textoBusqueda) ||
-        propiedad.ubicaciones?.ciudad.toLowerCase().includes(textoBusqueda) ||
-        propiedad.ubicaciones?.provincia.toLowerCase().includes(textoBusqueda);
+        propiedad.direccion?.toLowerCase().includes(textoBusqueda) ||
+        propiedad.ubicaciones?.ciudad?.toLowerCase().includes(textoBusqueda) ||
+        propiedad.ubicaciones?.provincia?.toLowerCase().includes(textoBusqueda);
       if (!coincide) return false;
     }
-    
     return true;
   });
 
@@ -430,7 +463,8 @@ const Propiedades: React.FC = () => {
     }));
   };
 
-  // Guardar propiedad
+
+  // Guardar propiedad (flujo: crear -> subir imágenes -> actualizar)
   const handleSave = async () => {
     if (!form.titulo || !form.direccion || !form.tipo_propiedad_id || !form.ubicacion_id) {
       showToast('Completa los campos obligatorios', 'error');
@@ -439,8 +473,25 @@ const Propiedades: React.FC = () => {
 
     setLoading(true);
     try {
-      // Payload simplificado que coincida exactamente con tu backend
-      const payload = {
+      console.log('[DEBUG] Valor de agenteActual al guardar:', agenteActual);
+      if (!agenteActual) {
+        showToast('No se pudo identificar el agente actual', 'error');
+        setLoading(false);
+        return;
+      }
+      // 1. Armar operaciones para el backend
+      const operacionesPayload = form.operaciones
+        .filter(op => op.tipo_operacion_id && op.precio)
+        .map(op => ({
+          tipo_operacion_id: parseInt(op.tipo_operacion_id),
+          precio: parseFloat(op.precio),
+          moneda: op.moneda || 'USD'
+        }));
+
+      // 2. Crear propiedad sin imágenes
+      let propiedadId = editingId;
+      let response;
+      const basePayload = {
         titulo: form.titulo,
         descripcion: form.descripcion || null,
         area_construida: form.area_construida ? parseFloat(form.area_construida) : null,
@@ -451,46 +502,52 @@ const Propiedades: React.FC = () => {
         direccion: form.direccion,
         tipo_propiedad_id: parseInt(form.tipo_propiedad_id),
         ubicacion_id: parseInt(form.ubicacion_id),
-        agente_id: agenteActual, // Usa el agente actual
-        caracteristicas_ids: form.caracteristicas || [],
-        // Solo para creación, incluir precio y moneda
-        ...(editingId ? {} : {
-          precio: form.operaciones.length > 0 ? parseFloat(form.operaciones[0].precio) || 0 : 0,
-          moneda: form.operaciones.length > 0 ? form.operaciones[0].moneda : 'USD',
-        })
+        agente_id: agenteActual,
+        caracteristicas: form.caracteristicas || [], 
+        operaciones: operacionesPayload
       };
 
-      console.log('🔍 Debug agente_id:', {
-        agenteActual,
-        tipoAgente: typeof agenteActual,
-        valorEnPayload: payload.agente_id
-      });
-
-      console.log('Payload enviado:', payload);
-
-      if (editingId) {
-        const response = await axios.put(`${API_URL}/propiedades/${editingId}`, payload);
-        console.log('Respuesta actualización:', response.data);
-        
-        // Subir imágenes si hay nuevas
-        if (form.imagenes.length > 0) {
-          await subirImagenes(editingId);
-        }
-        
-        showToast('Propiedad actualizada correctamente', 'success');
+      if (!editingId) {
+        response = await axios.post(`${API_URL}/propiedades`, basePayload);
+        propiedadId = response.data?.id;
       } else {
-        const response = await axios.post(`${API_URL}/propiedades`, payload);
-        console.log('Respuesta creación:', response.data);
-        
-        // Subir imágenes si hay y tenemos el ID de la propiedad creada
-        if (form.imagenes.length > 0 && response.data?.id) {
-          await subirImagenes(response.data.id);
-        }
-        
-        showToast('Propiedad creada correctamente', 'success');
+        response = await axios.put(`${API_URL}/propiedades/${editingId}`, basePayload);
       }
 
-      // Recargar lista con formato directo
+      // 3. Subir imágenes a Supabase con el ID real
+      const imagenesPayload = [];
+      if (form.imagenes.length > 0 && propiedadId) {
+        for (let i = 0; i < form.imagenes.length; i++) {
+          const file = form.imagenes[i];
+          const url = await uploadImageToSupabase(file, propiedadId);
+          imagenesPayload.push({
+            url: url,
+            esPrincipal: i === 0,
+            orden: i
+          });
+        }
+      }
+      // Si hay imágenes existentes (en edición), agregarlas al payload
+      if (form.imagenesExistentes && form.imagenesExistentes.length > 0) {
+        form.imagenesExistentes.forEach((url, idx) => {
+          imagenesPayload.push({
+            url: url,
+            esPrincipal: imagenesPayload.length === 0 && idx === 0,
+            orden: imagenesPayload.length + idx
+          });
+        });
+      }
+
+      // 4. Actualizar propiedad con imágenes si corresponde
+      if (imagenesPayload.length > 0 && propiedadId) {
+        await axios.put(`${API_URL}/propiedades/${propiedadId}`, {
+          ...basePayload,
+          imagenes: imagenesPayload
+        });
+      }
+
+      showToast(editingId ? 'Propiedad actualizada correctamente' : 'Propiedad creada correctamente', 'success');
+      // Recargar lista
       const res = await axios.get(`${API_URL}/propiedades`);
       setPropiedades(res.data || []);
       resetForm();
@@ -501,63 +558,43 @@ const Propiedades: React.FC = () => {
     setLoading(false);
   };
 
-  // Subir imágenes
-  const subirImagenes = async (propiedadId: number) => {
-    if (form.imagenes.length === 0) return;
-
-    try {
-      const formData = new FormData();
-      
-      // Agregar todas las imágenes al FormData
-      form.imagenes.forEach((imagen, index) => {
-        formData.append('imagenes', imagen);
-      });
-
-      const response = await axios.post(
-        `${API_URL}/propiedades/${propiedadId}/imagenes`, 
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-
-      console.log('Imágenes subidas:', response.data);
-    } catch (error) {
-      console.error('Error al subir imágenes:', error);
-      showToast('Error al subir las imágenes', 'error');
-    }
-  };
+  // El flujo de imágenes ahora está integrado en handleSave
+  // (subirImagenes eliminado)
 
   // Editar propiedad
   const handleEdit = (propiedad: Propiedad) => {
     setForm({
-      titulo: propiedad.titulo,
+      titulo: propiedad.titulo || '',
       descripcion: propiedad.descripcion || '',
       area_construida: propiedad.area_construida?.toString() || '',
       area_total: propiedad.area_total?.toString() || '',
       habitaciones: propiedad.habitaciones?.toString() || '',
       banos: propiedad.banos?.toString() || '',
       garages: propiedad.garages?.toString() || '',
-      direccion: propiedad.direccion,
+      direccion: propiedad.direccion || '',
       latitud: propiedad.latitud?.toString() || '',
       longitud: propiedad.longitud?.toString() || '',
       estado_propiedad: propiedad.estado_propiedad || 'disponible',
-      tipo_propiedad_id: propiedad.tipo_propiedad_id.toString(),
-      ubicacion_id: propiedad.ubicacion_id.toString(),
+      tipo_propiedad_id: propiedad.tipo_propiedad_id?.toString() || '',
+      ubicacion_id: propiedad.ubicacion_id?.toString() || '',
       superficie_lote: propiedad.superficie_lote?.toString() || '',
       frente: propiedad.frente?.toString() || '',
       fondo: propiedad.fondo?.toString() || '',
-      caracteristicas: propiedad.propiedades_caracteristicas?.map(pc => pc.caracteristicas.id) || [],
-      operaciones: propiedad.operaciones_propiedad?.map(op => ({
-        tipo_operacion_id: op.tipo_operacion_id.toString(),
-        precio: op.precio.toString(),
-        moneda: op.moneda,
-        disponible: op.disponible
-      })) || [{ tipo_operacion_id: '', precio: '', moneda: 'USD', disponible: true }],
+      caracteristicas: Array.isArray(propiedad.propiedades_caracteristicas)
+        ? propiedad.propiedades_caracteristicas.map(pc => pc.caracteristicas?.id).filter(Boolean)
+        : [],
+      operaciones: Array.isArray(propiedad.operaciones_propiedad)
+        ? propiedad.operaciones_propiedad.map(op => ({
+            tipo_operacion_id: op.tipo_operacion_id?.toString() || '',
+            precio: op.precio?.toString() || '',
+            moneda: op.moneda || 'USD',
+            disponible: op.disponible ?? true
+          }))
+        : [{ tipo_operacion_id: '', precio: '', moneda: 'USD', disponible: true }],
       imagenes: [],
-      imagenesExistentes: propiedad.imagenes_propiedad?.map(img => img.url_imagen) || []
+      imagenesExistentes: Array.isArray(propiedad.imagenes_propiedad)
+        ? propiedad.imagenes_propiedad.map(img => img.url_imagen)
+        : []
     });
     setEditingId(propiedad.id);
     setShowForm(true);
@@ -579,13 +616,8 @@ const Propiedades: React.FC = () => {
     setLoading(false);
   };
 
-  if (loadingData) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#ec520b]" />
-        <span className="ml-2 text-gray-600">Cargando datos...</span>
-      </div>
-    );
+  if (loadingData || loading) {
+    return <Loader text={loadingData ? 'Cargando datos...' : 'Guardando propiedad...'} color="#ec520b" />;
   }
 
   return (
@@ -1125,7 +1157,7 @@ const Propiedades: React.FC = () => {
                 className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white"
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader color="#fff" size={18} className="mr-2" text="" />
                 ) : (
                   <Save className="h-4 w-4 mr-2" />
                 )}

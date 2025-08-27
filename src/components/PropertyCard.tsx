@@ -31,8 +31,8 @@ const PropertyCard = ({
     <Card className="group hover:shadow-elegant transition-all duration-300 overflow-hidden border-border/50 bg-gradient-card">
       <div className="relative">
         <img 
-          src={image} 
-          alt={title}
+          src={image || '/placeholder.svg'} 
+          alt={title || 'Propiedad'}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-3 left-3 flex gap-2">
@@ -63,12 +63,12 @@ const PropertyCard = ({
             </h3>
             <div className="flex items-center text-muted-foreground text-sm">
               <MapPin className="h-4 w-4 mr-1" />
-              {location}
+              {location || 'Ubicación no informada'}
             </div>
           </div>
           
           <div className="text-2xl font-bold text-primary">
-            {price}
+            {price || 'Consultar precio'}
           </div>
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground">

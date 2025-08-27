@@ -105,7 +105,7 @@ const Home = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
             
             <div className="text-center mb-8 relative">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#ec520b] rounded-full mb-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-[#ec520b] rounded-full mb-4">
                 {/* logo de inicio */}
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
@@ -116,20 +116,22 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
-              {/* Card Solicitar Tasación */}
-              <div className="bg-[#ec520b] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
+            {/* Card Solicitar Tasación a lo ancho */}
+            <div className="w-full">
+              <div className="bg-[#ec520b] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300 w-full">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
-                <div className="relative z-10">
-                  <Calculator className="h-8 w-8 mb-4 text-white/90" />
-                  <h4 className="text-lg font-semibold mb-2">¿Estás buscando vender tu propiedad?</h4>
-                  <p className="text-white/80 text-sm mb-4">
-                    Solicita una tasación profesional
-                  </p>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <Calculator className="h-8 w-8 mb-4 text-white/90" />
+                    <h4 className="text-lg font-semibold mb-2">¿Estás buscando vender tu propiedad?</h4>
+                    <p className="text-white/80 text-sm mb-4 md:mb-0">
+                      Solicita una tasación profesional
+                    </p>
+                  </div>
                   <Button 
                     asChild
-                    className="w-full bg-white text-[#ec520b] hover:bg-gray-100 font-semibold shadow-lg"
+                    className="w-full md:w-auto bg-white text-[#ec520b] hover:bg-[#022550] hover:text-white font-semibold shadow-lg transition-all duration-300"
                   >
                     <Link to="/tasaciones">
                       Solicitar Tasación
@@ -173,7 +175,7 @@ const Home = () => {
             )}
           </div>
           <div className="text-center">
-            <Button className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] px-6 py-2 text-base sm:text-lg" asChild>
+            <Button className="bg-[#022550] hover:bg-[#ec520b] text-white px-6 py-2 text-base sm:text-lg font-semibold transition-all duration-300" asChild>
               <Link to="/propiedades">
                 Ver todas las propiedades
                 <ArrowRight className="ml-2 h-4 w-4" />

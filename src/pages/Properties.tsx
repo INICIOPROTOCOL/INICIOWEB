@@ -249,24 +249,35 @@ const Properties = () => {
               {propiedades
                 .filter(p =>
                   (!search || p.titulo.toLowerCase().includes(search.toLowerCase()) || p.direccion.toLowerCase().includes(search.toLowerCase())) &&
-                  (!tipo || p.tipos_propiedad.nombre === tipo) &&
-                  (!operacion || (p.operaciones_propiedad.length > 0 && p.operaciones_propiedad.some(op => op.tipos_operacion.nombre.toLowerCase() === operacion))) &&
+                  (!tipo || p.tipos_propiedad?.nombre === tipo) &&
+                  (!operacion || (Array.isArray(p.operaciones_propiedad) && p.operaciones_propiedad.length > 0 && p.operaciones_propiedad.some(op => op.tipos_operacion?.nombre?.toLowerCase() === operacion))) &&
                   (!habitaciones || (habitaciones === '4+' ? (p.habitaciones || 0) >= 4 : p.habitaciones === Number(habitaciones)))
                 )
                 .map((property) => {
-                  // Obtener precio y tipo de operación
-                  const operacion = property.operaciones_propiedad[0];
-                  const precio = operacion ? `$${operacion.precio.toLocaleString()} ${operacion.moneda}` : 'Consultar precio';
-                  const tipoOperacion = operacion ? operacion.tipos_operacion.nombre.toLowerCase() : 'venta';
-                  
+                  // Obtener operaciones de la propiedad
+                  const operaciones = Array.isArray(property.operaciones_propiedad) ? property.operaciones_propiedad : [];
+                  // Si hay más de una operación, priorizar 'venta' sobre 'alquiler', o mostrar ambas
+                  let tipoOperacion: 'venta' | 'alquiler' = 'venta';
+                  let precio = 'Consultar precio';
+                  if (operaciones.length > 0) {
+                    // Buscar si hay venta y alquiler
+                    const opVenta = operaciones.find(op => op.tipos_operacion?.nombre?.toLowerCase() === 'venta');
+                    const opAlquiler = operaciones.find(op => op.tipos_operacion?.nombre?.toLowerCase() === 'alquiler');
+                    let opPrincipal = opVenta || opAlquiler || operaciones[0];
+                    tipoOperacion = opPrincipal.tipos_operacion?.nombre?.toLowerCase() === 'alquiler' ? 'alquiler' : 'venta';
+                    precio = opPrincipal && opPrincipal.precio != null ? `$${Number(opPrincipal.precio).toLocaleString()} ${opPrincipal.moneda || ''}` : 'Consultar precio';
+                  }
+
                   // Obtener imagen principal
-                  const imagenPrincipal = property.imagenes_propiedad.find(img => img.es_principal)?.url_imagen || 
-                                          property.imagenes_propiedad[0]?.url_imagen || 
-                                          '/placeholder.svg';
-                  
+                  const imagenPrincipal = Array.isArray(property.imagenes_propiedad) && property.imagenes_propiedad.length > 0
+                    ? (property.imagenes_propiedad.find(img => img.es_principal)?.url_imagen || property.imagenes_propiedad[0]?.url_imagen || '/placeholder.svg')
+                    : '/placeholder.svg';
+
                   // Crear ubicación completa
-                  const ubicacionCompleta = `${property.ubicaciones.ciudad}, ${property.ubicaciones.provincia}`;
-                  
+                  const ubicacionCompleta = property.ubicaciones?.ciudad && property.ubicaciones?.provincia
+                    ? `${property.ubicaciones.ciudad}, ${property.ubicaciones.provincia}`
+                    : 'Ubicación no informada';
+
                   return (
                     <div key={property.id}>
                       <PropertyCard 
@@ -277,7 +288,7 @@ const Properties = () => {
                         bedrooms={property.habitaciones || 0}
                         bathrooms={property.banos || 0}
                         area={property.area_construida || 0}
-                        type={tipoOperacion as 'venta' | 'alquiler'}
+                        type={tipoOperacion}
                         image={imagenPrincipal}
                         featured={false}
                       />

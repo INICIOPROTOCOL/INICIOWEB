@@ -28,7 +28,7 @@ const SearchForm = () => {
               variant={operationType === 'compra' ? 'default' : 'outline'}
               onClick={() => setOperationType('compra')}
               className={`${operationType === 'compra' 
-                ? 'bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] text-white' 
+                ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
                 : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
               } transition-all duration-200`}
             >
@@ -38,7 +38,7 @@ const SearchForm = () => {
               variant={operationType === 'alquiler' ? 'default' : 'outline'}
               onClick={() => setOperationType('alquiler')}
               className={`${operationType === 'alquiler' 
-                ? 'bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] text-white' 
+                ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
                 : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
               } transition-all duration-200`}
             >
@@ -93,7 +93,7 @@ const SearchForm = () => {
       {/* Botón de Búsqueda */}
       <div className="flex-1 flex items-end justify-center md:justify-start">
         <Button 
-          className="w-full max-w-xs md:max-w-none bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-10"
+          className="w-full max-w-xs md:max-w-none bg-[#022550] hover:bg-[#ec520b] text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-10 font-semibold"
           size="default"
         >
           <Search className="h-4 w-4 mr-2" />

@@ -112,61 +112,51 @@ const ContactForm = ({
 
         <div className={`grid grid-cols-1 ${showContactInfo ? 'lg:grid-cols-3' : ''} gap-8`}>
           {/* Información de contacto */}
-          {showContactInfo && (
-            <div className="lg:col-span-1">
-              <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                    Información de Contacto
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">
-                        <Phone className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Teléfono</div>
-                        <div className="text-gray-600">+54 3515155669</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">
-                        <Mail className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Email</div>
-                        <div className="text-gray-600">inicio.inmob@gmail.com</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">
-                        <MapPin className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Ubicación</div>
-                        <div className="text-gray-600">Villa Allende, Córdoba</div>
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-gray-200">
-                      <a 
-                        href="https://wa.me/5491123456789" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-300 font-semibold"
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+{showContactInfo && (
+  <div className="lg:col-span-1">
+    <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl">
+      <CardContent className="p-6">
+        <h3 className="text-xl font-semibold text-gray-900 mb-6">
+          Información de Contacto
+        </h3>
+        <div className="space-y-4">
+          {/* Teléfono */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-[#ec520b] rounded-full flex items-center justify-center flex-shrink-0">
+              <Phone className="h-5 w-5 text-white" />
             </div>
-          )}
+            <div className="min-w-0">
+              <div className="font-medium text-[#022550]">Teléfono</div>
+              <div className="text-[#ec520b] font-semibold">+54 3515155669</div>
+            </div>
+          </div>
+          {/* Email */}
+          <div className="flex items-center space-x-3">
+            <div className="w-11 h-11 bg-[#022550] rounded-full flex items-center justify-center flex-shrink-0">
+              <Mail className="h-5 w-5 text-white" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium text-[#022550]">Email</div>
+              <div className="text-[#ec520b] font-semibold break-words">inicio.inmob@gmail.com</div>
+            </div>
+          </div>
+          {/* WhatsApp */}
+          <div className="pt-4 border-t border-gray-200">
+            <a 
+              href="https://wa.me/5491123456789" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-300 font-semibold"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)}
 
           {/* Formulario */}
           <div className={showContactInfo ? 'lg:col-span-2' : ''}>
@@ -292,7 +282,7 @@ const ContactForm = ({
                     <Button 
                       type="submit"
                       size="lg"
-                      className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] text-white font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                      className="w-full sm:w-auto px-8 py-3 bg-[#ec520b] hover:bg-[#022550] text-white font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
                     >
                       Enviar Consulta
                       <ArrowRight className="ml-2 h-5 w-5" />

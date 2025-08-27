@@ -18,8 +18,6 @@ This is a React/TypeScript real estate website for "INICIO" - a comprehensive re
 ### Brand Colors
 - **Primary Blue**: `#022550` - Usado para headers, botones primarios, branding principal
 - **Accent Orange**: `#ec520b` - Usado para CTAs, highlights, hover states
-- **Gradient Blue**: `from-[#022550] to-[#033366]` (variación de azul)
-- **Gradient Orange**: `from-[#ec520b] to-[#ff6b1a]` (variación de naranja)
 
 
 ### Visual Hierarchy

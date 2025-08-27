@@ -18,13 +18,13 @@ const Nosotros = () => {
   
     const empresaData = {
     lema: " En INICIO NEGOCIOS INMOBILIARIOS, nos enorgullecemos de asesorar a nuestros clientes en sus objetivos, brindando facilidades para concretar sus operaciones",
-    quienesSomos: "Un equipo de profesionales dedicados a los servicios inmobiliarios en Villa Allende, Córdoba.",
+    quienesSomos: "Un equipo de profesionales dedicados a los servicios inmobiliarios en Villa Allende,Mendiolaza, alrededores en Sierras Chicas y Córdoba.",
     mision: "Acompañarte en cada paso de tus operaciones inmobiliarias, brindándote un servicio integral y de confianza. Por eso hemos creado un equipo que va más allá de lo tradicional, con un departamento de asesoría legal y contable para resolver todas tus inquietudes.",
-    vision: "Ser la inmobiliaria de referencia,reconocida por nuestra integridad,profesionalismo y por la excelencia en el servicio al cliente.Buscamos ser el socio de confianza para quienes nos eligen y acompañan en cada operación",
+    vision: "Ser la inmobiliaria de referencia,reconocida por nuestra integridad,profesionalismo y por la excelencia en el servicio al cliente.Buscamos ser la guia de confianza para quienes nos eligen.",
     valores: [
       {
         titulo: "Transparencia",
-        descripcion: " Comprometidos a mantener una comunicación clara y honesta en cada proceso, logrando la tranquilidad de nuestros clientes",
+        descripcion: " Comprometidos a una comunicación clara en todo proceso, logrando la tranquilidad a la hora de confiar en nosotros.",
         icono: Shield
       },
       {
@@ -48,7 +48,7 @@ const Nosotros = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[40vh] sm:min-h-[35vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/90 via-[#022550]/70 to-[#ec520b]/30"></div>
@@ -61,9 +61,6 @@ const Nosotros = () => {
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Nosotros
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
-              {empresaData.lema}
-            </p>
           </div>
         </div>
       </section>
@@ -84,9 +81,9 @@ const Nosotros = () => {
               </p>
               
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-white" />
-                </div>
+                <div className="w-12 h-12 bg-[#ec520b] rounded-full flex items-center justify-center">
+  <Calendar className="h-6 w-6 text-white" />
+</div>
                 <div>
                   <div className="font-semibold text-gray-900">Fundada en {empresaData.fundacion.año}</div>
                   <div className="text-gray-600 text-sm">{empresaData.fundacion.historia}</div>
@@ -127,7 +124,8 @@ const Nosotros = () => {
                 Nuestra Visión
               </Badge>
               
-              <div className="w-20 h-20 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mx-auto mb-6">
+              {/* Icono centrado, estilo "Nuestra Misión" */}
+              <div className="w-20 h-20 bg-[#022550] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Eye className="h-10 w-10 text-white" />
               </div>
               
@@ -150,12 +148,6 @@ const Nosotros = () => {
             <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
               Nuestros Valores
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Los pilares que nos definen
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Estos valores guían cada decisión que tomamos y cada servicio que brindamos
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -169,10 +161,11 @@ const Nosotros = () => {
                 >
                   <CardContent className="p-6 text-center relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 to-[#022550]/5"></div>
-                    <div className="relative z-10">
-                      <div className="w-16 h-16 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <IconComponent className="h-8 w-8 text-white" />
-                      </div>
+                    <div className="relative z-10 flex flex-col items-center">
+                      {/* Icono centrado, estilo "Nuestra Misión" */}
+                      <div className="w-12 h-12 bg-[#ec520b] rounded-full flex items-center justify-center mb-4 shadow-lg mx-auto">
+  <IconComponent className="h-6 w-6 text-white" />
+</div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-3">
                         {valor.titulo}
                       </h3>

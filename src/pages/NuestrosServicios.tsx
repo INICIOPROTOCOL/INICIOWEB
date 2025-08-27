@@ -154,7 +154,7 @@ const NuestrosServicios = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[40vh] sm:min-h-[35vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/90 via-[#022550]/70 to-[#ec520b]/30"></div>
@@ -172,21 +172,19 @@ const NuestrosServicios = () => {
       </section>
 
       {/* Servicios Detallados */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12">
             {serviciosDetallados.map((servicio, index) => {
               const IconComponent = servicio.icono;
-              const isEven = index % 2 === 0;
-              
               return (
                 <div 
                   key={servicio.id}
                   id={servicio.id}
-                  className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${!isEven ? 'lg:grid-flow-dense' : ''} scroll-mt-20`}
+                  className="flex flex-col justify-between h-full scroll-mt-20"
                 >
                   {/* Contenido */}
-                  <div className={`space-y-6 ${!isEven ? 'lg:col-start-2' : ''}`}>
+                  <div className="space-y-5 sm:space-y-6">
                     <div className="flex items-center space-x-4">
                       <div className={`w-16 h-16 bg-gradient-to-r ${servicio.color} rounded-2xl flex items-center justify-center shadow-lg`}>
                         <IconComponent className="h-8 w-8 text-white" />
@@ -200,14 +198,13 @@ const NuestrosServicios = () => {
                         </p>
                       </div>
                     </div>
-
                     {/* Características */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
                       <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
                         ¿Qué incluye?
                       </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                         {servicio.caracteristicas.map((caracteristica, idx) => (
                           <div key={idx} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
@@ -216,13 +213,12 @@ const NuestrosServicios = () => {
                         ))}
                       </div>
                     </div>
-
                     {/* Proceso */}
-                    <div className="bg-gradient-to-r from-[#ec520b]/5 to-[#022550]/5 rounded-2xl p-6">
+                    <div className="bg-gradient-to-r from-[#ec520b]/5 to-[#022550]/5 rounded-2xl p-4 sm:p-6">
                       <h4 className="font-semibold text-gray-900 mb-4">
                         Proceso de trabajo
                       </h4>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
                         {servicio.proceso.map((paso, idx) => (
                           <div key={idx} className="flex items-center space-x-2">
                             <div className="w-6 h-6 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">

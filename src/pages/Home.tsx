@@ -7,53 +7,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Key, Calculator, Gavel, Users, Star, Award, TrendingUp, CheckCircle, MessageCircle, Building, Car, Scale, FileText, Settings, Phone, Mail, User, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import heroImage from '@/assets/hero-bg.jpg';
-import property1 from '@/assets/property-1.jpg';
-import property2 from '@/assets/property-2.jpg';
-import property3 from '@/assets/property-3.jpg';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
+import heroImage from '@/assets/hero-bg.jpg';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const Home = () => {
-  // Scroll to top on mount
   useScrollToTop();
-  const featuredProperties = [
-    {
-      id: '1',
-      title: 'Casa Moderna en Palermo',
-      price: '$350.000',
-      location: 'Palermo, CABA',
-      bedrooms: 3,
-      bathrooms: 2,
-      area: 120,
-      type: 'venta' as const,
-      image: property1,
-      featured: true
-    },
-    {
-      id: '2',
-      title: 'Departamento Premium',
-      price: '$180.000/mes',
-      location: 'Puerto Madero, CABA',
-      bedrooms: 2,
-      bathrooms: 2,
-      area: 85,
-      type: 'alquiler' as const,
-      image: property2,
-      featured: true
-    },
-    {
-      id: '3',
-      title: 'Oficina Corporativa',
-      price: '$450.000',
-      location: 'Microcentro, CABA',
-      bedrooms: 0,
-      bathrooms: 4,
-      area: 200,
-      type: 'venta' as const,
-      image: property3
-    }
-  ];
+  const [featuredProperties, setFeaturedProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API_URL}/propiedades?destacada=true&limit=3`);
+        setFeaturedProperties(response.data.data || []);
+      } catch (error) {
+        setFeaturedProperties([]);
+      }
+      setLoading(false);
+    };
+    fetchFeatured();
+  }, []);
 
   const services = [
     {
@@ -94,12 +72,11 @@ const Home = () => {
     }
   ];
 
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[60vh] sm:min-h-[55vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
@@ -120,15 +97,15 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Sección de Invitación con Botones */}
+      {/* Sección de Invitación (más ancha y sin mezcla de gradientes) */}
       <section className="py-8 sm:py-12 bg-gradient-to-b from-gray-50 to-white relative">        
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-            {/* Gradient overlay sutil */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-8 lg:px-16 relative">
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-4 sm:p-10 shadow-xl relative overflow-hidden">
+            {/* Overlay sutil */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
             
             <div className="text-center mb-8 relative">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full mb-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#ec520b] rounded-full mb-4">
                 {/* logo de inicio */}
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
@@ -140,30 +117,8 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
-              {/* Card Ver Propiedades */}
-              {/* <div className="bg-gradient-to-br from-[#022550] to-[#033366] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
-                <div className="relative z-10">
-                  <Search className="h-8 w-8 mb-4 text-white/90" />
-                  <h4 className="text-lg font-semibold mb-2">¿Buscas tu hogar ideal?</h4>
-                  <p className="text-white/80 text-sm mb-4">
-                    Explora nuestra selección de propiedades exclusivas
-                  </p>
-                  <Button 
-                    asChild
-                    className="w-full bg-white text-[#022550] hover:bg-gray-100 font-semibold shadow-lg"
-                  >
-                    <Link to="/propiedades">
-                      Ver Propiedades
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </div> */}
-
               {/* Card Solicitar Tasación */}
-              <div className="bg-gradient-to-br from-[#ec520b] to-[#ff6b1a] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
+              <div className="bg-[#ec520b] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
                 <div className="relative z-10">
@@ -189,32 +144,36 @@ const Home = () => {
       </section>
 
       {/* Featured Properties */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <Badge variant="outline" className="mb-4">Propiedades Destacadas</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-6 sm:mb-10">
+            <Badge variant="outline" className="mb-2">Propiedades Destacadas</Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
               Las mejores oportunidades del mercado
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-xs sm:text-base">
               Descubre una selección exclusiva de propiedades premium, cuidadosamente elegidas por nuestro equipo de expertos.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {featuredProperties.map((property, index) => (
-              <div 
-                key={property.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <PropertyCard {...property} />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="h-56 sm:h-64 bg-gray-100 rounded-xl animate-pulse" />
+              ))
+            ) : (
+              featuredProperties.map((property: any, index: number) => (
+                <div 
+                  key={property.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                >
+                  <PropertyCard {...property} />
+                </div>
+              ))
+            )}
           </div>
-          
           <div className="text-center">
-            <Button className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b]" asChild>
+            <Button className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] px-6 py-2 text-base sm:text-lg" asChild>
               <Link to="/propiedades">
                 Ver todas las propiedades
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -225,47 +184,40 @@ const Home = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 sm:py-16 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-        
+      <section className="py-8 sm:py-12 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-8 sm:mb-12">
-            <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
+          <div className="text-center mb-6 sm:mb-10">
+            <Badge variant="outline" className="mb-2 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
               Nuestros Servicios
             </Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
               Soluciones inmobiliarias integrales
             </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto text-sm sm:text-base mb-6">
+            <p className="text-gray-600 max-w-3xl mx-auto text-xs sm:text-base mb-4">
               Ofrecemos un servicio completo que abarca todas tus necesidades inmobiliarias, legales y contables
             </p>
           </div>
-
           <div className="flex justify-center">
-            <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl p-4 sm:p-6 w-full max-w-5xl relative overflow-hidden">
+            <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl p-2 sm:p-4 w-full max-w-5xl relative overflow-hidden">
               {/* Gradient overlay interno */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#ec520b]/10 rounded-3xl"></div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 relative">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 relative">
                 {services.map((service, index) => {
                   const IconComponent = service.icon;
                   return (
                     <Link key={service.title} to={service.href} className="group">
-                      <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#ec520b] hover:to-[#ff6b1a] hover:text-white hover:shadow-xl hover:scale-105 min-h-[140px] sm:min-h-[160px] border border-transparent hover:border-white/20">
-                        
+                      <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all duration-300 hover:bg-[#ec520b] hover:text-white hover:shadow-xl hover:scale-105 min-h-[140px] sm:min-h-[160px] border border-transparent hover:border-white/20">
                         {/* Icono: Naranja normal, Azul corporativo en hover para contraste */}
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] group-hover:bg-gradient-to-r group-hover:from-[#022550] group-hover:to-[#033366] rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#ec520b] group-hover:bg-[#022550] rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-lg group-hover:shadow-xl">
                           <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-white transition-colors duration-300" />
                         </div>
-                        
                         <span className="text-sm sm:text-base font-semibold text-gray-800 group-hover:text-white transition-colors text-center mb-2">
                           {service.title}
                         </span>
-                        
                         <span className="text-xs text-gray-500 group-hover:text-white/80 text-center px-2 leading-tight">
                           {service.description}
                         </span>
-                        
-                        {/* Indicador de "más info" */}
                         <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <ArrowRight className="h-4 w-4 text-white/80" />
                         </div>
@@ -274,8 +226,6 @@ const Home = () => {
                   );
                 })}
               </div>
-              
-              {/* Nota informativa */}
               <div className="text-center mt-6 pt-4 border-t border-gray-200/50">
                 <p className="text-xs text-gray-500">
                   <CheckCircle className="inline h-3 w-3 mr-1 text-green-500" />
@@ -290,9 +240,7 @@ const Home = () => {
       {/* Contact Section - Usando ContactForm reutilizable */}
       <div className="relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `linear-gradient(rgba(2, 37, 80, 0.85), rgba(236, 82, 11, 0.15)), url(${heroImage})` }}>
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/80 via-[#022550]/60 to-[#ec520b]/40"></div>
-        
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16 sm:py-20">
-          {/* Header personalizado para mantener el estilo original */}
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
               Contacto
@@ -311,8 +259,6 @@ const Home = () => {
               <span>o completar el siguiente formulario</span>
             </div>
           </div>
-
-          {/* Formulario reutilizable sin el header */}
           <ContactForm 
             showContactInfo={false}
             showHeader={false}
@@ -331,8 +277,6 @@ const Home = () => {
           aria-label="Contactar por WhatsApp"
         >
           <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8" />
-          
-          {/* Tooltip de información */}
           <span className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
             ¡Contáctanos por WhatsApp!
             <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>

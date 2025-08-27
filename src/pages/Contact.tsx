@@ -27,7 +27,7 @@ const Contact = () => {
   const contactInfo = {
     telefono: '+54 3515155669',
     email: 'inicio.inmob@gmail.com',
-    ubicacion: 'Villa Allende, Córdoba',
+    ubicacion: 'Mendiolaza, Córdoba',
     horarios: {
       semana: 'Lun - Vie: 9:00 - 18:00',
       sabado: 'Sábados: 9:00 - 13:00',
@@ -62,22 +62,16 @@ const Contact = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[40vh] sm:min-h-[35vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/90 via-[#022550]/70 to-[#ec520b]/30"></div>
         
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
-            <Badge variant="outline" className="mb-6 bg-white/20 text-white border-white/30">
-              Estamos para ayudarte
-            </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Contacto
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
-              Nuestro equipo de expertos está listo para ayudarte a encontrar la propiedad perfecta o resolver todas tus consultas inmobiliarias
-            </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -112,103 +106,73 @@ const Contact = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Elige la forma que prefieras
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Estamos disponibles por diferentes medios para brindarte la mejor atención
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {/* Teléfono */}
-            <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
+            <Card className="bg-[#fff7f2] border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 to-[#ec520b]/10 group-hover:from-[#ec520b]/10 group-hover:to-[#ec520b]/20 transition-all duration-300"></div>
-                
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <Phone className="h-8 w-8 text-white" />
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    Teléfono
-                  </h3>
-                  
-                  <p className="text-lg font-medium text-[#ec520b] mb-2">
-                    {contactInfo.telefono}
-                  </p>
-                  
-                  <p className="text-gray-600 text-sm mb-4">
-                    Línea directa para consultas
-                  </p>
-
-                  <a
-                    href={`tel:${contactInfo.telefono}`}
-                    className="inline-flex items-center text-[#ec520b] hover:text-[#022550] font-medium transition-colors"
-                  >
-                    Llamar ahora
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                <div className="w-16 h-16 bg-[#ec520b] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Phone className="h-8 w-8 text-white" />
                 </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  Teléfono
+                </h3>
+                <p className="text-lg font-medium text-[#ec520b] mb-2">
+                  {contactInfo.telefono}
+                </p>
+                <a
+                  href={`tel:${contactInfo.telefono}`}
+                  className="inline-flex items-center text-[#ec520b] hover:text-[#022550] font-medium transition-colors"
+                >
+                  Llamar ahora
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </CardContent>
             </Card>
 
             {/* Email */}
-            <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
+            <Card className="bg-[#f2f6fa] border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/5 to-[#022550]/10 group-hover:from-[#022550]/10 group-hover:to-[#022550]/20 transition-all duration-300"></div>
-                
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#022550] to-[#033366] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <Mail className="h-8 w-8 text-white" />
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    Email
-                  </h3>
-                  
-                  <p className="text-lg font-medium text-[#022550] mb-2">
-                    {contactInfo.email}
-                  </p>
-                  
-                  <p className="text-gray-600 text-sm mb-4">
-                    Respuesta en menos de 2 horas
-                  </p>
-
-                  <a
-                    href={`mailto:${contactInfo.email}`}
-                    className="inline-flex items-center text-[#022550] hover:text-[#ec520b] font-medium transition-colors"
-                  >
-                    Enviar email
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                <div className="w-16 h-16 bg-[#022550] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Mail className="h-8 w-8 text-white" />
                 </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  Email
+                </h3>
+                <p className="text-lg font-medium text-[#022550] mb-2">
+                  {contactInfo.email}
+                </p>
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="inline-flex items-center text-[#022550] hover:text-[#ec520b] font-medium transition-colors"
+                >
+                  Enviar email
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </CardContent>
             </Card>
 
             {/* Ubicación */}
             <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 group-hover:from-green-500/10 group-hover:to-green-500/20 transition-all duration-300"></div>
-                
+                <div className="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-all duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                     <MapPin className="h-8 w-8 text-white" />
                   </div>
-                  
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">
                     Oficina
                   </h3>
-                  
-                  <p className="text-lg font-medium text-green-600 mb-2">
+                  <p className="text-lg font-medium text-green-700 mb-2">
                     {contactInfo.ubicacion}
                   </p>
-                  
                   <p className="text-gray-600 text-sm mb-4">
                     Atención presencial con cita previa
                   </p>
-
                   <Button
                     variant="ghost"
-                    className="text-green-600 hover:text-green-700 font-medium p-0"
+                    className="text-green-700 hover:text-green-800 font-medium p-0"
                   >
                     Ver en mapa
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -218,76 +182,6 @@ const Contact = () => {
             </Card>
           </div>
 
-          {/* Horarios de atención */}
-          <div className="max-w-2xl mx-auto">
-            <Card className="bg-gradient-to-r from-[#ec520b]/5 to-[#022550]/5 border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <Clock className="h-6 w-6 text-[#ec520b] mr-2" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Horarios de Atención
-                  </h3>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                  <div className="p-3 bg-white/80 rounded-lg">
-                    <p className="font-medium text-gray-900">{contactInfo.horarios.semana}</p>
-                  </div>
-                  <div className="p-3 bg-white/80 rounded-lg">
-                    <p className="font-medium text-gray-900">{contactInfo.horarios.sabado}</p>
-                  </div>
-                  <div className="p-3 bg-white/80 rounded-lg">
-                    <p className="font-medium text-gray-600">{contactInfo.horarios.domingo}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Por qué elegirnos */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
-              ¿Por qué elegirnos?
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Lo que nos hace diferentes
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Nos comprometemos a brindarte el mejor servicio inmobiliario con atención personalizada
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {whyChooseUs.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <Card 
-                  key={item.title}
-                  className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <CardContent className="p-6 text-center relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 to-[#022550]/5"></div>
-                    <div className="relative z-10">
-                      <div className="w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <IconComponent className="h-6 w-6 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
         </div>
       </section>
 
@@ -347,7 +241,7 @@ const Contact = () => {
                 <Button 
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] transform hover:scale-105 transition-all duration-300"
+                  className="bg-[#022550] hover:bg-[#033366] text-white font-semibold transform hover:scale-105 transition-all duration-300"
                 >
                   <Link to="/nuestros-servicios">
                     Ver Nuestros Servicios

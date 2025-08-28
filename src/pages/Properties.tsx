@@ -3,7 +3,7 @@ import PropertyCard from '@/components/PropertyCard';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Home, Search } from 'lucide-react';
+import { MessageCircle, Home } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 
@@ -65,34 +65,36 @@ const Properties = () => {
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
   const [tipo, setTipo] = useState('');
   const [operacion, setOperacion] = useState('');
-  const [habitaciones, setHabitaciones] = useState('');
+  const [precioMin, setPrecioMin] = useState('');
+  const [precioMax, setPrecioMax] = useState('');
+  const [tiposPropiedad, setTiposPropiedad] = useState<{ id: number; nombre: string }[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<{ id: number; ciudad: string; provincia: string; pais: string; barrio?: string }[]>([]);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState('');
 
   useEffect(() => {
-    const fetchPropiedades = async () => {
+    const fetchAll = async () => {
       setLoading(true);
       setError(null);
-      
       try {
-        console.log('Intentando obtener propiedades desde:', `${API_URL}/propiedades`);
-        const response = await axios.get(`${API_URL}/propiedades`);
-        console.log('Respuesta del backend:', response.data);
-        
-        // Tu backend devuelve array directo
-        setPropiedades(response.data || []);
-        console.log('Propiedades finales cargadas:', response.data?.length || 0);
+        // Propiedades
+        const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
+        setPropiedades(propiedadesRes.data || []);
+        // Tipos de propiedad (igual que SearchForm)
+        const tiposRes = await axios.get(`${API_URL}/tipos`);
+        setTiposPropiedad(tiposRes.data || []);
+        // Ubicaciones (igual que admin/Ubicaciones)
+        const ubicacionesRes = await axios.get(`${API_URL}/ubicaciones`);
+        setUbicaciones(ubicacionesRes.data || []);
       } catch (error) {
-        console.error('Error al cargar propiedades:', error);
         setError(error instanceof Error ? error.message : 'Error desconocido');
         setPropiedades([]);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchPropiedades();
+    fetchAll();
   }, []);
 
   return (
@@ -128,104 +130,77 @@ const Properties = () => {
                   {/* Tipo de Operación */}
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      <span className="inline-flex items-center justify-center lg:justify-start">
-                        Operación
-                      </span>
+                      Operación
                     </label>
-                    <div className="flex justify-center lg:justify-start space-x-2">
-                      <Button
-                        variant={operacion === '' ? 'default' : 'outline'}
-                        onClick={() => setOperacion('')}
-                        className={`${operacion === '' 
-                          ? 'bg-[#022550] hover:bg-[#033366] text-white' 
-                          : 'bg-white/80 hover:bg-[#022550]/10 hover:border-[#022550]'
-                        } transition-all duration-200 text-xs`}
-                        size="sm"
-                      >
-                        Todas
-                      </Button>
-                      <Button
-                        variant={operacion === 'venta' ? 'default' : 'outline'}
-                        onClick={() => setOperacion('venta')}
-                        className={`${operacion === 'venta' 
-                          ? 'bg-[#022550] hover:bg-[#033366] text-white' 
-                          : 'bg-white/80 hover:bg-[#022550]/10 hover:border-[#022550]'
-                        } transition-all duration-200 text-xs`}
-                        size="sm"
-                      >
-                        Venta
-                      </Button>
-                      <Button
-                        variant={operacion === 'alquiler' ? 'default' : 'outline'}
-                        onClick={() => setOperacion('alquiler')}
-                        className={`${operacion === 'alquiler' 
-                          ? 'bg-[#022550] hover:bg-[#033366] text-white' 
-                          : 'bg-white/80 hover:bg-[#022550]/10 hover:border-[#022550]'
-                        } transition-all duration-200 text-xs`}
-                        size="sm"
-                      >
-                        Alquiler
-                      </Button>
-                    </div>
+                    <select
+                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                      value={operacion}
+                      onChange={e => setOperacion(e.target.value)}
+                    >
+                      <option value="">Todas</option>
+                      <option value="venta">Venta</option>
+                      <option value="alquiler">Alquiler</option>
+                    </select>
                   </div>
 
-                  {/* Tipo de Propiedad */}
+                  {/* Tipo de Propiedad dinámico (igual que SearchForm) */}
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      <span className="inline-flex items-center justify-center lg:justify-start">
-                        Tipo de Propiedad
-                      </span>
+                      Tipo de Propiedad
                     </label>
                     <select
                       className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
                       value={tipo}
                       onChange={e => setTipo(e.target.value)}
                     >
-                      <option value="">🏠 Todos los tipos</option>
-                      <option value="Casa">🏠 Casa</option>
-                      <option value="Departamento">🏢 Departamento</option>
-                      <option value="Cochera">🚗 Cochera</option>
-                      <option value="Terreno">🌿 Terreno</option>
+                      <option value="">Todos los tipos</option>
+                      {tiposPropiedad.map(tp => (
+                        <option key={tp.id} value={tp.nombre}>{tp.nombre}</option>
+                      ))}
                     </select>
                   </div>
 
-                  {/* Ubicación */}
+                  {/* Ubicación dinámico (igual que admin/Ubicaciones) */}
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      <span className="inline-flex items-center justify-center lg:justify-start">
-                        Ubicación
-                      </span>
-                    </label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 z-10" />
-                      <input
-                        type="text"
-                        placeholder="Buscar por ciudad o barrio"
-                        className="w-full pl-10 bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Precio */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      <span className="inline-flex items-center justify-center lg:justify-start">
-                        Dormitorios
-                      </span>
+                      Ubicación
                     </label>
                     <select
                       className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      value={habitaciones}
-                      onChange={e => setHabitaciones(e.target.value)}
+                      value={ubicacionSeleccionada}
+                      onChange={e => setUbicacionSeleccionada(e.target.value)}
                     >
-                      <option value="">🛏️ Todos</option>
-                      <option value="1">1 dormitorio</option>
-                      <option value="2">2 dormitorios</option>
-                      <option value="3">3 dormitorios</option>
-                      <option value="4">4+ dormitorios</option>
+                      <option value="">Todas las ubicaciones</option>
+                      {ubicaciones.map(ubi => (
+                        <option key={ubi.id} value={ubi.ciudad}>{ubi.ciudad} ({ubi.provincia})</option>
+                      ))}
                     </select>
+                  </div>
+
+                  {/* Precio compacto (rango en una sola línea) */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                      Precio (rango)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        className="w-1/2 bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                        placeholder="Mín"
+                        value={precioMin}
+                        onChange={e => setPrecioMin(e.target.value)}
+                        min={0}
+                      />
+                      <span className="self-center text-gray-400">-</span>
+                      <input
+                        type="number"
+                        className="w-1/2 bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                        placeholder="Máx"
+                        value={precioMax}
+                        onChange={e => setPrecioMax(e.target.value)}
+                        min={0}
+                      />
+                    </div>
                   </div>
 
                 </div>
@@ -244,23 +219,17 @@ const Properties = () => {
             <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
               {propiedades
                 .filter(p =>
-                  (!search || p.titulo.toLowerCase().includes(search.toLowerCase()) || p.direccion.toLowerCase().includes(search.toLowerCase())) &&
                   (!tipo || p.tipos_propiedad?.nombre === tipo) &&
                   (!operacion || (Array.isArray(p.operaciones_propiedad) && p.operaciones_propiedad.length > 0 && p.operaciones_propiedad.some(op => op.tipos_operacion?.nombre?.toLowerCase() === operacion))) &&
-                  (!habitaciones || (habitaciones === '4+' ? (p.habitaciones || 0) >= 4 : p.habitaciones === Number(habitaciones)))
+                  (!precioMin || (p.operaciones_propiedad?.[0]?.precio ?? 0) >= Number(precioMin)) &&
+                  (!precioMax || (p.operaciones_propiedad?.[0]?.precio ?? 0) <= Number(precioMax)) &&
+                  (!ubicacionSeleccionada || p.ubicaciones?.ciudad === ubicacionSeleccionada) 
                 )
-                .map((property, idx) => {
-
-                  return (
-                    <div key={property.id}>
-                      <PropertyCard
-                        // Pasa la propiedad completa como prop para debug y flexibilidad
-                        property={property}
-                        // Si quieres debug en la card, puedes agregar un prop onContact={() => console.log(property)}
-                      />
-                    </div>
-                  );
-                })}
+                .map((property, idx) => (
+                  <div key={property.id}>
+                    <PropertyCard property={property} />
+                  </div>
+                ))}
             </div>
           )}
 

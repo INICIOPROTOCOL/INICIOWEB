@@ -123,10 +123,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         </div>
         {/* Título */}
         <h3 className="font-semibold text-lg text-[#022550] line-clamp-1">{titulo}</h3>
-        {/* Descripción breve */}
-        {descripcion && (
-          <div className="text-sm text-gray-700 line-clamp-2">{descripcion}</div>
-        )}
         {/* Características principales */}
         <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
           {area && (

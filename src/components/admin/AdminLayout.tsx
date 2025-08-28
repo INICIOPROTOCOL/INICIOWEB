@@ -12,9 +12,9 @@ const AdminLayout: React.FC = () => {
         <div className="mb-8 text-2xl font-bold tracking-wide">INICIO CMS</div>
         <nav className="flex-1 space-y-2">
           <Link to="/admin" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Dashboard</Link>
-          <Link to="/admin/propiedades" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Propiedades</Link>
-          <Link to="/admin/contactos" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Contactos</Link>
-          <Link to="/admin/citas" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Citas</Link>
+          <Link to="/admin/propiedades"  className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Propiedades</Link>
+          {/* <Link to="/admin/contactos" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Contactos</Link>
+          <Link to="/admin/citas" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Citas</Link> */}
           <Link to="/admin/tipos" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Tipos de Propiedad</Link>
           <Link to="/admin/tipos-operacion" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Tipos de Operación</Link>
           <Link to="/admin/ubicaciones" className="block py-2 px-3 rounded hover:bg-[#ec520b] transition">Ubicaciones</Link>

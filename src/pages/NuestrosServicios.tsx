@@ -38,12 +38,6 @@ const NuestrosServicios = () => {
         'Asesoramiento legal incluido',
         'Gestión completa de documentación'
       ],
-      proceso: [
-        'Evaluación y tasación',
-        'Estrategia de marketing',
-        'Presentación a compradores',
-        'Negociación y cierre'
-      ],
       link: '/servicios/ventas'
     },
     {
@@ -56,12 +50,6 @@ const NuestrosServicios = () => {
         'Búsqueda personalizada de inquilinos',
         'Verificación de informes y garantías',
         'Gestión de contratos',
-      ],
-      proceso: [
-        'Análisis de la propiedad',
-        'Búsqueda de inquilinos',
-        'Evaluación y selección',
-        'Gestión administrativa'
       ],
       link: '/servicios/alquileres'
     },
@@ -76,12 +64,6 @@ const NuestrosServicios = () => {
         'Análisis comparativo de mercado',
         'Informe detallado',
         'Actualización de valores'
-      ],
-      proceso: [
-        'Inspección técnica',
-        'Análisis de mercado',
-        'Cálculo de valor',
-        'Entrega de informe'
       ],
       link: '/servicios/tasaciones'
     },
@@ -99,12 +81,6 @@ const NuestrosServicios = () => {
         'Asesoramiento preventivo',
         'Representación legal'
       ],
-      proceso: [
-        'Consulta inicial',
-        'Análisis del caso',
-        'Estrategia legal',
-        'Ejecución y seguimiento'
-      ],
       link: '/servicios/legales'
     },
     {
@@ -121,12 +97,6 @@ const NuestrosServicios = () => {
         'Gestión de AFIP',
         'Informes financieros'
       ],
-      proceso: [
-        'Análisis fiscal',
-        'Planificación tributaria',
-        'Gestión de trámites',
-        'Seguimiento continuo'
-      ],
       link: '/servicios/contabilidad'
     },
     {
@@ -136,15 +106,10 @@ const NuestrosServicios = () => {
       icono: Settings,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
+        'Gestion de Locacion e impuestos',
         'Gestión de expensas',
         'Mantenimiento preventivo',
         'Asambleas y reuniones',
-      ],
-      proceso: [
-        'Diagnóstico inicial',
-        'Plan de administración',
-        'Implementación',
-        'Monitoreo y reportes'
       ],
       link: '/servicios/administraciones'
     }
@@ -209,25 +174,6 @@ const NuestrosServicios = () => {
                           <div key={idx} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
                             <span className="text-gray-600 text-sm">{caracteristica}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {/* Proceso */}
-                    <div className="bg-gradient-to-r from-[#ec520b]/5 to-[#022550]/5 rounded-2xl p-4 sm:p-6">
-                      <h4 className="font-semibold text-gray-900 mb-4">
-                        Proceso de trabajo
-                      </h4>
-                      <div className="flex flex-wrap gap-1 sm:gap-2">
-                        {servicio.proceso.map((paso, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
-                            <div className="w-6 h-6 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">{idx + 1}</span>
-                            </div>
-                            <span className="text-gray-700 text-sm font-medium">{paso}</span>
-                            {idx < servicio.proceso.length - 1 && (
-                              <ArrowRight className="h-4 w-4 text-gray-400" />
-                            )}
                           </div>
                         ))}
                       </div>

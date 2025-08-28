@@ -110,7 +110,7 @@ const Properties = () => {
               Propiedades
             </h1>
             <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
-              Explora nuestra selección exclusiva de propiedades en Villa Allende y alrededores
+              Explora nuestra selección exclusiva de propiedades.
             </p>
           </div>
         </div>
@@ -129,7 +129,6 @@ const Properties = () => {
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
                       <span className="inline-flex items-center justify-center lg:justify-start">
-                        <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">1</span>
                         Operación
                       </span>
                     </label>
@@ -174,7 +173,6 @@ const Properties = () => {
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
                       <span className="inline-flex items-center justify-center lg:justify-start">
-                        <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">2</span>
                         Tipo de Propiedad
                       </span>
                     </label>
@@ -195,7 +193,6 @@ const Properties = () => {
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
                       <span className="inline-flex items-center justify-center lg:justify-start">
-                        <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">3</span>
                         Ubicación
                       </span>
                     </label>
@@ -215,7 +212,6 @@ const Properties = () => {
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
                       <span className="inline-flex items-center justify-center lg:justify-start">
-                        <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">4</span>
                         Dormitorios
                       </span>
                     </label>
@@ -253,44 +249,14 @@ const Properties = () => {
                   (!operacion || (Array.isArray(p.operaciones_propiedad) && p.operaciones_propiedad.length > 0 && p.operaciones_propiedad.some(op => op.tipos_operacion?.nombre?.toLowerCase() === operacion))) &&
                   (!habitaciones || (habitaciones === '4+' ? (p.habitaciones || 0) >= 4 : p.habitaciones === Number(habitaciones)))
                 )
-                .map((property) => {
-                  // Obtener operaciones de la propiedad
-                  const operaciones = Array.isArray(property.operaciones_propiedad) ? property.operaciones_propiedad : [];
-                  // Si hay más de una operación, priorizar 'venta' sobre 'alquiler', o mostrar ambas
-                  let tipoOperacion: 'venta' | 'alquiler' = 'venta';
-                  let precio = 'Consultar precio';
-                  if (operaciones.length > 0) {
-                    // Buscar si hay venta y alquiler
-                    const opVenta = operaciones.find(op => op.tipos_operacion?.nombre?.toLowerCase() === 'venta');
-                    const opAlquiler = operaciones.find(op => op.tipos_operacion?.nombre?.toLowerCase() === 'alquiler');
-                    let opPrincipal = opVenta || opAlquiler || operaciones[0];
-                    tipoOperacion = opPrincipal.tipos_operacion?.nombre?.toLowerCase() === 'alquiler' ? 'alquiler' : 'venta';
-                    precio = opPrincipal && opPrincipal.precio != null ? `$${Number(opPrincipal.precio).toLocaleString()} ${opPrincipal.moneda || ''}` : 'Consultar precio';
-                  }
-
-                  // Obtener imagen principal
-                  const imagenPrincipal = Array.isArray(property.imagenes_propiedad) && property.imagenes_propiedad.length > 0
-                    ? (property.imagenes_propiedad.find(img => img.es_principal)?.url_imagen || property.imagenes_propiedad[0]?.url_imagen || '/placeholder.svg')
-                    : '/placeholder.svg';
-
-                  // Crear ubicación completa
-                  const ubicacionCompleta = property.ubicaciones?.ciudad && property.ubicaciones?.provincia
-                    ? `${property.ubicaciones.ciudad}, ${property.ubicaciones.provincia}`
-                    : 'Ubicación no informada';
+                .map((property, idx) => {
 
                   return (
                     <div key={property.id}>
-                      <PropertyCard 
-                        id={property.id.toString()}
-                        title={property.titulo}
-                        price={precio}
-                        location={ubicacionCompleta}
-                        bedrooms={property.habitaciones || 0}
-                        bathrooms={property.banos || 0}
-                        area={property.area_construida || 0}
-                        type={tipoOperacion}
-                        image={imagenPrincipal}
-                        featured={false}
+                      <PropertyCard
+                        // Pasa la propiedad completa como prop para debug y flexibilidad
+                        property={property}
+                        // Si quieres debug en la card, puedes agregar un prop onContact={() => console.log(property)}
                       />
                     </div>
                   );
@@ -307,9 +273,6 @@ const Properties = () => {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 No hay propiedades en la base de datos
               </h3>
-              <p className="text-gray-600 mb-4">
-                El backend se conectó correctamente pero no hay propiedades cargadas.
-              </p>
               <p className="text-sm text-gray-500">
                 Puedes agregar propiedades desde el panel de administración.
               </p>

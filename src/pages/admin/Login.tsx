@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const { login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate(); // <-- Agrega esto
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
       await login(email, password);
+      navigate('/admin'); // <-- Redirige tras login exitoso
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
     }

@@ -2,24 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
-import { 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  MapPin, 
-  Home, 
-  Camera, 
-  DollarSign, 
-  Tag, 
-  Save,
-  X,
-  Building,
-  Bath,
-  Car,
-  Bed,
-  Upload,
-  Image as ImageIcon
-} from 'lucide-react';
+import {Plus,Edit2,Trash2,MapPin,Home,Camera,DollarSign,Tag,Save,X,Building,Bath,Car,Bed,Upload,Image as ImageIcon} from 'lucide-react';
 import Loader from '@/components/ui/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -503,9 +486,12 @@ const Propiedades: React.FC = () => {
         tipo_propiedad_id: parseInt(form.tipo_propiedad_id),
         ubicacion_id: parseInt(form.ubicacion_id),
         agente_id: agenteActual,
-        caracteristicas: form.caracteristicas || [], 
+        caracteristicas_ids: form.caracteristicas || [],
         operaciones: operacionesPayload
       };
+
+      // DEBUG: Mostrar el payload que se enviará al backend
+      console.log('[DEBUG] Payload enviado al backend:', basePayload);
 
       if (!editingId) {
         response = await axios.post(`${API_URL}/propiedades`, basePayload);

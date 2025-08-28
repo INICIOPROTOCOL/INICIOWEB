@@ -1,103 +1,190 @@
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Heart, Phone, Eye } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface PropertyCardProps {
-  id: string;
-  title: string;
-  price: string;
-  location: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  type: 'venta' | 'alquiler';
-  image: string;
-  featured?: boolean;
+  property: {
+    id: number;
+    titulo: string;
+    descripcion?: string;
+    area_construida?: string | number;
+    area_total?: string | number;
+    habitaciones?: string | number;
+    banos?: string | number;
+    garages?: string | number;
+    direccion: string;
+    tipos_propiedad?: { nombre: string };
+    ubicaciones?: { ciudad?: string; barrio?: string };
+    imagenes_propiedad?: Array<{ url_imagen: string; es_principal: boolean; orden: number }>;
+    operaciones_propiedad?: Array<{
+      precio: number;
+      moneda: string;
+      tipo_operacion?: { nombre: string };
+      disponible?: boolean;
+    }>;
+    usuarios?: { nombre: string; apellido: string; telefono?: string; email?: string };
+  };
+  onContact?: () => void;
 }
 
-const PropertyCard = ({ 
-  title, 
-  price, 
-  location, 
-  bedrooms, 
-  bathrooms, 
-  area, 
-  type, 
-  image, 
-  featured = false 
-}: PropertyCardProps) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
+  // Imagen principal
+  const imagenPrincipal =
+    property.imagenes_propiedad?.find((img) => img.es_principal) ||
+    property.imagenes_propiedad?.[0];
+  const imageSrc = imagenPrincipal?.url_imagen || '/placeholder.svg';
+
+  // Tipo de propiedad + ambientes
+  const tipoProp = property.tipos_propiedad?.nombre || '';
+  const ambientes = property.habitaciones ? `${property.habitaciones} ambientes` : '';
+
+  // Ubicación
+  const ubicacion =
+    [property.ubicaciones?.ciudad, property.ubicaciones?.barrio]
+      .filter(Boolean)
+      .join(' - ') || '';
+
+  // Dirección corta
+  const direccion = property.direccion;
+
+  // Título
+  const titulo = property.titulo;
+
+  // Descripción breve
+  const descripcion =
+    property.descripcion && property.descripcion.length > 80
+      ? property.descripcion.slice(0, 80) + '...'
+      : property.descripcion;
+
+  // Características principales
+  const area =
+    property.area_total || property.area_construida
+      ? `${property.area_total || property.area_construida} m²`
+      : null;
+  const habitaciones = property.habitaciones;
+  const banos = property.banos;
+  const garages = property.garages;
+
+  // Precio
+  const operacion = property.operaciones_propiedad?.[0];
+  const formatPrice = (precio: number, moneda: string) =>
+    new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: moneda === 'USD' ? 'USD' : 'ARS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(precio);
+  const precio = operacion ? formatPrice(operacion.precio, operacion.moneda) : 'Consultar';
+
+  // WhatsApp link
+  const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}`;
+  const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
+
   return (
-    <Card className="group hover:shadow-elegant transition-all duration-300 overflow-hidden border-border/50 bg-gradient-card">
+    <Card className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
+      {/* Imagen principal */}
       <div className="relative">
-        <img 
-          src={image || '/placeholder.svg'} 
-          alt={title || 'Propiedad'}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+        <img
+          src={imageSrc}
+          alt={titulo}
+          className="w-full h-48 object-cover"
+          loading="lazy"
         />
-        <div className="absolute top-3 left-3 flex gap-2">
-          <Badge 
-            variant={type === 'venta' ? 'default' : 'secondary'}
-            className={type === 'venta' ? 'bg-success text-success-foreground' : 'bg-primary text-primary-foreground'}
-          >
-            {type === 'venta' ? 'En Venta' : 'En Alquiler'}
-          </Badge>
-          {featured && (
-            <Badge variant="outline" className="bg-accent text-accent-foreground border-accent">
-              Destacada
-            </Badge>
+       {/* Etiqueta tipo de operación en la esquina superior izquierda */}
+{property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
+  <div className="absolute top-3 left-3">
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
+    >
+      {property.operaciones_propiedad[0].tipo_operacion.nombre}
+    </span>
+  </div>
+)}
+      </div>
+      <CardContent className="p-4 flex flex-col gap-2">
+        {/* Tipo de propiedad + ambientes */}
+        <div className="flex items-center gap-2 mb-1">
+          <Badge className="bg-[#022550] text-white font-medium">{tipoProp}</Badge>
+          {ambientes && (
+            <span className="text-xs text-gray-600 font-medium">{ambientes}</span>
           )}
         </div>
-        <div className="absolute top-3 right-3">
-          <Button size="icon" variant="ghost" className="bg-card/80 backdrop-blur-sm hover:bg-card">
-            <Heart className="h-4 w-4" />
-          </Button>
+        {/* Ubicación y dirección */}
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <MapPin className="h-4 w-4 text-[#ec520b]" />
+          <span>
+            {ubicacion}
+            {direccion && (
+              <span className="ml-2 text-xs text-gray-500 font-normal">| {direccion}</span>
+            )}
+          </span>
         </div>
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div>
-            <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-              {title}
-            </h3>
-            <div className="flex items-center text-muted-foreground text-sm">
-              <MapPin className="h-4 w-4 mr-1" />
-              {location || 'Ubicación no informada'}
-            </div>
-          </div>
-          
-          <div className="text-2xl font-bold text-primary">
-            {price || 'Consultar precio'}
-          </div>
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        {/* Título */}
+        <h3 className="font-semibold text-lg text-[#022550] line-clamp-1">{titulo}</h3>
+        {/* Descripción breve */}
+        {descripcion && (
+          <div className="text-sm text-gray-700 line-clamp-2">{descripcion}</div>
+        )}
+        {/* Características principales */}
+        <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
+          {area && (
             <div className="flex items-center gap-1">
-              <Bed className="h-4 w-4" />
-              <span>{bedrooms}</span>
+              <Square className="h-4 w-4 text-[#ec520b]" />
+              <span>{area}</span>
             </div>
+          )}
+          {habitaciones && (
             <div className="flex items-center gap-1">
-              <Bath className="h-4 w-4" />
-              <span>{bathrooms}</span>
+              <Bed className="h-4 w-4 text-[#ec520b]" />
+              <span>{habitaciones}</span>
             </div>
+          )}
+          {banos && (
             <div className="flex items-center gap-1">
-              <Square className="h-4 w-4" />
-              <span>{area}m²</span>
+              <Bath className="h-4 w-4 text-[#ec520b]" />
+              <span>{banos}</span>
             </div>
-          </div>
+          )}
+          {garages && (
+            <div className="flex items-center gap-1">
+              <Car className="h-4 w-4 text-[#ec520b]" />
+              <span>{garages}</span>
+            </div>
+          )}
+        </div>
+        {/* Precio */}
+        <div className="text-xl font-bold text-[#ec520b] mt-2">{precio}</div>
+        {/* Botón de acción */}
+        <div className="flex gap-2 mt-3">
+          <Link
+            to={`/propiedad/${property.id}`}
+            className="flex-1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="outline"
+              className="w-full border-[#022550] text-[#022550] hover:bg-[#022550] hover:text-white transition-all duration-300 font-medium"
+            >
+              Ver +
+            </Button>
+          </Link>
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1"
+            onClick={onContact}
+          >
+            <Button className="w-full bg-[#ec520b] hover:bg-[#022550] text-white transition-all duration-300 font-medium">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              WhatsApp
+            </Button>
+          </a>
         </div>
       </CardContent>
-      
-      <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button variant="outline" className="flex-1">
-          <Eye className="h-4 w-4 mr-2" />
-          Ver Detalles
-        </Button>
-        <Button className="flex-1 bg-gradient-primary">
-          <Phone className="h-4 w-4 mr-2" />
-          Contactar
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

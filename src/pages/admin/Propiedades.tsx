@@ -150,7 +150,7 @@ const Propiedades: React.FC = () => {
       }
     };
     fetchAgenteId();
-  }, []);
+  }, [authUser?.email]);
   
   // Estado para drag & drop
   const [isDragging, setIsDragging] = useState(false);
@@ -1155,121 +1155,149 @@ const Propiedades: React.FC = () => {
       )}
 
       {/* Lista de Propiedades */}
-      <div className="grid gap-6">
+      <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {propiedades.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Home className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay propiedades</h3>
-              <p className="text-gray-600 text-center mb-4">
-                Comienza agregando tu primera propiedad al sistema
-              </p>
-              <Button onClick={() => setShowForm(true)} className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Propiedad
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Home className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No hay propiedades registradas
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Comienza creando la primera propiedad.
+                </p>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear Primera Propiedad
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        ) : propiedadesFiltradas.length === 0 ? (
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Home className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No se encontraron propiedades
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Intenta cambiar los filtros de búsqueda.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setBusqueda('');
+                    setFiltroTipo('todos');
+                    setFiltroOperacion('todas');
+                  }}
+                >
+                  Limpiar filtros
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         ) : (
-          <div className="grid gap-4">
-            {propiedadesFiltradas.map(propiedad => (
-              <Card key={propiedad.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-[#022550]">{propiedad.titulo}</h3>
-                        <Badge variant={propiedad.estado_propiedad === 'disponible' ? 'default' : 'secondary'}>
-                          {propiedad.estado_propiedad}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div className="flex items-center text-gray-600">
-                          <Building className="h-4 w-4 mr-2" />
-                          {propiedad.tipos_propiedad?.nombre}
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          {propiedad.ubicaciones?.ciudad}
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                          <Bed className="h-4 w-4 mr-2" />
-                          {propiedad.habitaciones || 0} hab.
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                          <Bath className="h-4 w-4 mr-2" />
-                          {propiedad.banos || 0} baños
-                        </div>
-                      </div>
-
-                      <p className="text-gray-600 mb-3">{propiedad.direccion}</p>
-                      
-                      {propiedad.operaciones_propiedad && propiedad.operaciones_propiedad.length > 0 && (
-                        <div className="flex gap-2 mb-3">
-                          {propiedad.operaciones_propiedad.map(op => (
-                            <Badge key={op.id} variant="outline" className="text-[#ec520b] border-[#ec520b]">
-                              {op.tipo_operacion?.nombre || 'N/A'}: {op.moneda} {op.precio.toLocaleString()}
-                              {!op.disponible && <span className="ml-1 text-red-500">(No disponible)</span>}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+          propiedadesFiltradas.map(propiedad => {
+            const primeraImagen = propiedad.imagenes_propiedad?.[0]?.url_imagen;
+            const tipoPropiedad = propiedad.tipos_propiedad?.nombre || 'Sin tipo';
+            const ubicacion = propiedad.ubicaciones?.ciudad || 'Sin ubicación';
+            const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
+            
+            return (
+              <div 
+                key={propiedad.id} 
+                className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+              >
+                {/* Imagen miniatura */}
+                <div className="h-48 bg-gray-100 overflow-hidden">
+                  {primeraImagen ? (
+                    <img 
+                      src={primeraImagen} 
+                      alt={propiedad.titulo}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                      <Home className="h-12 w-12 text-gray-400" />
                     </div>
-                    
-                    <div className="flex gap-2 ml-4">
+                  )}
+                </div>
+
+                {/* Contenido */}
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-[#022550] truncate">
+                        {propiedad.titulo}
+                      </h3>
+                      <p className="text-sm text-gray-600 truncate">{propiedad.direccion}</p>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(propiedad)}
-                        className="text-[#022550] border-[#022550] hover:bg-[#022550] hover:text-white"
+                        className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(propiedad.id)}
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
                         disabled={loading}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-            {propiedadesFiltradas.length === 0 && (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Home className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No se encontraron propiedades
-                  </h3>
-                  <p className="text-gray-500">
-                    {busqueda || (filtroTipo && filtroTipo !== 'todos') || (filtroOperacion && filtroOperacion !== 'todas')
-                      ? 'No hay propiedades que coincidan con los filtros aplicados.'
-                      : 'Aún no hay propiedades registradas en el sistema.'
-                    }
-                  </p>
-                  {(busqueda || (filtroTipo && filtroTipo !== 'todos') || (filtroOperacion && filtroOperacion !== 'todas')) && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setBusqueda('');
-                        setFiltroTipo('todos');
-                        setFiltroOperacion('todas');
-                      }}
-                      className="mt-4"
-                    >
-                      Limpiar filtros
-                    </Button>
+                  
+                  {/* Info básica */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Building className="h-4 w-4 mr-2" />
+                      {tipoPropiedad} • {ubicacion}
+                    </div>
+                    
+                    {(propiedad.habitaciones || propiedad.banos) && (
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        {propiedad.habitaciones && (
+                          <span className="flex items-center">
+                            <Bed className="h-4 w-4 mr-1" />
+                            {propiedad.habitaciones}
+                          </span>
+                        )}
+                        {propiedad.banos && (
+                          <span className="flex items-center">
+                            <Bath className="h-4 w-4 mr-1" />
+                            {propiedad.banos}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Precio/Operación */}
+                  {operacionPrincipal && (
+                    <div className="mb-3">
+                      <Badge 
+                        variant="outline" 
+                        className="text-[#ec520b] border-[#ec520b] bg-[#ec520b]/10"
+                      >
+                        {operacionPrincipal.tipo_operacion?.nombre}: {operacionPrincipal.moneda} {operacionPrincipal.precio?.toLocaleString()}
+                      </Badge>
+                    </div>
                   )}
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>

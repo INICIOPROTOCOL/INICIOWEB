@@ -20,12 +20,17 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 shadow-sm" style={{ backgroundColor: '#022550' }}>
+    <nav className="sticky top-0 z-50 shadow-sm" style={{ backgroundColor: '#002553' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link rel='icon' type='image/x-icon' to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity" >
             <img
-              src="/src/assets/inicio_ico.png"
+              src="/src/assets/logo_grande_fondo_azul 1.svg"
+              alt="Logo"
+              className="h-12 max-w-[100px] w-auto object-contain"
+            />
+            <img
+              src="/src/assets/inicio_negocios_ico.svg"
               alt="Logo"
               className="h-12 max-w-[100px] w-auto object-contain"
             />
@@ -120,7 +125,7 @@ const Navbar = () => {
                 
                 {/* Sección de servicios específicos en móvil */}
                 <div className="flex flex-col">
-                  <span className="px-4 py-2 text-white/70 text-xs font-semibold">Servicios Específicos:</span>
+                  <span className="px-4 py-2 text-white/70 text-xs font-semibold">Servicios:</span>
                   {servicios.map((servicio) => (
                     <Link
                       key={servicio.href}

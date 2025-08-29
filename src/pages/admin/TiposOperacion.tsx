@@ -99,7 +99,10 @@ const TiposOperacion: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-[#022550]">Tipos de Operación</h1>
+          <h1 className="text-3xl font-bold text-[#022550] flex items-center">
+            <DollarSign className="h-7 w-7 mr-3 text-[#ec520b]" />
+            Tipos de Operación
+          </h1>
           <p className="text-gray-600 mt-1">Gestiona los tipos de operaciones (venta, alquiler, etc.)</p>
         </div>
         <Button
@@ -166,59 +169,64 @@ const TiposOperacion: React.FC = () => {
       )}
 
       {/* Lista de tipos */}
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {loading && !showForm ? (
-          <div className="flex items-center justify-center h-32">
+          <div className="col-span-full flex items-center justify-center h-32">
             <Loader2 className="h-8 w-8 animate-spin text-[#ec520b]" />
             <span className="ml-2 text-gray-600">Cargando...</span>
           </div>
         ) : tipos.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <DollarSign className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay tipos de operación</h3>
-              <p className="text-gray-600 text-center mb-4">
-                Comienza agregando los tipos de operación como venta, alquiler, etc.
-              </p>
-              <Button onClick={() => setShowForm(true)} className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Tipo
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          tipos.map(tipo => (
-            <Card key={tipo.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-[#022550] mb-2">{tipo.nombre}</h3>
-                    {tipo.descripcion && (
-                      <p className="text-gray-600">{tipo.descripcion}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(tipo)}
-                      className="text-[#022550] border-[#022550] hover:bg-[#022550] hover:text-white"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(tipo.id)}
-                      className="text-red-600 border-red-300 hover:bg-red-50"
-                      disabled={loading}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <DollarSign className="h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay tipos de operación</h3>
+                <p className="text-gray-600 text-center mb-4">
+                  Comienza agregando los tipos de operación como venta, alquiler, etc.
+                </p>
+                <Button onClick={() => setShowForm(true)} className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Tipo
+                </Button>
               </CardContent>
             </Card>
+          </div>
+        ) : (
+          tipos.map(tipo => (
+            <div 
+              key={tipo.id} 
+              className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-[#022550] truncate">
+                    {tipo.nombre}
+                  </h3>
+                  {tipo.descripcion && (
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{tipo.descripcion}</p>
+                  )}
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(tipo)}
+                    className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(tipo.id)}
+                    className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
+                    disabled={loading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))
         )}
       </div>

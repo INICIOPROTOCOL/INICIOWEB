@@ -14,19 +14,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 interface TipoPropiedad {
   id: number;
   nombre: string;
-  descripcion?: string;
 }
 
 interface TipoPropiedadForm {
   nombre: string;
-  descripcion: string;
 }
 
 const TiposPropiedad: React.FC = () => {
@@ -38,8 +35,7 @@ const TiposPropiedad: React.FC = () => {
   const { showToast } = useToast();
 
   const [form, setForm] = useState<TipoPropiedadForm>({
-    nombre: '',
-    descripcion: ''
+    nombre: ''
   });
 
   // Cargar tipos de propiedad
@@ -63,8 +59,7 @@ const TiposPropiedad: React.FC = () => {
   // Limpiar formulario
   const resetForm = () => {
     setForm({
-      nombre: '',
-      descripcion: ''
+      nombre: ''
     });
     setEditingId(null);
     setShowForm(false);
@@ -87,8 +82,7 @@ const TiposPropiedad: React.FC = () => {
     setLoading(true);
     try {
       const payload = {
-        nombre: form.nombre.trim(),
-        descripcion: form.descripcion.trim() || null
+        nombre: form.nombre.trim()
       };
 
       if (editingId) {
@@ -116,8 +110,7 @@ const TiposPropiedad: React.FC = () => {
   // Editar tipo
   const handleEdit = (tipo: TipoPropiedad) => {
     setForm({
-      nombre: tipo.nombre,
-      descripcion: tipo.descripcion || ''
+      nombre: tipo.nombre
     });
     setEditingId(tipo.id);
     setShowForm(true);
@@ -150,20 +143,20 @@ const TiposPropiedad: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-[#022550] flex items-center">
-            <Home className="h-8 w-8 mr-3" />
+            <Home className="h-7 w-7 mr-3 text-[#ec520b]" />
             Tipos de Propiedad
           </h1>
-          <p className="text-gray-600 mt-2">Administra los tipos de propiedades disponibles</p>
+          <p className="text-gray-600 mt-1">Administra los tipos de propiedades disponibles</p>
         </div>
         
         {!showForm && (
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] hover:from-[#d64807] hover:to-[#ec520b] text-white"
+            className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Tipo
@@ -191,17 +184,6 @@ const TiposPropiedad: React.FC = () => {
                   required
                 />
               </div>
-              
-              <div>
-                <Label htmlFor="descripcion">Descripción</Label>
-                <Textarea
-                  id="descripcion"
-                  value={form.descripcion}
-                  onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                  placeholder="Descripción opcional del tipo de propiedad..."
-                  rows={3}
-                />
-              </div>
 
               <div className="flex justify-end space-x-3 pt-6 border-t">
                 <Button variant="outline" onClick={resetForm} type="button">
@@ -225,65 +207,65 @@ const TiposPropiedad: React.FC = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {tipos.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Home className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No hay tipos de propiedad registrados
-                </h3>
-                <p className="text-gray-500 mb-4">
-                  Comienza creando el primer tipo de propiedad.
-                </p>
-                <Button
-                  onClick={() => setShowForm(true)}
-                  className="bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] hover:from-[#d64807] hover:to-[#ec520b] text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear Primer Tipo
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            tipos.map(tipo => (
-              <Card key={tipo.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-[#022550] mb-2">
-                        {tipo.nombre}
-                      </h3>
-                      {tipo.descripcion && (
-                        <p className="text-gray-600 mb-4">{tipo.descripcion}</p>
-                      )}
-                      <div className="text-sm text-gray-500">
-                        ID: {tipo.id}
-                      </div>
-                    </div>
-                    
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(tipo)}
-                        className="text-[#022550] border-[#022550] hover:bg-[#022550] hover:text-white"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(tipo.id)}
-                        className="text-red-600 border-red-300 hover:bg-red-50"
-                        disabled={loading}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+            <div className="col-span-full">
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Home className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No hay tipos de propiedad registrados
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Comienza creando el primer tipo de propiedad.
+                  </p>
+                  <Button
+                    onClick={() => setShowForm(true)}
+                    className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crear Primer Tipo
+                  </Button>
                 </CardContent>
               </Card>
+            </div>
+          ) : (
+            tipos.map(tipo => (
+              <div 
+                key={tipo.id} 
+                className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-[#022550] truncate">
+                      {tipo.nombre}
+                    </h3>
+                  </div>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(tipo)}
+                      className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(tipo.id)}
+                      className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
+                      disabled={loading}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-gray-500">
+                  ID: {tipo.id}
+                </div>
+              </div>
             ))
           )}
         </div>

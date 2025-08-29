@@ -242,47 +242,48 @@ const Caracteristicas: React.FC = () => {
           </Card>
         ) : (
           caracteristicasAgrupadas().map(grupo => (
-            <Card key={grupo.tipo.id} className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-[#022550]/10 to-[#ec520b]/10 border-b">
-                <CardTitle className="text-xl text-[#022550] flex items-center">
-                  <Tag className="h-5 w-5 mr-2" />
+            <Card key={grupo.tipo.id} className="overflow-hidden shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-[#022550]/5 to-[#ec520b]/5 border-b py-3">
+                <CardTitle className="text-lg text-[#022550] flex items-center">
+                  <Tag className="h-4 w-4 mr-2 text-[#ec520b]" />
                   {grupo.tipo.nombre}
-                  <Badge variant="secondary" className="ml-auto">
-                    {grupo.caracteristicas.length} características
+                  <Badge variant="secondary" className="ml-auto text-xs">
+                    {grupo.caracteristicas.length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <CardContent className="p-4">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {grupo.caracteristicas.map(caracteristica => (
-                    <Card key={caracteristica.id} className="border border-gray-200 hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className="font-medium text-gray-900">{caracteristica.nombre}</h3>
-                        </div>
-                        <div className="flex gap-2">
+                    <div 
+                      key={caracteristica.id} 
+                      className="group bg-white border border-gray-200 rounded-lg p-3 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-900 truncate pr-2">
+                          {caracteristica.nombre}
+                        </span>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(caracteristica)}
-                            className="flex-1 text-[#022550] border-[#022550] hover:bg-[#022550] hover:text-white"
+                            className="h-7 w-7 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
                           >
-                            <Edit2 className="h-3 w-3 mr-1" />
-                            Editar
+                            <Edit2 className="h-3 w-3" />
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(caracteristica.id)}
-                            className="flex-1 text-red-600 border-red-300 hover:bg-red-50"
+                            className="h-7 w-7 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
                             disabled={loading}
                           >
-                            <Trash2 className="h-3 w-3 mr-1" />
-                            Eliminar
+                            <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </CardContent>

@@ -107,6 +107,11 @@ const Home = () => {
             <div className="text-center mb-8 relative">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-[#ec520b] rounded-full mb-4">
                 {/* logo de inicio */}
+                <img
+                  src="/src/assets/logo_grande_fondo_azul 1.svg"
+                  alt="Logo"
+                  className="w-8 h-8 object-contain"
+                />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
                 Estamos para acompañarte

@@ -38,14 +38,19 @@ const Footer = () => {
   return (
     <footer className="bg-[#022550] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-[#022550] rounded-lg flex items-center justify-center">
-                <Home className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">Inicio Negocios Inmobiliarios</span>
+              <img
+                  src="/src/assets/logo_grande_fondo_azul 1.svg"
+                  alt="Logo"
+                  className="w-8 h-8 object-contain"
+                />
+              <span className="text-lg sm:text-xl font-bold">
+                <span className="text-[#ec520b]">Inicio</span> Negocios{' '}
+                <span >Inmobiliarios</span>
+              </span>
             </div>
             <div className="h-2" />
             <span className="text-sm text-white/80">
@@ -90,7 +95,9 @@ const Footer = () => {
 
           {/* Services */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Servicios</h3>
+            <h3 className="text-lg font-semibold text-[#ec520b] border-b border-[#ec520b]/20 pb-2">
+              Servicios
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link 
@@ -145,7 +152,9 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Contacto</h3>
+            <h3 className="text-lg font-semibold text-[#ec520b] border-b border-[#ec520b]/20 pb-2">
+              Contacto
+            </h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-[#ec520b]" />
@@ -164,7 +173,9 @@ const Footer = () => {
 
           {/* Trabaja con Nosotros */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Trabaja con Nosotros</h3>
+            <h3 className="text-lg font-semibold text-[#ec520b] border-b border-[#ec520b]/20 pb-2">
+              Trabaja con Nosotros
+            </h3>
             <p className="text-sm text-white/80">
               ¿Te apasiona el mercado inmobiliario? Únete a nuestro equipo y crece profesionalmente.
             </p>
@@ -192,7 +203,7 @@ const Footer = () => {
               )}
               <Button 
                 onClick={handleSubmitCV}
-                className="w-full bg-[#ec520b] hover:bg-[#022550] text-white font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="w-full bg-[#ec520b] hover:bg-[#d64807] text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 border border-[#ec520b]/20"
                 disabled={!selectedFile}
               >
                 Enviar CV

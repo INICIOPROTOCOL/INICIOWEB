@@ -173,20 +173,20 @@ const Ubicaciones: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-[#022550] flex items-center">
-            <MapPin className="h-8 w-8 mr-3" />
+            <MapPin className="h-7 w-7 mr-3 text-[#ec520b]" />
             Ubicaciones
           </h1>
-          <p className="text-gray-600 mt-2">Administra las ubicaciones de las propiedades</p>
+          <p className="text-gray-600 mt-1">Administra las ubicaciones de las propiedades</p>
         </div>
         
         {!showForm && (
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-[#ec520b] to-[#ff6b1a] hover:from-[#d64807] hover:to-[#ec520b] text-white"
+            className="bg-[#ec520b] hover:bg-[#ff6b1a] text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nueva Ubicación
@@ -313,52 +313,54 @@ const Ubicaciones: React.FC = () => {
               </CardContent>
             </Card>
           ) : (
-            ubicaciones.map(ubicacion => (
-              <Card key={ubicacion.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-[#022550] mb-2">
+            <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {ubicaciones.map(ubicacion => (
+                <div 
+                  key={ubicacion.id} 
+                  className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-[#022550] truncate">
                         {ubicacion.ciudad}
-                        {ubicacion.barrio && (
-                          <span className="text-gray-600 font-normal"> - {ubicacion.barrio}</span>
-                        )}
                       </h3>
-                      <div className="text-gray-600 space-y-1">
-                        <p><strong>País:</strong> {ubicacion.pais}</p>
-                        <p><strong>Provincia:</strong> {ubicacion.provincia}</p>
-                        {ubicacion.codigo_postal && (
-                          <p><strong>Código Postal:</strong> {ubicacion.codigo_postal}</p>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-2">
-                        ID: {ubicacion.id}
-                      </div>
+                      {ubicacion.barrio && (
+                        <p className="text-sm text-gray-600 truncate">{ubicacion.barrio}</p>
+                      )}
                     </div>
-                    
-                    <div className="flex space-x-2">
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(ubicacion)}
-                        className="text-[#022550] border-[#022550] hover:bg-[#022550] hover:text-white"
+                        className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(ubicacion.id)}
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
                         disabled={loading}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))
+                  
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <MapPin className="h-3 w-3 mr-2 text-[#ec520b] flex-shrink-0" />
+                      <span className="truncate">{ubicacion.provincia}, {ubicacion.pais}</span>
+                    </div>
+                    {ubicacion.codigo_postal && (
+                      <p className="text-xs text-gray-500 ml-5">CP: {ubicacion.codigo_postal}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

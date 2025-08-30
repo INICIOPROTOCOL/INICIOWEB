@@ -29,9 +29,9 @@ const NuestrosServicios = () => {
       titulo: 'Ventas',
       descripcionCorta: 'Asesoramiento completo para la venta de tu propiedad.',
       icono: Key,
-      color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
+      color: 'from-[#ec520b] to-[#ff6b1a]', 
       caracteristicas: [
-        'Valuación profesional gratuita',
+        'Valuación profesional',
         'Marketing digital especializado',
         'Fotografía profesional',
         'Tours virtuales 360°',
@@ -60,7 +60,6 @@ const NuestrosServicios = () => {
       icono: Calculator,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
-        'Martilleros matriculados',
         'Análisis comparativo de mercado',
         'Informe detallado',
         'Actualización de valores'
@@ -90,7 +89,6 @@ const NuestrosServicios = () => {
       icono: FileText,
       color: 'from-[#ec520b] to-[#ff6b1a]', // Cambiar a naranja
       caracteristicas: [
-        'Contadores públicos matriculados',
         'Liquidación de impuestos',
         'Asesoramiento fiscal',
         'Optimización tributaria',

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 import PropertyCard from '@/components/PropertyCard';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, Home } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface Propiedad {
   id: number;
@@ -62,31 +64,36 @@ interface Propiedad {
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const Properties = () => {
+  const [habitaciones, setHabitaciones] = useState('');
+  useScrollToTop();
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tipo, setTipo] = useState('');
-  const [operacion, setOperacion] = useState('');
+  const [operacion, setOperacion] = useState(''); // ahora guarda el id
   const [precioMin, setPrecioMin] = useState('');
   const [precioMax, setPrecioMax] = useState('');
   const [tiposPropiedad, setTiposPropiedad] = useState<{ id: number; nombre: string }[]>([]);
   const [ubicaciones, setUbicaciones] = useState<{ id: number; ciudad: string; provincia: string; pais: string; barrio?: string }[]>([]);
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState('');
+  const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Propiedades
         const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
         setPropiedades(propiedadesRes.data || []);
-        // Tipos de propiedad (igual que SearchForm)
         const tiposRes = await axios.get(`${API_URL}/tipos`);
         setTiposPropiedad(tiposRes.data || []);
-        // Ubicaciones (igual que admin/Ubicaciones)
         const ubicacionesRes = await axios.get(`${API_URL}/ubicaciones`);
         setUbicaciones(ubicacionesRes.data || []);
+        // Traer tipos de operación
+        const tiposOperacionRes = await axios.get(`${API_URL}/tipos-operacion`);
+        setTiposOperacion(tiposOperacionRes.data || []);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Error desconocido');
         setPropiedades([]);
@@ -126,8 +133,9 @@ const Properties = () => {
             <Card className="w-full bg-white/85 backdrop-blur-md border border-white/20 shadow-xl">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
+
                   
-                  {/* Tipo de Operación */}
+                  {/* Tipo de Operación dinámico */}
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
                       Operación
@@ -138,8 +146,11 @@ const Properties = () => {
                       onChange={e => setOperacion(e.target.value)}
                     >
                       <option value="">Todas</option>
-                      <option value="venta">Venta</option>
-                      <option value="alquiler">Alquiler</option>
+                      {tiposOperacion.map(tipo => (
+                        <option key={tipo.id} value={tipo.id}>
+                          {tipo.nombre.toLowerCase() === 'venta' ? 'Compra' : tipo.nombre.charAt(0).toUpperCase() + tipo.nombre.slice(1).toLowerCase()}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -173,6 +184,23 @@ const Properties = () => {
                       <option value="">Todas las ubicaciones</option>
                       {ubicaciones.map(ubi => (
                         <option key={ubi.id} value={ubi.ciudad}>{ubi.ciudad} ({ubi.provincia})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Habitaciones */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                      Habitaciones
+                    </label>
+                    <select
+                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                      value={habitaciones}
+                      onChange={e => setHabitaciones(e.target.value)}
+                    >
+                      <option value="">Todas</option>
+                      {[1,2,3,4,5,6,7,8].map(n => (
+                        <option key={n} value={n}>{n}</option>
                       ))}
                     </select>
                   </div>
@@ -220,13 +248,32 @@ const Properties = () => {
               {propiedades
                 .filter(p =>
                   (!tipo || p.tipos_propiedad?.nombre === tipo) &&
-                  (!operacion || (Array.isArray(p.operaciones_propiedad) && p.operaciones_propiedad.length > 0 && p.operaciones_propiedad.some(op => op.tipos_operacion?.nombre?.toLowerCase() === operacion))) &&
+                  (!operacion ||
+                    (Array.isArray(p.operaciones_propiedad) &&
+                      p.operaciones_propiedad.length > 0 &&
+                      p.operaciones_propiedad.some(
+                        op => String(op.tipos_operacion?.id) === operacion
+                      ))
+                  ) &&
                   (!precioMin || (p.operaciones_propiedad?.[0]?.precio ?? 0) >= Number(precioMin)) &&
                   (!precioMax || (p.operaciones_propiedad?.[0]?.precio ?? 0) <= Number(precioMax)) &&
-                  (!ubicacionSeleccionada || p.ubicaciones?.ciudad === ubicacionSeleccionada) 
+                  (!ubicacionSeleccionada || p.ubicaciones?.ciudad === ubicacionSeleccionada) &&
+                  (!habitaciones || (p.habitaciones ?? 0) === Number(habitaciones))
                 )
                 .map((property, idx) => (
-                  <div key={property.id}>
+                  <div
+                    key={property.id}
+                    className="cursor-pointer"
+                    onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+                    tabIndex={0}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        window.open(`/propiedad/${property.id}`, '_blank');
+                      }
+                    }}
+                    role="button"
+                    aria-label={`Ver detalle de ${property.titulo}`}
+                  >
                     <PropertyCard property={property} />
                   </div>
                 ))}
@@ -258,7 +305,7 @@ const Properties = () => {
             <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#022550]/20 rounded-full translate-y-8 -translate-x-8"></div>
             
             <div className="relative z-10">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#ec520b] to-[#022550] rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-[#022550] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Home className="h-8 w-8 text-white" />
               </div>
               
@@ -273,7 +320,7 @@ const Properties = () => {
                 <Button 
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-[#ec520b] to-[#022550] hover:from-[#022550] hover:to-[#ec520b] transform hover:scale-105 transition-all duration-300"
+                  className="bg-[#022550] hover:bg-[#ec520b] transform hover:scale-105 transition-all duration-300 border-0"
                 >
                   <a href="https://wa.me/5493515155669?text=Hola,%20no%20encontré%20la%20propiedad%20que%20busco,%20¿pueden%20ayudarme?">
                     <MessageCircle className="mr-2 h-5 w-5" />

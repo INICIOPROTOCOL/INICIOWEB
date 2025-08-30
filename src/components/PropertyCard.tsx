@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface PropertyCardProps {
@@ -34,7 +34,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
     property.imagenes_propiedad?.[0];
-  const imageSrc = imagenPrincipal?.url_imagen || '/placeholder.svg';
+  const imageSrc = imagenPrincipal?.url_imagen || '../src/assets/logo_grande_fondo_azul.png';
 
   // Tipo de propiedad + ambientes
   const tipoProp = property.tipos_propiedad?.nombre || '';
@@ -93,15 +93,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           loading="lazy"
         />
        {/* Etiqueta tipo de operación en la esquina superior izquierda */}
-{property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
-  <div className="absolute top-3 left-3">
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
-    >
-      {property.operaciones_propiedad[0].tipo_operacion.nombre}
-    </span>
-  </div>
-)}
+          {property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
+            <div className="absolute top-3 left-3">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
+              >
+                {property.operaciones_propiedad[0].tipo_operacion.nombre}
+              </span>
+            </div>
+          )}
       </div>
       <CardContent className="p-4 flex flex-col gap-2">
         {/* Tipo de propiedad + ambientes */}
@@ -125,28 +125,35 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         <h3 className="font-semibold text-lg text-[#022550] line-clamp-1">{titulo}</h3>
         {/* Características principales */}
         <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
-          {area && (
+          {property.area_total && Number(property.area_total) !== 0 && (
             <div className="flex items-center gap-1">
               <Square className="h-4 w-4 text-[#ec520b]" />
-              <span>{area}</span>
+              <span>{property.area_total} m²</span>
             </div>
           )}
-          {habitaciones && (
+          {/* Superficie cubierta/construida con icono Layers */}
+          {property.area_construida && Number(property.area_construida) !== 0 && (
+            <div className="flex items-center gap-1">
+              <Layers className="h-4 w-4 text-[#022550]" />
+              <span>{property.area_construida} m² cub.</span>
+            </div>
+          )}
+          {property.habitaciones && Number(property.habitaciones) !== 0 && (
             <div className="flex items-center gap-1">
               <Bed className="h-4 w-4 text-[#ec520b]" />
-              <span>{habitaciones}</span>
+              <span>{property.habitaciones}</span>
             </div>
           )}
-          {banos && (
+          {property.banos && Number(property.banos) !== 0 && (
             <div className="flex items-center gap-1">
               <Bath className="h-4 w-4 text-[#ec520b]" />
-              <span>{banos}</span>
+              <span>{property.banos}</span>
             </div>
           )}
-          {garages && (
+          {property.garages && Number(property.garages) !== 0 && (
             <div className="flex items-center gap-1">
               <Car className="h-4 w-4 text-[#ec520b]" />
-              <span>{garages}</span>
+              <span>{property.garages}</span>
             </div>
           )}
         </div>

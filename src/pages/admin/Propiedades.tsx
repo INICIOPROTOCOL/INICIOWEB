@@ -1208,6 +1208,21 @@ const Propiedades: React.FC = () => {
             const ubicacion = propiedad.ubicaciones?.ciudad || 'Sin ubicación';
             const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
             
+            // Agrupar características de la propiedad por tipo
+            const caracteristicasPorTipo: Record<string, string[]> = {};
+            if (Array.isArray(propiedad.propiedades_caracteristicas)) {
+              propiedad.propiedades_caracteristicas.forEach(pc => {
+                // Buscar el tipo de característica por id
+                const caracteristica = caracteristicas.find(c => c.id === pc.caracteristicas.id);
+                const tipo = caracteristica
+                  ? tiposCaracteristica.find(t => t.id === caracteristica.tipo_id)
+                  : undefined;
+                const tipoNombre = tipo?.nombre || 'Otros';
+                if (!caracteristicasPorTipo[tipoNombre]) caracteristicasPorTipo[tipoNombre] = [];
+                caracteristicasPorTipo[tipoNombre].push(pc.caracteristicas.nombre);
+              });
+            }
+
             return (
               <div 
                 key={propiedad.id} 

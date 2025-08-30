@@ -87,6 +87,7 @@ model propiedades {
   tipos_propiedad             tipos_propiedad               @relation(fields: [tipo_propiedad_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_propiedades_tipo")
   ubicaciones                 ubicaciones                   @relation(fields: [ubicacion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_propiedades_ubicacion")
   propiedades_caracteristicas propiedades_caracteristicas[]
+  destacada                   Boolean?                      @default(false)
 }
 
 model tipos_operacion {

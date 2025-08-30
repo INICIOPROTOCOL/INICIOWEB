@@ -74,6 +74,9 @@ const PropertyDetail = () => {
     mensaje: ''
   });
 
+  const [tiposCaracteristica, setTiposCaracteristica] = useState<{ id: number; nombre: string }[]>([]);
+  const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
+
   useEffect(() => {
     const fetchPropiedad = async () => {
       if (!id) return;
@@ -89,7 +92,22 @@ const PropertyDetail = () => {
       setLoading(false);
     };
 
+    const fetchAux = async () => {
+      try {
+        const [tiposCaracRes, tiposOpRes] = await Promise.all([
+          axios.get(`${API_URL}/tipos-caracteristica`),
+          axios.get(`${API_URL}/tipos-operacion`)
+        ]);
+        setTiposCaracteristica(tiposCaracRes.data || []);
+        setTiposOperacion(tiposOpRes.data || []);
+      } catch (e) {
+        setTiposCaracteristica([]);
+        setTiposOperacion([]);
+      }
+    };
+
     fetchPropiedad();
+    fetchAux();
   }, [id]);
 
   if (loading) {
@@ -115,10 +133,28 @@ const PropertyDetail = () => {
     );
   }
 
-  const imagenes = propiedad.imagenes_propiedad?.sort((a, b) => a.orden - b.orden) || [];
+  // Ordenar imágenes: principal primero, luego por orden
+  const imagenes = propiedad.imagenes_propiedad
+    ? [
+        ...propiedad.imagenes_propiedad
+          .filter((img) => img.es_principal)
+          .sort((a, b) => a.orden - b.orden),
+        ...propiedad.imagenes_propiedad
+          .filter((img) => !img.es_principal)
+          .sort((a, b) => a.orden - b.orden),
+      ]
+    : [];
+
   const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
+  const tipoOperacionNombre = operacionPrincipal
+    ? (tiposOperacion.find(t => t.id === (operacionPrincipal as any).tipo_operacion_id)?.nombre ||
+       operacionPrincipal.tipos_operacion?.nombre ||
+       'N/A')
+    : 'N/A';
   const caracteristicasPorTipo = propiedad.propiedades_caracteristicas?.reduce((acc, item) => {
-    const tipoNombre = item.caracteristicas.tipo_caracteristica?.nombre || 'Otros';
+    const tipoId = item.caracteristicas.tipo_id; // Usar tipo_id
+    const tipo = tiposCaracteristica.find(t => t.id === tipoId);
+    const tipoNombre = tipo ? tipo.nombre : 'Otros';
     if (!acc[tipoNombre]) acc[tipoNombre] = [];
     acc[tipoNombre].push(item.caracteristicas.nombre);
     return acc;
@@ -219,85 +255,99 @@ const PropertyDetail = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Image Gallery Section */}
+          {/* Collage Image Gallery Section */}
           <div className="lg:col-span-2">
-            <div className="relative">
-              {imagenes.length > 0 ? (
-                <div className="relative group">
+            {/* Collage: principal grande, otras a la derecha */}
+            {imagenes.length > 0 ? (
+              <div className="flex gap-4 h-[420px] sm:h-[520px]">
+                {/* Imagen principal grande */}
+                <div
+                  className="flex-1 rounded-lg overflow-hidden cursor-pointer group relative min-w-0"
+                  onClick={() => setIsGalleryOpen(true)}
+                  style={{ minWidth: 0 }}
+                >
                   <img
-                    src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
+                    src={imagenes[0]?.url_imagen || '/placeholder.svg'}
                     alt={propiedad.titulo}
-                    className="w-full h-96 sm:h-[500px] object-cover rounded-lg cursor-pointer"
-                    onClick={() => setIsGalleryOpen(true)}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  
-                  {/* Image Navigation */}
-                  {imagenes.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <ArrowLeft className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <ArrowRight className="h-5 w-5" />
-                      </button>
-                    </>
-                  )}
-                  
-                  {/* Gallery Button */}
-                  <button
-                    onClick={() => setIsGalleryOpen(true)}
-                    className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-opacity-90 transition-all"
-                  >
-                    <Eye className="h-4 w-4" />
-                    Ver todas ({imagenes.length})
-                  </button>
+                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    Ver galería
+                  </span>
                 </div>
-              ) : (
-                <div className="w-full h-96 sm:h-[500px] bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Home className="h-16 w-16 text-gray-400" />
-                </div>
-              )}
-              
-              {/* Thumbnail Strip */}
-              {imagenes.length > 1 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                  {imagenes.slice(0, 6).map((imagen, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                        currentImageIndex === index 
-                          ? 'border-[#ec520b]' 
-                          : 'border-transparent hover:border-gray-300'
-                      }`}
+                {/* Otras imágenes en columna a la derecha */}
+                <div className="flex flex-col gap-4 w-40 sm:w-56">
+                  {imagenes.slice(1, 5).map((img, idx) => (
+                    <div
+                      key={img.url_imagen}
+                      className="rounded-lg overflow-hidden cursor-pointer group relative flex-1 min-h-0"
+                      onClick={() => {
+                        setCurrentImageIndex(idx + 1);
+                        setIsGalleryOpen(true);
+                      }}
                     >
                       <img
-                        src={imagen.url_imagen}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        src={img.url_imagen}
+                        alt={`${propiedad.titulo} - Imagen ${idx + 2}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                    </button>
+                    </div>
                   ))}
-                  {imagenes.length > 6 && (
-                    <button
+                  {imagenes.length > 5 && (
+                    <div
+                      className="rounded-lg overflow-hidden bg-black/60 flex items-center justify-center text-white text-lg font-semibold cursor-pointer min-h-0 flex-1"
                       onClick={() => setIsGalleryOpen(true)}
-                      className="flex-shrink-0 w-20 h-16 rounded-lg bg-gray-800 bg-opacity-80 flex items-center justify-center text-white text-xs font-medium"
                     >
-                      +{imagenes.length - 6}
-                    </button>
+                      +{imagenes.length - 5}
+                    </div>
                   )}
                 </div>
-              )}
+              </div>
+            ) : (
+              <div className="w-full h-[420px] sm:h-[520px] bg-gray-200 rounded-lg flex items-center justify-center">
+                <Home className="h-16 w-16 text-gray-400" />
+              </div>
+            )}
+
+            {/* Descripción debajo de las imágenes */}
+            <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-[#022550] mb-4">Descripción</h2>
+              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
+              </div>
             </div>
+
+            {/* Características agrupadas por tipo, bien separadas */}
+            {Object.keys(caracteristicasPorTipo).length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center">
+                  Características de la propiedad
+                </h2>
+                <div className="flex flex-col gap-6">
+                  {Object.entries(caracteristicasPorTipo).map(([tipo, caracteristicas]) => (
+                    <div key={tipo} className="bg-white rounded-lg shadow p-4">
+                      <h3 className="text-lg font-semibold text-[#ec520b] mb-2 border-b border-gray-100 pb-1">
+                        {tipo}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {caracteristicas.map((caracteristica, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 bg-[#022550]/10 text-[#022550] text-xs px-3 py-1 rounded-full"
+                          >
+                            <Check className="h-3 w-3 text-green-600" />
+                            {caracteristica}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Property Info Section */}
+          {/* Property Info Section (sin cambios) */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
               {/* Title and Location */}
@@ -322,9 +372,9 @@ const PropertyDetail = () => {
                     <span className="text-3xl font-bold text-[#ec520b]">
                       {formatPrice(operacionPrincipal.precio, operacionPrincipal.moneda)}
                     </span>
-                    <span className="bg-[#022550] text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {operacionPrincipal.tipos_operacion?.nombre || 'N/A'}
-                    </span>
+                   <span className="bg-[#022550] text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {tipoOperacionNombre}
+                  </span>
                   </div>
                   {propiedad.tipos_propiedad && (
                     <p className="text-gray-600 text-sm">
@@ -458,46 +508,7 @@ const PropertyDetail = () => {
           </div>
         </div>
 
-        {/* Description */}
-        <div className="mt-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-[#022550] mb-4">Descripción</h2>
-            <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
-            </div>
-          </div>
-        </div>
-
-        {/* Characteristics with Check Icons */}
-        {Object.keys(caracteristicasPorTipo).length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center">
-              Características de la propiedad
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(caracteristicasPorTipo).map(([tipo, caracteristicas]) => (
-                <Card key={tipo} className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-[#ec520b] mb-4 border-b border-gray-200 pb-2">
-                      {tipo}
-                    </h3>
-                    <ul className="space-y-3">
-                      {caracteristicas.map((caracteristica, index) => (
-                        <li key={index} className="flex items-start gap-3 text-gray-700">
-                          <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm leading-relaxed">{caracteristica}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Additional Property Details - Only Measurements */}
+        {/* Additional Property Details - Only Measurements (sin cambios) */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Measurements */}
           <Card className="bg-white shadow-lg">
@@ -540,7 +551,7 @@ const PropertyDetail = () => {
         </div>
       </div>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button (sin cambios) */}
       <a
         href={whatsappLink}
         target="_blank"

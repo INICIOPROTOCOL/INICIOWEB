@@ -105,12 +105,12 @@ const Home = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
             
             <div className="text-center mb-8 relative">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-[#ec520b] rounded-full mb-4">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4">
                 {/* logo de inicio */}
                 <img
                   src="/src/assets/logo_grande_fondo_azul 1.svg"
                   alt="Logo"
-                  className="w-8 h-8 object-contain"
+                  className="w-16 h-16 object-contain"
                 />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">

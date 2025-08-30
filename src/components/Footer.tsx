@@ -45,10 +45,10 @@ const Footer = () => {
               <img
                   src="/src/assets/logo_grande_fondo_azul 1.svg"
                   alt="Logo"
-                  className="w-8 h-8 object-contain"
+                  className="w-12 h-12 object-contain"
                 />
               <span className="text-lg sm:text-xl font-bold">
-                <span className="text-[#ec520b]">Inicio</span> Negocios{' '}
+                <span>Inicio</span> Negocios{' '}
                 <span >Inmobiliarios</span>
               </span>
             </div>
@@ -57,7 +57,7 @@ const Footer = () => {
               Conrado Cazzola Matricula CPI: 6842.
             </span>
             <p className="text-white/80 text-sm">
-              Tu inmobiliaria de confianza en el mercado inmobiliario.
+              Tu inmobiliaria de confianza.
             </p>
             <div className="flex space-x-3">
               <Button 

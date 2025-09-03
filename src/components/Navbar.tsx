@@ -25,12 +25,12 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link rel='icon' type='image/x-icon' to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity" >
             <img
-              src="/src/assets/logo_grande_fondo_azul 1.svg"
+              src="/logo_grande_fondo_azul 1.svg"
               alt="Logo"
               className="h-12 max-w-[100px] w-auto object-contain"
             />
             <img
-              src="/src/assets/inicio_negocios_ico.svg"
+              src="/inicio_negocios_ico.svg"
               alt="Logo"
               className="h-12 max-w-[100px] w-auto object-contain"
             />
@@ -107,7 +107,7 @@ const Navbar = () => {
                 {/* Logo en menú móvil con mejor diseño */}
                 <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b]">
                   <img 
-                    src="/src/assets/inicio_ico.png" 
+                    src="/inicio_icono_blanco.svg" 
                     alt="Logo" 
                     className="w-8 h-8 object-contain flex-shrink-0" 
                   />

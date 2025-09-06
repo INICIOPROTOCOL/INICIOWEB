@@ -59,8 +59,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [propiedad, setPropiedad] = useState<PropiedadDetalle | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [propiedad, setPropiedad] = useState<PropiedadDetalle | null>(() => {
+    if (!id) return null;
+    const cached = localStorage.getItem(`propiedad_${id}`);
+    return cached ? JSON.parse(cached) : null;
+  });
+  const [loading, setLoading] = useState(!propiedad);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   
@@ -80,14 +84,15 @@ const PropertyDetail = () => {
   useEffect(() => {
     const fetchPropiedad = async () => {
       if (!id) return;
-      
       setLoading(true);
       try {
         const response = await axios.get(`${API_URL}/propiedades/${id}`);
         setPropiedad(response.data);
+        localStorage.setItem(`propiedad_${id}`, JSON.stringify(response.data));
       } catch (error) {
         console.error('Error al cargar propiedad:', error);
         setPropiedad(null);
+        localStorage.removeItem(`propiedad_${id}`);
       }
       setLoading(false);
     };
@@ -202,7 +207,9 @@ const PropertyDetail = () => {
     }
   };
 
-  const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${propiedad.titulo}. ${window.location.href}`;
+  // WhatsApp link con mensaje personalizado y link directo
+  const propertyUrl = window.location.href;
+  const whatsappMessage = `Hola! Estoy interesado en la propiedad: ${propiedad.titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (

@@ -34,7 +34,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
     property.imagenes_propiedad?.[0];
-  const imageSrc = imagenPrincipal?.url_imagen || '../src/assets/logo_grande_fondo_azul.png';
+  const imageSrc = imagenPrincipal?.url_imagen || '/logo_grande_fondo_azul.png';
 
   // Tipo de propiedad + ambientes
   const tipoProp = property.tipos_propiedad?.nombre || '';
@@ -78,8 +78,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
     }).format(precio);
   const precio = operacion ? formatPrice(operacion.precio, operacion.moneda) : 'Consultar';
 
-  // WhatsApp link
-  const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}`;
+  // WhatsApp link con mensaje personalizado y link directo
+  const propertyUrl = `${window.location.origin}/propiedad/${property.id}`;
+  const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (

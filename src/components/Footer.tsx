@@ -43,7 +43,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img
-                  src="/src/assets/logo_grande_fondo_azul 1.svg"
+                  src="logo_grande_fondo_azul 1.svg"
                   alt="Logo"
                   className="w-12 h-12 object-contain"
                 />

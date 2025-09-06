@@ -41,6 +41,8 @@ const ContactForm = ({
     tipoInmueble: '',
     mensaje: ''
   });
+  const [modal, setModal] = useState<{ open: boolean; success: boolean; message: string }>({ open: false, success: false, message: '' });
+  const [loading, setLoading] = useState(false);
 
   // Opciones para el select de inmuebles
   const tiposInmuebles = [
@@ -65,20 +67,38 @@ const ContactForm = ({
   };
 
   // Manejar envío del formulario
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Formulario enviado:', contactForm);
-    alert('¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
-    
-    // Resetear formulario
-    setContactForm({
-      nombre: '',
-      apellido: '',
-      celular: '',
-      email: '',
-      tipoInmueble: '',
-      mensaje: ''
-    });
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const payload = {
+        nombre: contactForm.nombre,
+        apellido: contactForm.apellido,
+        celular: contactForm.celular,
+        email: contactForm.email,
+        tipoInmueble: contactForm.tipoInmueble,
+        mensaje: contactForm.mensaje
+      };
+      const res = await fetch(`${API_URL}/contactos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('No se pudo enviar el mensaje');
+      setModal({ open: true, success: true, message: '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.' });
+      setContactForm({
+        nombre: '',
+        apellido: '',
+        celular: '',
+        email: '',
+        tipoInmueble: '',
+        mensaje: ''
+      });
+    } catch (err) {
+      setModal({ open: true, success: false, message: 'Hubo un error al enviar el mensaje. Intenta nuevamente.' });
+    }
+    setLoading(false);
   };
 
   const sectionStyle = backgroundImage ? {
@@ -90,6 +110,42 @@ const ContactForm = ({
       className={`py-16 sm:py-20 relative bg-cover bg-center bg-no-repeat ${className}`}
       style={sectionStyle}
     >
+      {/* Modal de éxito/error */}
+      {modal.open && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-[#ec520b]" onClick={() => setModal({ ...modal, open: false })}>
+              &times;
+            </button>
+            {modal.success ? (
+              <div className="flex flex-col items-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-4"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                <h3 className="text-xl font-bold text-[#022550] mb-2">Mensaje enviado</h3>
+                <p className="text-gray-700 mb-2">{modal.message}</p>
+                <p className="text-sm text-gray-500">Te responderemos en menos de 24 horas.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-4"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                <h3 className="text-xl font-bold text-[#ec520b] mb-2">Error</h3>
+                <p className="text-gray-700 mb-2">{modal.message}</p>
+              </div>
+            )}
+            <Button className="mt-6 w-full bg-[#022550] hover:bg-[#ec520b] text-white" onClick={() => setModal({ ...modal, open: false })}>Cerrar</Button>
+          </div>
+        </div>
+      )}
+      {/* Loader mientras se envía */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center">
+          <div className="bg-white/80 rounded-xl shadow-xl p-8 flex flex-col items-center">
+            <div className="animate-spin-slow mb-4">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#022550" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <span className="text-lg text-[#022550] font-semibold">Enviando mensaje...</span>
+          </div>
+        </div>
+      )}
       {backgroundImage && (
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/80 via-[#022550]/60 to-[#ec520b]/40"></div>
       )}

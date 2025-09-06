@@ -108,7 +108,7 @@ const Home = () => {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4">
                 {/* logo de inicio */}
                 <img
-                  src="/src/assets/logo_grande_fondo_azul 1.svg"
+                  src="/logo_grande_fondo_azul 1.svg"
                   alt="Logo"
                   className="w-16 h-16 object-contain"
                 />

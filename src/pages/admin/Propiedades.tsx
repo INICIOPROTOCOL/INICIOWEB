@@ -110,7 +110,10 @@ interface PropiedadForm {
 const Propiedades: React.FC = () => {
   // Hook de autenticación debe ir aquí
   const { user: authUser } = useAuth();
-  const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
+  const [propiedades, setPropiedades] = useState<Propiedad[]>(() => {
+    const cached = localStorage.getItem('admin_propiedades');
+    return cached ? JSON.parse(cached) : [];
+  });
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -197,52 +200,32 @@ const Propiedades: React.FC = () => {
       setLoadingData(true);
       try {
         console.log('🔍 Cargando datos desde:', API_URL);
-        
         const [propsRes, tiposRes, ubicRes, caracRes] = await Promise.all([
           axios.get(`${API_URL}/propiedades`),
           axios.get(`${API_URL}/tipos`),
           axios.get(`${API_URL}/ubicaciones`),
           axios.get(`${API_URL}/caracteristicas`)
         ]);
-        
-        // Intentar cargar tipos de operación desde el endpoint correcto
         let tiposOpRes;
         try {
           tiposOpRes = await axios.get(`${API_URL}/tipos-operacion`);
-          console.log('✅ Tipos de operación desde /tipos-operacion:', tiposOpRes.data?.length || 0);
         } catch (error1) {
-          console.log('❌ Error con /tipos-operacion, probando /operaciones');
           try {
             tiposOpRes = await axios.get(`${API_URL}/operaciones`);
-            console.log('✅ Tipos de operación desde /operaciones:', tiposOpRes.data?.length || 0);
           } catch (error2) {
-            console.log('❌ Ningún endpoint de tipos de operación funciona');
             tiposOpRes = { data: [] };
           }
         }
-        
-        console.log('📦 Respuestas recibidas:');
-        console.log('- Propiedades:', propsRes.data?.length || 0, 'items');
-        console.log('- Tipos Propiedad:', tiposRes.data?.length || 0, 'items');
-        console.log('- Ubicaciones:', ubicRes.data?.length || 0, 'items');
-        console.log('- Características:', caracRes.data?.length || 0, 'items');
-        console.log('- Tipos Operación:', tiposOpRes.data?.length || 0, 'items');
-        
-        // Tu backend devuelve arrays directos
         setPropiedades(propsRes.data || []);
+        localStorage.setItem('admin_propiedades', JSON.stringify(propsRes.data || []));
         setTiposPropiedad(tiposRes.data || []);
         setUbicaciones(ubicRes.data || []);
         setCaracteristicas(caracRes.data || []);
         setTiposOperacion(tiposOpRes.data || []);
-        
-        // Cargar tipos de características desde el backend
         try {
           const tiposCaracRes = await axios.get(`${API_URL}/tipos-caracteristica`);
           setTiposCaracteristica(tiposCaracRes.data || []);
-          console.log('- Tipos Característica:', tiposCaracRes.data?.length || 0, 'items');
         } catch (error) {
-          console.log('❌ Error cargando tipos de características:', error);
-          // Fallback a datos simulados
           setTiposCaracteristica([
             { id: 1, nombre: 'Comodidades', descripcion: 'Características de comfort y comodidad' },
             { id: 2, nombre: 'Servicios', descripcion: 'Servicios disponibles en la propiedad' },
@@ -251,15 +234,8 @@ const Propiedades: React.FC = () => {
           ]);
         }
       } catch (error) {
-        console.error('❌ Error al cargar datos:', error);
-        if (axios.isAxiosError(error)) {
-          console.error('- Status:', error.response?.status);
-          console.error('- URL:', error.config?.url);
-          console.error('- Message:', error.message);
-        }
-        showToast('Error al cargar datos', 'error');
-        // Establecer valores por defecto en caso de error
         setPropiedades([]);
+        localStorage.removeItem('admin_propiedades');
         setTiposPropiedad([]);
         setUbicaciones([]);
         setCaracteristicas([]);

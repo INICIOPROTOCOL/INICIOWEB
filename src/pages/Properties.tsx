@@ -66,8 +66,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const Properties = () => {
   const [habitaciones, setHabitaciones] = useState('');
   useScrollToTop();
-  const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [propiedades, setPropiedades] = useState<Propiedad[]>(() => {
+    const cached = localStorage.getItem('propiedades');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(propiedades.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [tipo, setTipo] = useState('');
   const [operacion, setOperacion] = useState(''); // ahora guarda el id
@@ -87,6 +90,7 @@ const Properties = () => {
       try {
         const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
         setPropiedades(propiedadesRes.data || []);
+        localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
         const tiposRes = await axios.get(`${API_URL}/tipos`);
         setTiposPropiedad(tiposRes.data || []);
         const ubicacionesRes = await axios.get(`${API_URL}/ubicaciones`);
@@ -97,6 +101,7 @@ const Properties = () => {
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Error desconocido');
         setPropiedades([]);
+        localStorage.removeItem('propiedades');
       } finally {
         setLoading(false);
       }

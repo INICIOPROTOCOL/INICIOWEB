@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useApiRequest } from '@/hooks/useApiRequest';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import PropertyCard from '@/components/PropertyCard';
 import ContactForm from '@/components/ContactForm';
@@ -66,12 +67,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const Properties = () => {
   const [habitaciones, setHabitaciones] = useState('');
   useScrollToTop();
-  const [propiedades, setPropiedades] = useState<Propiedad[]>(() => {
-    const cached = localStorage.getItem('propiedades');
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(propiedades.length === 0);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
+  const propiedades = data ?? [];
   const [tipo, setTipo] = useState('');
   const [operacion, setOperacion] = useState(''); // ahora guarda el id
   const [precioMin, setPrecioMin] = useState('');
@@ -85,26 +82,17 @@ const Properties = () => {
 
   useEffect(() => {
     const fetchAll = async () => {
-      setLoading(true);
-      setError(null);
-      try {
+      await request(async () => {
         const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
-        setPropiedades(propiedadesRes.data || []);
         localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
         const tiposRes = await axios.get(`${API_URL}/tipos`);
         setTiposPropiedad(tiposRes.data || []);
         const ubicacionesRes = await axios.get(`${API_URL}/ubicaciones`);
         setUbicaciones(ubicacionesRes.data || []);
-        // Traer tipos de operación
         const tiposOperacionRes = await axios.get(`${API_URL}/tipos-operacion`);
         setTiposOperacion(tiposOperacionRes.data || []);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Error desconocido');
-        setPropiedades([]);
-        localStorage.removeItem('propiedades');
-      } finally {
-        setLoading(false);
-      }
+        return propiedadesRes.data || [];
+      });
     };
     fetchAll();
   }, []);
@@ -246,6 +234,12 @@ const Properties = () => {
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <span className="animate-spin h-8 w-8 border-4 border-[#ec520b] border-t-transparent rounded-full inline-block" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-40">
+              <Home className="h-10 w-10 text-gray-400 mb-2" />
+              <div className="text-xl font-bold text-[#ec520b] mb-2">Error al cargar propiedades</div>
+              <p className="text-gray-600">{error}</p>
             </div>
           ) : (
             /* Properties Grid filtrada */

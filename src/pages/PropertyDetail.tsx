@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useApiRequest } from '@/hooks/useApiRequest';
 import { useParams } from 'react-router-dom';
 import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -59,12 +60,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [propiedad, setPropiedad] = useState<PropiedadDetalle | null>(() => {
-    if (!id) return null;
-    const cached = localStorage.getItem(`propiedad_${id}`);
-    return cached ? JSON.parse(cached) : null;
-  });
-  const [loading, setLoading] = useState(!propiedad);
+  const { data: propiedad, loading, error, request } = useApiRequest<PropiedadDetalle>({ retries: 2, retryDelay: 1500 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   
@@ -84,17 +80,11 @@ const PropertyDetail = () => {
   useEffect(() => {
     const fetchPropiedad = async () => {
       if (!id) return;
-      setLoading(true);
-      try {
+      await request(async () => {
         const response = await axios.get(`${API_URL}/propiedades/${id}`);
-        setPropiedad(response.data);
         localStorage.setItem(`propiedad_${id}`, JSON.stringify(response.data));
-      } catch (error) {
-        console.error('Error al cargar propiedad:', error);
-        setPropiedad(null);
-        localStorage.removeItem(`propiedad_${id}`);
-      }
-      setLoading(false);
+        return response.data;
+      });
     };
 
     const fetchAux = async () => {
@@ -132,7 +122,7 @@ const PropertyDetail = () => {
         <div className="text-center">
           <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Propiedad no encontrada</h2>
-          <p className="text-gray-600">La propiedad que buscas no existe o ha sido eliminada.</p>
+          <p className="text-gray-600">{error || 'La propiedad que buscas no existe o ha sido eliminada.'}</p>
         </div>
       </div>
     );

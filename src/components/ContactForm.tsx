@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useApiRequest } from '@/hooks/useApiRequest';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   ArrowRight, 
@@ -42,7 +43,7 @@ const ContactForm = ({
     mensaje: ''
   });
   const [modal, setModal] = useState<{ open: boolean; success: boolean; message: string }>({ open: false, success: false, message: '' });
-  const [loading, setLoading] = useState(false);
+  const { loading, error, request } = useApiRequest({ retries: 2, retryDelay: 1500 });
 
   // Opciones para el select de inmuebles
   const tiposInmuebles = [
@@ -69,23 +70,25 @@ const ContactForm = ({
   // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-      const payload = {
-        nombre: contactForm.nombre,
-        apellido: contactForm.apellido,
-        celular: contactForm.celular,
-        email: contactForm.email,
-        tipoInmueble: contactForm.tipoInmueble,
-        mensaje: contactForm.mensaje
-      };
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    const payload = {
+      nombre: contactForm.nombre,
+      apellido: contactForm.apellido,
+      celular: contactForm.celular,
+      email: contactForm.email,
+      tipoInmueble: contactForm.tipoInmueble,
+      mensaje: contactForm.mensaje
+    };
+    await request(async () => {
       const res = await fetch(`${API_URL}/contactos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('No se pudo enviar el mensaje');
+      return await res.json();
+    });
+    if (!error) {
       setModal({ open: true, success: true, message: '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.' });
       setContactForm({
         nombre: '',
@@ -95,10 +98,9 @@ const ContactForm = ({
         tipoInmueble: '',
         mensaje: ''
       });
-    } catch (err) {
-      setModal({ open: true, success: false, message: 'Hubo un error al enviar el mensaje. Intenta nuevamente.' });
+    } else {
+      setModal({ open: true, success: false, message: error });
     }
-    setLoading(false);
   };
 
   const sectionStyle = backgroundImage ? {

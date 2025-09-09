@@ -287,7 +287,7 @@ const Propiedades: React.FC = () => {
   };
 
   // Filtrar propiedades
-  const propiedadesFiltradas = propiedades.filter(propiedad => {
+  const propiedadesFiltradas = (Array.isArray(propiedades) ? propiedades : []).filter(propiedad => {
     // Filtro por tipo de propiedad
     if (filtroTipo && filtroTipo !== 'todos' && propiedad.tipo_propiedad_id?.toString() !== filtroTipo) {
       return false;
@@ -344,7 +344,7 @@ const Propiedades: React.FC = () => {
   const handleOperacionChange = (index: number, field: string, value: string | boolean) => {
     setForm(prev => ({
       ...prev,
-      operaciones: prev.operaciones.map((op, i) => 
+  operaciones: (Array.isArray(prev.operaciones) ? prev.operaciones : []).map((op, i) => 
         i === index ? { ...op, [field]: value } : op
       )
     }));
@@ -918,7 +918,7 @@ const Propiedades: React.FC = () => {
                   Agregar
                 </Button>
               </div>
-              {form.operaciones.map((operacion, index) => (
+              {(Array.isArray(form.operaciones) ? form.operaciones : []).map((operacion, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-gray-50">
                   <div>
                     <Label>Tipo de Operación</Label>
@@ -1000,7 +1000,7 @@ const Propiedades: React.FC = () => {
                       {grupo.tipo.nombre}
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pl-4">
-                      {grupo.caracteristicas.map(caracteristica => (
+                      {(Array.isArray(grupo.caracteristicas) ? grupo.caracteristicas : []).map(caracteristica => (
                         <div key={caracteristica.id} className="flex items-center space-x-2">
                           <Checkbox
                             id={`caracteristica-${caracteristica.id}`}
@@ -1058,7 +1058,7 @@ const Propiedades: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-gray-700 mb-3">Imágenes actuales</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {form.imagenesExistentes.map((url, index) => (
+                      {(Array.isArray(form.imagenesExistentes) ? form.imagenesExistentes : []).map((url, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={url}
@@ -1083,7 +1083,7 @@ const Propiedades: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-gray-700 mb-3">Nuevas imágenes</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {form.imagenes.map((file, index) => (
+                      {(Array.isArray(form.imagenes) ? form.imagenes : []).map((file, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(file)}
@@ -1178,7 +1178,7 @@ const Propiedades: React.FC = () => {
             </Card>
           </div>
         ) : (
-          propiedadesFiltradas.map(propiedad => {
+          (Array.isArray(propiedadesFiltradas) ? propiedadesFiltradas : []).map(propiedad => {
             const primeraImagen = propiedad.imagenes_propiedad?.[0]?.url_imagen;
             const tipoPropiedad = propiedad.tipos_propiedad?.nombre || 'Sin tipo';
             const ubicacion = propiedad.ubicaciones?.ciudad || 'Sin ubicación';

@@ -230,43 +230,41 @@ const TiposPropiedad: React.FC = () => {
               </Card>
             </div>
           ) : (
-            (Array.isArray(tipos) ? tipos : []).map(tipo => (
-              <div 
-                key={tipo.id} 
-                className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-[#022550] truncate">
-                      {tipo.nombre}
-                    </h3>
-                  </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(tipo)}
-                      className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(tipo.id)}
-                      className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
-                      disabled={loading}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+            (Array.isArray(tipos) ? tipos : [])
+              .filter(tipo => tipo.id !== 1)
+              .map(tipo => (
+                <div 
+                  key={tipo.id} 
+                  className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-[#022550] truncate">
+                        {tipo.nombre}
+                      </h3>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(tipo)}
+                        className="h-8 w-8 p-0 text-[#022550] hover:bg-[#022550] hover:text-white"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(tipo.id)}
+                        className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
+                        disabled={loading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="text-xs text-gray-500">
-                  ID: {tipo.id}
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       )}

@@ -106,21 +106,34 @@ const Ubicaciones: React.FC = () => {
       };
 
       if (editingId) {
-        // Actualizar solo ciudad y barrio
+        // Actualizar país, provincia, ciudad y barrio
         const updatePayload = {
+          pais: payload.pais,
+          provincia: payload.provincia,
           ciudad: payload.ciudad,
-          barrio: payload.barrio
+          barrio: payload.barrio,
+          codigo_postal: payload.codigo_postal
         };
-        await axios.put(`${API_URL}/ubicaciones/${editingId}`, updatePayload);
+        console.log('[PUT] Actualizar ubicación:', {
+          url: `${API_URL}/ubicaciones/${editingId}`,
+          payload: updatePayload
+        });
+        const response = await axios.put(`${API_URL}/ubicaciones/${editingId}`, updatePayload);
+        console.log('[PUT] Respuesta backend:', response);
         setUbicaciones(prev => prev.map(ubicacion => 
           ubicacion.id === editingId 
-            ? { ...ubicacion, ciudad: payload.ciudad, barrio: payload.barrio || undefined }
+            ? { ...ubicacion, ...updatePayload }
             : ubicacion
         ));
         showToast('Ubicación actualizada exitosamente', 'success');
       } else {
         // Crear nueva ubicación completa
+        console.log('[POST] Crear ubicación:', {
+          url: `${API_URL}/ubicaciones`,
+          payload
+        });
         const response = await axios.post(`${API_URL}/ubicaciones`, payload);
+        console.log('[POST] Respuesta backend:', response);
         setUbicaciones(prev => [...prev, response.data]);
         showToast('Ubicación creada exitosamente', 'success');
       }
@@ -128,7 +141,12 @@ const Ubicaciones: React.FC = () => {
       resetForm();
     } catch (error) {
       console.error('Error al guardar ubicación:', error);
-      showToast('Error al guardar ubicación', 'error');
+      if (error?.response) {
+        console.error('Backend response:', error.response.data);
+        showToast(error.response.data?.message || 'Error al guardar ubicación', 'error');
+      } else {
+        showToast('Error al guardar ubicación', 'error');
+      }
     }
     setLoading(false);
   };

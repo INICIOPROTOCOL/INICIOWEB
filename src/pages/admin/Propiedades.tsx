@@ -621,11 +621,13 @@ const Propiedades: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
-                    {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tipo => (
-                      <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                        {tipo.nombre}
-                      </SelectItem>
-                    ))}
+                    {(Array.isArray(tiposPropiedad) ? tiposPropiedad : [])
+                      .filter(tipo => tipo.id !== 1)
+                      .map(tipo => (
+                        <SelectItem key={tipo.id} value={tipo.id.toString()}>
+                          {tipo.nombre}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -637,11 +639,13 @@ const Propiedades: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todas">Todas</SelectItem>
-                    {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
-                      <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                        {tipo.nombre}
-                      </SelectItem>
-                    ))}
+                    {(Array.isArray(tiposOperacion) ? tiposOperacion : [])
+                      .filter(tipo => tipo.id !== 1)
+                      .map(tipo => (
+                        <SelectItem key={tipo.id} value={tipo.id.toString()}>
+                          {tipo.nombre}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -700,11 +704,13 @@ const Propiedades: React.FC = () => {
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tipo => (
-                        <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                          {tipo.nombre}
-                        </SelectItem>
-                      ))}
+                      {(Array.isArray(tiposPropiedad) ? tiposPropiedad : [])
+                        .filter(tipo => tipo.id !== 1)
+                        .map(tipo => (
+                          <SelectItem key={tipo.id} value={tipo.id.toString()}>
+                            {tipo.nombre}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -857,11 +863,13 @@ const Propiedades: React.FC = () => {
                       <SelectValue placeholder="Seleccionar ubicación" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(Array.isArray(ubicaciones) ? ubicaciones : []).map(ubicacion => (
-                        <SelectItem key={ubicacion.id} value={ubicacion.id.toString()}>
-                          {ubicacion.ciudad}, {ubicacion.provincia}
-                        </SelectItem>
-                      ))}
+                      {(Array.isArray(ubicaciones) ? ubicaciones : [])
+                        .filter(ubicacion => ubicacion.id !== 1)
+                        .map(ubicacion => (
+                          <SelectItem key={ubicacion.id} value={ubicacion.id.toString()}>
+                            {ubicacion.ciudad}, {ubicacion.provincia}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -930,11 +938,13 @@ const Propiedades: React.FC = () => {
                         <SelectValue placeholder="Seleccionar tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
-                          <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                            {tipo.nombre}
-                          </SelectItem>
-                        ))}
+                        {(Array.isArray(tiposOperacion) ? tiposOperacion : [])
+                          .filter(tipo => tipo.id !== 1)
+                          .map(tipo => (
+                            <SelectItem key={tipo.id} value={tipo.id.toString()}>
+                              {tipo.nombre}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>

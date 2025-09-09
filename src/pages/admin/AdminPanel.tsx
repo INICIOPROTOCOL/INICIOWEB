@@ -142,7 +142,7 @@ const AdminPanel: React.FC = () => {
         {/* Sidebar */}
         <div className={`${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 fixed lg:relative z-30 lg:z-auto w-64 h-screen bg-white shadow-lg transition-transform duration-300 ease-in-out`}>
+        } lg:translate-x-0 fixed lg:sticky top-0 z-30 lg:z-auto w-64 h-screen bg-white shadow-lg transition-transform duration-300 ease-in-out`}>
           
           {/* Logo/Header */}
           <div className="p-6 border-b bg-gradient-to-r from-[#022550] to-[#033366]">

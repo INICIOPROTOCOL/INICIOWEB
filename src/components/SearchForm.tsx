@@ -58,7 +58,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
       setLoadingTipos(true);
       try {
         const response = await axios.get(`${API_URL}/tipos`);
-        setTiposPropiedad(response.data || []);
+        // Filtrar tipo propiedad id=1
+        setTiposPropiedad((response.data || []).filter((tipo: TipoPropiedad) => tipo.id !== 1));
       } catch (error) {
         console.error('Error al cargar tipos de propiedad:', error);
         setTiposPropiedad([]);
@@ -70,7 +71,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
       setLoadingUbicaciones(true);
       try {
         const response = await axios.get(`${API_URL}/ubicaciones`);
-        const ubicacionesData = response.data || [];
+        // Filtrar ubicacion id=1
+        const ubicacionesData = (response.data || []).filter((ubic: Ubicacion) => ubic.id !== 1);
         setUbicaciones(ubicacionesData);
         setUbicacionesFiltradas(ubicacionesData);
       } catch (error) {
@@ -221,15 +223,17 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                   <SelectItem value="todos" className="hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10">
                     Todos los tipos
                   </SelectItem>
-                  {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map((tipo) => (
-                    <SelectItem 
-                      key={tipo.id} 
-                      value={tipo.id.toString()}
-                      className="hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10"
-                    >
-                      {tipo.nombre}
-                    </SelectItem>
-                  ))}
+                  {(Array.isArray(tiposPropiedad) ? tiposPropiedad : [])
+                    .filter(tipo => tipo.id !== 1)
+                    .map((tipo) => (
+                      <SelectItem 
+                        key={tipo.id} 
+                        value={tipo.id.toString()}
+                        className="hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10"
+                      >
+                        {tipo.nombre}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -271,26 +275,28 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                         Cargando ubicaciones...
                       </div>
                     ) : ubicacionesFiltradas.length > 0 ? (
-                      ubicacionesFiltradas.map((ubicacion) => (
-                        <button
-                          key={ubicacion.id}
-                          onClick={() => handleUbicacionSelect(ubicacion)}
-                          className="w-full px-4 py-3 text-left hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10 transition-colors border-b border-gray-100 last:border-b-0"
-                        >
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 text-[#ec520b] mr-3 flex-shrink-0" />
-                            <div className="flex flex-col">
-                              <span className="font-medium text-gray-900">{ubicacion.ciudad}</span>
-                              {ubicacion.barrio && (
-                                <span className="text-sm text-gray-500">{ubicacion.barrio}, {ubicacion.provincia}</span>
-                              )}
-                              {!ubicacion.barrio && (
-                                <span className="text-sm text-gray-500">{ubicacion.provincia}</span>
-                              )}
+                      ubicacionesFiltradas
+                        .filter(ubicacion => ubicacion.id !== 1)
+                        .map((ubicacion) => (
+                          <button
+                            key={ubicacion.id}
+                            onClick={() => handleUbicacionSelect(ubicacion)}
+                            className="w-full px-4 py-3 text-left hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10 transition-colors border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="flex items-center">
+                              <MapPin className="h-4 w-4 text-[#ec520b] mr-3 flex-shrink-0" />
+                              <div className="flex flex-col">
+                                <span className="font-medium text-gray-900">{ubicacion.ciudad}</span>
+                                {ubicacion.barrio && (
+                                  <span className="text-sm text-gray-500">{ubicacion.barrio}, {ubicacion.provincia}</span>
+                                )}
+                                {!ubicacion.barrio && (
+                                  <span className="text-sm text-gray-500">{ubicacion.provincia}</span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </button>
-                      ))
+                          </button>
+                        ))
                     ) : (
                       <div className="p-3 text-center text-gray-500">
                         {ubicacionInput.trim() ? `No se encontraron ubicaciones para "${ubicacionInput}"` : 'Escribe para buscar ubicaciones'}

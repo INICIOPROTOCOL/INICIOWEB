@@ -230,7 +230,7 @@ const TiposPropiedad: React.FC = () => {
               </Card>
             </div>
           ) : (
-            tipos.map(tipo => (
+            (Array.isArray(tipos) ? tipos : []).map(tipo => (
               <div 
                 key={tipo.id} 
                 className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"

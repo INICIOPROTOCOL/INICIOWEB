@@ -190,7 +190,7 @@ const Caracteristicas: React.FC = () => {
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tiposCaracteristica.map(tipo => (
+                  {(Array.isArray(tiposCaracteristica) ? tiposCaracteristica : []).map(tipo => (
                     <SelectItem key={tipo.id} value={tipo.id.toString()}>
                       {tipo.nombre}
                     </SelectItem>

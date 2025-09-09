@@ -139,7 +139,7 @@ const Properties = () => {
                       onChange={e => setOperacion(e.target.value)}
                     >
                       <option value="">Todas</option>
-                      {tiposOperacion.map(tipo => (
+                      {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
                         <option key={tipo.id} value={tipo.id}>
                           {tipo.nombre.toLowerCase() === 'venta' ? 'Compra' : tipo.nombre.charAt(0).toUpperCase() + tipo.nombre.slice(1).toLowerCase()}
                         </option>
@@ -158,7 +158,7 @@ const Properties = () => {
                       onChange={e => setTipo(e.target.value)}
                     >
                       <option value="">Todos los tipos</option>
-                      {tiposPropiedad.map(tp => (
+                      {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tp => (
                         <option key={tp.id} value={tp.nombre}>{tp.nombre}</option>
                       ))}
                     </select>
@@ -175,7 +175,7 @@ const Properties = () => {
                       onChange={e => setUbicacionSeleccionada(e.target.value)}
                     >
                       <option value="">Todas las ubicaciones</option>
-                      {ubicaciones.map(ubi => (
+                      {(Array.isArray(ubicaciones) ? ubicaciones : []).map(ubi => (
                         <option key={ubi.id} value={ubi.ciudad}>{ubi.ciudad} ({ubi.provincia})</option>
                       ))}
                     </select>
@@ -244,7 +244,7 @@ const Properties = () => {
           ) : (
             /* Properties Grid filtrada */
             <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
-              {propiedades
+              {(Array.isArray(propiedades) ? propiedades : [])
                 .filter(p =>
                   (!tipo || p.tipos_propiedad?.nombre === tipo) &&
                   (!operacion ||

@@ -621,7 +621,7 @@ const Propiedades: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
-                    {tiposPropiedad.map(tipo => (
+                    {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tipo => (
                       <SelectItem key={tipo.id} value={tipo.id.toString()}>
                         {tipo.nombre}
                       </SelectItem>
@@ -637,7 +637,7 @@ const Propiedades: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todas">Todas</SelectItem>
-                    {tiposOperacion.map(tipo => (
+                    {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
                       <SelectItem key={tipo.id} value={tipo.id.toString()}>
                         {tipo.nombre}
                       </SelectItem>
@@ -700,7 +700,7 @@ const Propiedades: React.FC = () => {
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      {tiposPropiedad.map(tipo => (
+                      {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tipo => (
                         <SelectItem key={tipo.id} value={tipo.id.toString()}>
                           {tipo.nombre}
                         </SelectItem>
@@ -857,7 +857,7 @@ const Propiedades: React.FC = () => {
                       <SelectValue placeholder="Seleccionar ubicación" />
                     </SelectTrigger>
                     <SelectContent>
-                      {ubicaciones.map(ubicacion => (
+                      {(Array.isArray(ubicaciones) ? ubicaciones : []).map(ubicacion => (
                         <SelectItem key={ubicacion.id} value={ubicacion.id.toString()}>
                           {ubicacion.ciudad}, {ubicacion.provincia}
                         </SelectItem>
@@ -930,7 +930,7 @@ const Propiedades: React.FC = () => {
                         <SelectValue placeholder="Seleccionar tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        {tiposOperacion.map(tipo => (
+                        {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
                           <SelectItem key={tipo.id} value={tipo.id.toString()}>
                             {tipo.nombre}
                           </SelectItem>

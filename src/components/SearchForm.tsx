@@ -221,7 +221,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                   <SelectItem value="todos" className="hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10">
                     Todos los tipos
                   </SelectItem>
-                  {tiposPropiedad.map((tipo) => (
+                  {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map((tipo) => (
                     <SelectItem 
                       key={tipo.id} 
                       value={tipo.id.toString()}

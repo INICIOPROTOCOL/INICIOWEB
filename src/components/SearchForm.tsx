@@ -28,63 +28,66 @@ interface SearchFormProps {
 }
 
 interface SearchFilters {
-  operacion: string;
-  tipoPropiedad: string;
-  ubicacion: string;
+  operacion: string; // ID de la operación como string para query params
+  tipoPropiedad: string; // ID del tipo como string para query params
+  ubicacion: string; // ID de ubicación como string para query params
+}
+
+interface TipoOperacion {
+  id: number;
+  nombre: string;
+  descripcion?: string;
 }
 
 const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => {
   const navigate = useNavigate();
   
-  // Estados del formulario
-  const [operationType, setOperationType] = useState<string>('venta');
+  // Estados del formulario - usar IDs como en Properties.tsx
+  const [operationType, setOperationType] = useState<string>(''); // Empezar sin selección
   const [selectedTipoPropiedad, setSelectedTipoPropiedad] = useState<string>('');
   const [ubicacionInput, setUbicacionInput] = useState<string>('');
   
   // Estados para datos del backend
   const [tiposPropiedad, setTiposPropiedad] = useState<TipoPropiedad[]>([]);
+  const [tiposOperacion, setTiposOperacion] = useState<TipoOperacion[]>([]);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
   const [ubicacionesFiltradas, setUbicacionesFiltradas] = useState<Ubicacion[]>([]);
   const [loadingTipos, setLoadingTipos] = useState(false);
   const [loadingUbicaciones, setLoadingUbicaciones] = useState(false);
+  const [loadingOperaciones, setLoadingOperaciones] = useState(false);
   const [selectedUbicacion, setSelectedUbicacion] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Cargar tipos de propiedad y ubicaciones al montar el componente
+  // Cargar tipos de propiedad, operaciones y ubicaciones al montar el componente
   useEffect(() => {
-    const fetchTiposPropiedad = async () => {
-      setLoadingTipos(true);
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/tipos`);
-        // Filtrar tipo propiedad id=1
-        setTiposPropiedad((response.data || []).filter((tipo: TipoPropiedad) => tipo.id !== 1));
-      } catch (error) {
-        console.error('Error al cargar tipos de propiedad:', error);
-        setTiposPropiedad([]);
-      }
-      setLoadingTipos(false);
-    };
-
-    const fetchUbicaciones = async () => {
-      setLoadingUbicaciones(true);
-      try {
-        const response = await axios.get(`${API_URL}/ubicaciones`);
-        // Filtrar ubicacion id=1
-        const ubicacionesData = (response.data || []).filter((ubic: Ubicacion) => ubic.id !== 1);
+        const [tiposRes, operacionesRes, ubicacionesRes] = await Promise.all([
+          axios.get(`${API_URL}/tipos`),
+          axios.get(`${API_URL}/tipos-operacion`),
+          axios.get(`${API_URL}/ubicaciones`)
+        ]);
+        
+        // Filtrar datos con id=1 que son placeholders
+        setTiposPropiedad((tiposRes.data || []).filter((tipo: TipoPropiedad) => tipo.id !== 1));
+        setTiposOperacion((operacionesRes.data || []).filter((op: TipoOperacion) => op.id !== 1));
+        
+        const ubicacionesData = (ubicacionesRes.data || []).filter((ubic: Ubicacion) => ubic.id !== 1);
         setUbicaciones(ubicacionesData);
         setUbicacionesFiltradas(ubicacionesData);
+        
       } catch (error) {
-        console.error('Error al cargar ubicaciones:', error);
+        console.error('Error al cargar datos:', error);
+        setTiposPropiedad([]);
+        setTiposOperacion([]);
         setUbicaciones([]);
         setUbicacionesFiltradas([]);
       }
-      setLoadingUbicaciones(false);
     };
 
-    fetchTiposPropiedad();
-    fetchUbicaciones();
+    fetchData();
   }, []);
 
   // Filtrar ubicaciones mientras escribe - mostrar todas si no hay texto
@@ -135,10 +138,15 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
     // Construir query params para la navegación
     const queryParams = new URLSearchParams();
 
-    if (operationType) queryParams.set('operacion', operationType);
-    if (selectedTipoPropiedad) queryParams.set('tipo', selectedTipoPropiedad);
-    if (selectedUbicacion || ubicacionInput.trim()) {
-      queryParams.set('ubicacion', selectedUbicacion || ubicacionInput.trim());
+    // Solo agregar parámetros si no están vacíos
+    if (operationType && operationType !== '') {
+      queryParams.set('operacion', operationType);
+    }
+    if (selectedTipoPropiedad && selectedTipoPropiedad !== '') {
+      queryParams.set('tipo', selectedTipoPropiedad);
+    }
+    if (selectedUbicacion && selectedUbicacion !== '') {
+      queryParams.set('ubicacion', selectedUbicacion);
     }
 
     // Navegar a la página de propiedades con filtros
@@ -173,26 +181,46 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
               </span>
             </label>
             <div className="flex justify-center md:justify-start space-x-4">
-              <Button
-                variant={operationType === 'venta' ? 'default' : 'outline'}
-                onClick={() => setOperationType('venta')}
-                className={`${operationType === 'venta' 
-                  ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
-                  : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
-                } transition-all duration-200`}
-              >
-                Compra
-              </Button>
-              <Button
-                variant={operationType === 'alquiler' ? 'default' : 'outline'}
-                onClick={() => setOperationType('alquiler')}
-                className={`${operationType === 'alquiler' 
-                  ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
-                  : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
-                } transition-all duration-200`}
-              >
-                Alquiler
-              </Button>
+              {tiposOperacion.length > 0 ? (
+                tiposOperacion.map(op => (
+                  <Button
+                    key={op.id}
+                    variant={operationType === op.id.toString() ? 'default' : 'outline'}
+                    onClick={() => setOperationType(op.id.toString())}
+                    className={`${
+                      operationType === op.id.toString()
+                        ? 'bg-[#ec520b] hover:bg-[#022550] text-white'
+                        : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
+                    } transition-all duration-200`}
+                  >
+                    {op.id === 4 ? 'Compra' : op.nombre}
+                  </Button>
+                ))
+              ) : (
+                // Botones de fallback mientras cargan los datos del backend
+                <>
+                  <Button
+                    variant={operationType === '4' ? 'default' : 'outline'}
+                    onClick={() => setOperationType('4')}
+                    className={`${operationType === '4' 
+                      ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
+                      : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
+                    } transition-all duration-200`}
+                  >
+                    Compra
+                  </Button>
+                  <Button
+                    variant={operationType === '2' ? 'default' : 'outline'}
+                    onClick={() => setOperationType('2')}
+                    className={`${operationType === '2' 
+                      ? 'bg-[#ec520b] hover:bg-[#022550] text-white' 
+                      : 'bg-white/80 hover:bg-[#ec520b]/10 hover:border-[#ec520b]'
+                    } transition-all duration-200`}
+                  >
+                    Alquiler
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 

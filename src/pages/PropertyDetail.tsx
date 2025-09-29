@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useParams } from 'react-router-dom';
-import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check } from 'lucide-react';
+import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check, CheckCircle } from 'lucide-react';
 import { Tag } from 'lucide-react';
 import logoInicioBlanco from '@/assets/inicio_icono_blanco.svg';
 import { Button } from '@/components/ui/button';
@@ -65,6 +65,7 @@ const PropertyDetail = () => {
   const { data: propiedad, loading, error, request } = useApiRequest<PropiedadDetalle>({ retries: 2, retryDelay: 1500 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
   
   // Estados del formulario de visita (siempre abierto)
   const [visitForm, setVisitForm] = useState({
@@ -79,33 +80,84 @@ const PropertyDetail = () => {
   const [tiposCaracteristica, setTiposCaracteristica] = useState<{ id: number; nombre: string }[]>([]);
   const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
 
-  useEffect(() => {
-    const fetchPropiedad = async () => {
-      if (!id) return;
-      await request(async () => {
-        const response = await axios.get(`${API_URL}/propiedades/${id}`);
-        localStorage.setItem(`propiedad_${id}`, JSON.stringify(response.data));
-        return response.data;
-      });
-    };
+  // Función para mostrar toast
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'success', message: '' });
+    }, 4000);
+  };
 
-    const fetchAux = async () => {
+  useEffect(() => {
+    if (!id) return;
+    
+    const fetchData = async () => {
       try {
+        // Usar request para la propiedad principal
+        await request(async () => {
+          const response = await axios.get(`${API_URL}/propiedades/${id}`);
+          localStorage.setItem(`propiedad_${id}`, JSON.stringify(response.data));
+          return response.data;
+        });
+        
+        // Fetch datos auxiliares en paralelo
         const [tiposCaracRes, tiposOpRes] = await Promise.all([
           axios.get(`${API_URL}/tipos-caracteristica`),
           axios.get(`${API_URL}/tipos-operacion`)
         ]);
+        
         setTiposCaracteristica(tiposCaracRes.data || []);
         setTiposOperacion(tiposOpRes.data || []);
-      } catch (e) {
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
         setTiposCaracteristica([]);
         setTiposOperacion([]);
       }
     };
 
-    fetchPropiedad();
-    fetchAux();
-  }, [id]);
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Solo dependemos de 'id' - 'request' causa loop infinito
+
+  // Ordenar imágenes: principal primero, luego por orden
+  const imagenes = propiedad?.imagenes_propiedad
+    ? [...propiedad.imagenes_propiedad].sort((a, b) => {
+        // Primero principal, luego por orden
+        if (a.es_principal && !b.es_principal) return -1;
+        if (!a.es_principal && b.es_principal) return 1;
+        return a.orden - b.orden;
+      })
+    : [];
+
+  // Funciones de navegación de imágenes con useCallback
+  const nextImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev + 1) % imagenes.length);
+  }, [imagenes.length]);
+
+  const prevImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev - 1 + imagenes.length) % imagenes.length);
+  }, [imagenes.length]);
+
+  // Navegación por teclado
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isGalleryOpen && imagenes.length > 1) {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextImage();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevImage();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          setIsGalleryOpen(false);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isGalleryOpen, imagenes.length, nextImage, prevImage]);
 
   if (loading) {
     return (
@@ -130,38 +182,20 @@ const PropertyDetail = () => {
     );
   }
 
-  // Ordenar imágenes: principal primero, luego por orden
-  const imagenes = propiedad.imagenes_propiedad
-    ? [...propiedad.imagenes_propiedad].sort((a, b) => {
-        // Primero principal, luego por orden
-        if (a.es_principal && !b.es_principal) return -1;
-        if (!a.es_principal && b.es_principal) return 1;
-        return a.orden - b.orden;
-      })
-    : [];
-
   const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
   const tipoOperacionNombre = operacionPrincipal
-    ? (tiposOperacion.find(t => t.id === (operacionPrincipal as any).tipo_operacion_id)?.nombre ||
+    ? (tiposOperacion.find(t => t.id === (operacionPrincipal as unknown as { tipo_operacion_id: number }).tipo_operacion_id)?.nombre ||
        operacionPrincipal.tipos_operacion?.nombre ||
        'N/A')
     : 'N/A';
   const caracteristicasPorTipo = propiedad.propiedades_caracteristicas?.reduce((acc, item) => {
-    const tipoId = item.caracteristicas.tipo_id; // Usar tipo_id
+    const tipoId = item.caracteristicas.tipo_caracteristica?.id; // Usar tipo_caracteristica.id
     const tipo = tiposCaracteristica.find(t => t.id === tipoId);
     const tipoNombre = tipo ? tipo.nombre : 'Otros';
     if (!acc[tipoNombre]) acc[tipoNombre] = [];
     acc[tipoNombre].push(item.caracteristicas.nombre);
     return acc;
   }, {} as Record<string, string[]>) || {};
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % imagenes.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + imagenes.length) % imagenes.length);
-  };
 
   const formatPrice = (precio: number, moneda: string) => {
     return new Intl.NumberFormat('es-AR', {
@@ -174,13 +208,49 @@ const PropertyDetail = () => {
 
   const handleVisitFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Construir el mensaje completo con todos los datos
+    const propertyUrl = window.location.href;
+    const mensajeCompleto = `SOLICITUD DE VISITA - ${propiedad.titulo}
+
+📍 Propiedad: ${propiedad.titulo}
+🔗 Link: ${propertyUrl}
+📅 Fecha preferida: ${visitForm.fecha_preferida}
+⏰ Hora preferida: ${visitForm.hora_preferida}
+📞 Teléfono: ${visitForm.telefono}
+
+${visitForm.mensaje ? `Mensaje adicional: ${visitForm.mensaje}` : ''}
+
+--
+Solicitud generada desde: ${propertyUrl}`;
+
+    // Preparar datos en el formato que espera el backend (igual a ContactForm)
+    const payload = {
+      nombre: visitForm.nombre,
+      apellido: '', // Campo vacío para solicitudes de visita
+      telefono: visitForm.telefono,
+      email: visitForm.email,
+      tipoInmueble: 'Solicitud de visita',
+      mensaje: mensajeCompleto
+    };
+
     try {
-      await axios.post(`${API_URL}/contactos`, {
-        ...visitForm,
-        propiedad_id: propiedad.id,
-        tipo_contacto: 'solicitud_visita'
+      const response = await fetch(`${API_URL}/contactos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
+
+      if (!response.ok) {
+        throw new Error('No se pudo enviar la solicitud');
+      }
+
+      await response.json();
       
+      // Mostrar mensaje de éxito
+      showToast('success', '¡Solicitud de visita enviada! Te contactaremos pronto para coordinar la visita.');
+      
+      // Limpiar formulario
       setVisitForm({
         nombre: '',
         telefono: '',
@@ -190,10 +260,9 @@ const PropertyDetail = () => {
         mensaje: ''
       });
       
-      alert('Solicitud de visita enviada correctamente');
     } catch (error) {
       console.error('Error al enviar solicitud:', error);
-      alert('Error al enviar la solicitud. Inténtalo nuevamente.');
+      showToast('error', 'Error al enviar la solicitud. Inténtalo nuevamente.');
     }
   };
 
@@ -204,45 +273,117 @@ const PropertyDetail = () => {
 
   return (
   <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Gallery Modal Mejorado */}
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed top-6 right-6 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+          toast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        } animate-slide-in-right`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {toast.type === 'success' ? (
+                <CheckCircle className="h-5 w-5 mr-2" />
+              ) : (
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              <span className="text-sm font-medium">{toast.message}</span>
+            </div>
+            <button 
+              onClick={() => setToast({ show: false, type: 'success', message: '' })}
+              className="ml-3 text-white hover:text-gray-200"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Modal de Galería Premium con Navegación por Teclado */}
       {isGalleryOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center backdrop-blur-sm">
+          {/* Botón cerrar mejorado */}
           <button
             onClick={() => setIsGalleryOpen(false)}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            className="absolute top-6 right-6 text-white hover:text-[#ec520b] z-10 bg-black/50 p-3 rounded-full hover:bg-black/70 transition-all duration-300"
+            title="Cerrar (Esc)"
           >
-            <X className="h-8 w-8" />
+            <X className="h-6 w-6" />
           </button>
-          <div className="relative w-full h-full flex items-center justify-center">
+          
+          {/* Indicador de navegación por teclado */}
+          <div className="absolute top-6 left-6 text-white/70 text-sm bg-black/50 px-3 py-2 rounded-full">
+            Usa ← → para navegar
+          </div>
+          
+          <div className="relative w-full h-full flex items-center justify-center px-4">
             {imagenes.length > 0 && (
               <>
-                <img
-                  src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
-                  alt={`${propiedad.titulo} - Imagen ${currentImageIndex + 1}`}
-                  className="max-w-3xl max-h-[80vh] object-contain rounded-2xl shadow-2xl border-4 border-[#ec520b]"
-                  style={{ boxShadow: '0 8px 32px rgba(34,37,80,0.25)' }}
-                />
+                {/* Imagen principal del modal */}
+                <div className="relative max-w-5xl max-h-[85vh] flex items-center justify-center">
+                  <img
+                    src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
+                    alt={`${propiedad.titulo} - Imagen ${currentImageIndex + 1}`}
+                    className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+                    style={{ 
+                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(236, 82, 11, 0.3)' 
+                    }}
+                  />
+                </div>
+                
+                {/* Botones de navegación mejorados */}
                 {imagenes.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className="absolute left-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b] bg-opacity-80 text-white p-3 rounded-full hover:bg-[#022550] shadow-lg"
+                      className="absolute left-4 sm:left-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b]/90 hover:bg-[#ec520b] text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 group"
+                      title="Anterior (←)"
                     >
-                      <ArrowLeft className="h-7 w-7" />
+                      <ArrowLeft className="h-6 w-6 group-hover:scale-110 transition-transform" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b] bg-opacity-80 text-white p-3 rounded-full hover:bg-[#022550] shadow-lg"
+                      className="absolute right-4 sm:right-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b]/90 hover:bg-[#ec520b] text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 group"
+                      title="Siguiente (→)"
                     >
-                      <ArrowRight className="h-7 w-7" />
+                      <ArrowRight className="h-6 w-6 group-hover:scale-110 transition-transform" />
                     </button>
                   </>
                 )}
               </>
             )}
           </div>
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold bg-[#022550]/80 px-4 py-2 rounded-xl shadow">
-            {currentImageIndex + 1} / {imagenes.length}
+          
+          {/* Contador e indicadores mejorados */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
+            {/* Indicadores de página */}
+            {imagenes.length > 1 && (
+              <div className="flex gap-2">
+                {imagenes.slice(0, Math.min(imagenes.length, 10)).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === currentImageIndex
+                        ? 'bg-[#ec520b] scale-125'
+                        : 'bg-white/40 hover:bg-white/70'
+                    }`}
+                  />
+                ))}
+                {imagenes.length > 10 && (
+                  <span className="text-white/60 text-sm ml-2">...</span>
+                )}
+              </div>
+            )}
+            
+            {/* Contador de imágenes */}
+            <div className="bg-black/70 text-white px-6 py-3 rounded-full font-semibold text-lg backdrop-blur-sm">
+              {currentImageIndex + 1} de {imagenes.length}
+            </div>
           </div>
         </div>
       )}
@@ -250,56 +391,92 @@ const PropertyDetail = () => {
       {/* Main Content Mejorado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Collage Mejorado: principal grande, otras abajo en grid */}
+          {/* Nueva Galería Mejorada: imagen principal grande + 2 miniaturas + contador */}
           <div className="lg:col-span-2">
             {imagenes.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 h-[520px]">
-                {/* Imagen principal grande */}
+              <div className="space-y-4">
+                {/* Imagen Principal - Extra Grande */}
                 <div
-                  className="col-span-2 row-span-2 rounded-2xl overflow-hidden cursor-pointer group relative shadow-lg border-4 border-[#022550] flex items-center justify-center h-full bg-white"
+                  className="relative rounded-2xl overflow-hidden cursor-pointer group shadow-2xl border-4 border-[#022550] h-[400px] bg-white"
                   onClick={() => { setCurrentImageIndex(0); setIsGalleryOpen(true); }}
-                  style={{ gridRow: '1 / span 2', gridColumn: '1 / span 2' }}
                 >
                   <img
                     src={imagenes[0]?.url_imagen || '/placeholder.svg'}
                     alt={propiedad.titulo}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <span className="absolute bottom-2 right-2 bg-[#ec520b]/80 text-white text-xs px-3 py-1 rounded shadow-lg">
-                    Ver galería
-                  </span>
-                </div>
-                {/* Mosaico de imágenes secundarias */}
-                {imagenes.slice(1, 5).map((img, idx) => (
-                  <div
-                    key={img.url_imagen}
-                    className="rounded-xl overflow-hidden cursor-pointer group relative flex items-center justify-center h-full bg-white border-2 border-[#ec520b]/30 shadow"
-                    onClick={() => { setCurrentImageIndex(idx + 1); setIsGalleryOpen(true); }}
-                    style={{ gridColumn: idx === 0 ? 3 : undefined, gridRow: idx === 0 ? 1 : undefined }}
-                  >
-                    <img
-                      src={img.url_imagen}
-                      alt={`${propiedad.titulo} - Imagen ${idx + 2}`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <span className="absolute bottom-2 right-2 bg-[#022550]/80 text-white text-xs px-2 py-1 rounded shadow">
-                      Ver
-                    </span>
+                  {/* Overlay con degradado para mejor visibilidad del texto */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                  
+                  {/* Badge de Ver Galería - Mejorado */}
+                  <div className="absolute top-4 right-4 bg-[#ec520b] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2 opacity-90 group-hover:opacity-100 transition-opacity">
+                    <Eye className="h-4 w-4" />
+                    Ver galería ({imagenes.length})
                   </div>
-                ))}
-                {imagenes.length > 5 && (
-                  <div
-                    className="rounded-xl overflow-hidden bg-[#ec520b]/80 flex items-center justify-center text-white text-lg font-semibold cursor-pointer h-full"
-                    onClick={() => setIsGalleryOpen(true)}
-                    style={{ gridColumn: 3, gridRow: 2 }}
-                  >
-                    +{imagenes.length - 5}
+                  
+                  {/* Indicador de imagen principal */}
+                  <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Imagen principal
+                  </div>
+                </div>
+
+                {/* Miniaturas - Solo 2 imágenes medianas + contador */}
+                {imagenes.length > 1 && (
+                  <div className="grid grid-cols-3 gap-4 h-[140px]">
+                    {/* Primera miniatura */}
+                    {imagenes[1] && (
+                      <div
+                        className="rounded-xl overflow-hidden cursor-pointer group relative shadow-lg border-2 border-[#ec520b]/30 bg-white transition-all duration-300 hover:shadow-xl hover:border-[#ec520b]"
+                        onClick={() => { setCurrentImageIndex(1); setIsGalleryOpen(true); }}
+                      >
+                        <img
+                          src={imagenes[1].url_imagen}
+                          alt={`${propiedad.titulo} - Imagen 2`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                        <div className="absolute bottom-2 right-2 bg-[#022550] text-white text-xs px-2 py-1 rounded-md opacity-90">
+                          2
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Segunda miniatura */}
+                    {imagenes[2] && (
+                      <div
+                        className="rounded-xl overflow-hidden cursor-pointer group relative shadow-lg border-2 border-[#ec520b]/30 bg-white transition-all duration-300 hover:shadow-xl hover:border-[#ec520b]"
+                        onClick={() => { setCurrentImageIndex(2); setIsGalleryOpen(true); }}
+                      >
+                        <img
+                          src={imagenes[2].url_imagen}
+                          alt={`${propiedad.titulo} - Imagen 3`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                        <div className="absolute bottom-2 right-2 bg-[#022550] text-white text-xs px-2 py-1 rounded-md opacity-90">
+                          3
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Botón Ver Más - Diseño premium */}
+                    <div
+                      className="rounded-xl cursor-pointer group relative shadow-lg bg-gradient-to-br from-[#ec520b] to-[#022550] text-white transition-all duration-300 hover:shadow-xl hover:scale-105 flex flex-col items-center justify-center"
+                      onClick={() => setIsGalleryOpen(true)}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl font-bold mb-1">+{imagenes.length - 3}</div>
+                        <div className="text-xs font-medium opacity-90">más fotos</div>
+                      </div>
+                      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 rounded-xl transition-colors duration-300" />
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="w-full h-[520px] bg-gray-200 rounded-lg flex items-center justify-center">
-                <Home className="h-16 w-16 text-gray-400" />
+              <div className="w-full h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex flex-col items-center justify-center border-4 border-gray-300 border-dashed">
+                <Home className="h-20 w-20 text-gray-400 mb-4" />
+                <p className="text-gray-500 text-lg font-medium">Sin imágenes disponibles</p>
               </div>
             )}
 
@@ -479,7 +656,6 @@ const PropertyDetail = () => {
                           type="time"
                           value={visitForm.hora_preferida}
                           onChange={(e) => setVisitForm(prev => ({ ...prev, hora_preferida: e.target.value }))}
-                          required
                           className="border-gray-300 focus:border-[#ec520b]"
                         />
                       </div>
@@ -507,9 +683,28 @@ const PropertyDetail = () => {
           </div>
         </div>
 
-        {/* Additional Property Details - Only Measurements (sin cambios) */}
-        {/* Sección de medidas eliminada para mejor UX/UI */}
+        {/* 
+        Mejoras implementadas en la galería:
+        - Imagen principal extra grande (400px altura)
+        - 2 miniaturas de buen tamaño (140px altura)
+        - Botón +X más fotos con diseño premium
+        - Navegación por teclado (← → Esc)
+        - Modal mejorado con indicadores de página
+        - Animaciones y transiciones suaves
+        - Mejor accesibilidad y UX
+      */}
       </div>
+
+      {/* 
+        Mejoras implementadas en la galería:
+        - Imagen principal extra grande (400px altura)
+        - 2 miniaturas de buen tamaño (140px altura)
+        - Botón +X más fotos con diseño premium
+        - Navegación por teclado (← → Esc)
+        - Modal mejorado con indicadores de página
+        - Animaciones y transiciones suaves
+        - Mejor accesibilidad y UX
+      */}
 
       {/* Floating WhatsApp Button (sin cambios) */}
       <a

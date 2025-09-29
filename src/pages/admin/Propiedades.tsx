@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
-import {Plus,Edit2,Trash2,MapPin,Home,Camera,DollarSign,Tag,Save,X,Building,Bath,Car,Bed,Upload,Image as ImageIcon} from 'lucide-react';
+import {Plus,Edit2,Trash2,MapPin,Home,Camera,DollarSign,Tag,Save,X,Building,Bath,Car,Bed,Upload,Image as ImageIcon,Smile} from 'lucide-react';
 import Loader from '@/components/ui/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,6 +56,7 @@ interface Propiedad {
   operaciones_propiedad?: OperacionPropiedad[];
   imagenes_propiedad?: { id: number; url_imagen: string; es_principal: boolean; orden: number }[];
   propiedades_caracteristicas?: { caracteristicas: { id: number; nombre: string } }[];
+  destacada?: boolean;
 }
 
 interface TipoPropiedad {
@@ -158,6 +159,22 @@ const Propiedades: React.FC = () => {
   
   // Estado para drag & drop
   const [isDragging, setIsDragging] = useState(false);
+
+  // Estado para selector de emojis
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Cerrar emoji picker al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmojiPicker]);
 
   // Estados para filtros
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
@@ -264,7 +281,6 @@ const Propiedades: React.FC = () => {
       setLoadingData(false);
     };
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo ejecutar una vez al montar
 
   // Limpiar formulario
@@ -299,6 +315,65 @@ const Propiedades: React.FC = () => {
   const handleInputChange = (field: keyof PropiedadForm, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
+
+  // Insertar emoji en la descripción
+  const insertEmoji = (emoji: string) => {
+    setForm(prev => ({
+      ...prev,
+      descripcion: prev.descripcion + emoji
+    }));
+    setShowEmojiPicker(false);
+  };
+
+  // Emojis predeterminados para inmuebles
+  const realEstateEmojis = [
+    { emoji: '🏠', label: 'Casa' },
+    { emoji: '🏡', label: 'Casa con jardín' },
+    { emoji: '🏢', label: 'Edificio' },
+    { emoji: '🏘️', label: 'Barrio' },
+    { emoji: '🏙️', label: 'Ciudad' },
+    { emoji: '🏗️', label: 'Construcción' },
+    { emoji: '🏰', label: 'Castillo/Mansión' },
+    { emoji: '🏟️', label: 'Estadio' },
+    { emoji: '🏞️', label: 'Parque Nacional' },
+    { emoji: '🏖️', label: 'Playa' },
+    { emoji: '🏔️', label: 'Montaña' },
+    { emoji: '🏕️', label: 'Camping' },
+    { emoji: '🏊‍♂️', label: 'Piscina' },
+    { emoji: '🏊‍♀️', label: 'Piscina' },
+    { emoji: '🚗', label: 'Cochera' },
+    { emoji: '🚙', label: 'SUV/Parking' },
+    { emoji: '🔑', label: 'Llaves' },
+    { emoji: '🗝️', label: 'Llave antigua' },
+    { emoji: '📍', label: 'Ubicación' },
+    { emoji: '🌟', label: 'Destacado' },
+    { emoji: '✨', label: 'Nuevo/Brillante' },
+    { emoji: '💎', label: 'Premium/Lujo' },
+    { emoji: '💰', label: 'Precio' },
+    { emoji: '💳', label: 'Financiación' },
+    { emoji: '🌳', label: 'Jardín/Árbol' },
+    { emoji: '🌲', label: 'Bosque' },
+    { emoji: '🌺', label: 'Flora/Jardín' },
+    { emoji: '🌅', label: 'Amanecer/Vista' },
+    { emoji: '🌄', label: 'Vista montaña' },
+    { emoji: '📱', label: 'Contacto' },
+    { emoji: '📞', label: 'Teléfono' },
+    { emoji: '🔥', label: 'Oferta caliente' },
+    { emoji: '⚡', label: 'Rápido/Urgente' },
+    { emoji: '✅', label: 'Disponible' },
+    { emoji: '❤️', label: 'Favorito' },
+    { emoji: '👨‍👩‍👧‍👦', label: 'Familiar' },
+    { emoji: '🛏️', label: 'Dormitorio' },
+    { emoji: '🛁', label: 'Baño' },
+    { emoji: '🍽️', label: 'Comedor' },
+    { emoji: '📺', label: 'Living/TV' },
+    { emoji: '🔒', label: 'Seguridad' },
+    { emoji: '🚪', label: 'Entrada' },
+    { emoji: '🪟', label: 'Ventana' },
+    { emoji: '🏺', label: 'Antigüedad' },
+    { emoji: '🆕', label: 'Nuevo' },
+    { emoji: '🔝', label: 'Top/Mejor' }
+  ];
 
   // Filtrar propiedades
   const propiedadesFiltradas = (Array.isArray(propiedades) ? propiedades : []).filter(propiedad => {
@@ -436,6 +511,17 @@ const Propiedades: React.FC = () => {
     }));
   };
 
+  const moveImagenExistente = (from: number, to: number) => {
+    if (to < 0 || to >= form.imagenesExistentes.length) return;
+    setForm(prev => {
+      const arr = [...prev.imagenesExistentes];
+      const temp = arr[from];
+      arr.splice(from, 1);
+      arr.splice(to, 0, temp);
+      return { ...prev, imagenesExistentes: arr };
+    });
+  };
+
 
   // Guardar propiedad (flujo: crear -> subir imágenes -> actualizar)
   const handleSave = async () => {
@@ -477,7 +563,8 @@ const Propiedades: React.FC = () => {
         ubicacion_id: parseInt(form.ubicacion_id),
         agente_id: agenteActual,
         caracteristicas_ids: form.caracteristicas || [],
-        operaciones: operacionesPayload
+        operaciones: operacionesPayload,
+        destacada: form.destacada || false
       };
 
       // DEBUG: Mostrar el payload que se enviará al backend
@@ -570,7 +657,8 @@ const Propiedades: React.FC = () => {
       imagenes: [],
       imagenesExistentes: Array.isArray(propiedad.imagenes_propiedad)
         ? propiedad.imagenes_propiedad.map(img => img.url_imagen)
-        : []
+        : [],
+      destacada: propiedad.destacada ?? false
     });
     setEditingId(propiedad.id);
     setShowForm(true);
@@ -744,13 +832,56 @@ const Propiedades: React.FC = () => {
                   </Select>
                 </div> */}
                 <div className="md:col-span-2">
-                  <Label htmlFor="descripcion">Descripción</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="descripcion">Descripción</Label>
+                    <div className="relative emoji-picker-container">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="text-[#ec520b] border-[#ec520b] hover:bg-[#ec520b] hover:text-white"
+                      >
+                        <Smile className="h-4 w-4 mr-1" />
+                        Emojis
+                      </Button>
+                      {showEmojiPicker && (
+                        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 w-80 max-h-60 overflow-y-auto">
+                          <div className="text-sm font-medium text-gray-700 mb-3">Selecciona un emoji:</div>
+                          <div className="grid grid-cols-8 gap-2">
+                            {realEstateEmojis.map((item, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => insertEmoji(item.emoji)}
+                                className="text-2xl hover:bg-gray-100 rounded p-1 transition-colors"
+                                title={item.label}
+                              >
+                                {item.emoji}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setShowEmojiPicker(false)}
+                              className="w-full text-gray-500 hover:text-gray-700"
+                            >
+                              Cerrar
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <Textarea
                     id="descripcion"
                     value={form.descripcion}
                     onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                    placeholder="Descripción detallada de la propiedad..."
-                    rows={3}
+                    placeholder="Descripción detallada de la propiedad... 🏠✨"
+                    rows={8}
                   />
                 </div>
               </div>
@@ -770,7 +901,6 @@ const Propiedades: React.FC = () => {
                     type="number"
                     value={form.area_construida}
                     onChange={(e) => handleInputChange('area_construida', e.target.value)}
-                    placeholder="120"
                   />
                 </div>
                 <div>
@@ -780,7 +910,6 @@ const Propiedades: React.FC = () => {
                     type="number"
                     value={form.area_total}
                     onChange={(e) => handleInputChange('area_total', e.target.value)}
-                    placeholder="300"
                   />
                 </div>
                 <div>
@@ -793,7 +922,6 @@ const Propiedades: React.FC = () => {
                     type="number"
                     value={form.habitaciones}
                     onChange={(e) => handleInputChange('habitaciones', e.target.value)}
-                    placeholder="3"
                   />
                 </div>
                 <div>
@@ -807,7 +935,6 @@ const Propiedades: React.FC = () => {
                     step="0.5"
                     value={form.banos}
                     onChange={(e) => handleInputChange('banos', e.target.value)}
-                    placeholder="2"
                   />
                 </div>
                 <div>
@@ -820,7 +947,6 @@ const Propiedades: React.FC = () => {
                     type="number"
                     value={form.garages}
                     onChange={(e) => handleInputChange('garages', e.target.value)}
-                    placeholder="2"
                   />
                 </div>
                 
@@ -1096,6 +1222,24 @@ const Propiedades: React.FC = () => {
                           >
                             <X className="h-4 w-4" />
                           </button>
+                          <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                            {index + 1}
+                          </div>
+                          {/* Botones para ordenar imágenes existentes */}
+                          <div className="absolute bottom-1 right-1 flex gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveImagenExistente(index, index - 1)}
+                              className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 disabled:opacity-50"
+                            >↑</button>
+                            <button
+                              type="button"
+                              disabled={index === form.imagenesExistentes.length - 1}
+                              onClick={() => moveImagenExistente(index, index + 1)}
+                              className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 disabled:opacity-50"
+                            >↓</button>
+                          </div>
                         </div>
                       ))}
                     </div>

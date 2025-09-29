@@ -221,7 +221,7 @@ const ContactForm = ({
         <div className={`grid grid-cols-1 ${showContactInfo ? 'lg:grid-cols-3' : ''} gap-8`}>
           {/* Información de contacto */}
 {showContactInfo && (
-  <div className="lg:col-span-1">
+  <div className="lg:col-span-1 min-w-[280px]">
     <Card className="bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl">
       <CardContent className="p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-6">
@@ -245,7 +245,11 @@ const ContactForm = ({
             </div>
             <div className="min-w-0">
               <div className="font-medium text-[#022550]">Email</div>
-              <div className="text-[#ec520b] font-semibold break-words">inicio.inmob@gmail.com</div>
+              <div className="text-[#ec520b] font-semibold break-normal">
+  inicio.inmob@gmail.com
+</div>
+
+
             </div>
           </div>
           {/* WhatsApp */}

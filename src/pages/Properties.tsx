@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Home } from 'lucide-react';
+import { MessageCircle, Home, ChevronUp } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -86,6 +86,8 @@ const Properties = () => {
   const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
   const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
   const propiedades = data ?? [];
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  
   // Keep a mounted flag to prevent state updates on unmounted component
   useEffect(() => {
     let mounted = true;
@@ -160,6 +162,25 @@ const Properties = () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
   }, []);
+
+  // Handle scroll to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setShowScrollTop(scrollY > 400); // Show after scrolling 400px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const handleOperacionChange = (value: string) => {
     // treat '0' as clear/empty
@@ -482,11 +503,8 @@ const Properties = () => {
                 <Home className="h-12 w-12 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No hay propiedades en la base de datos
+                No hay propiedades publicadas aun. 
               </h3>
-              <p className="text-sm text-gray-500">
-                Puedes agregar propiedades desde el panel de administración.
-              </p>
               <button
                 onClick={clearFilters}
                 className="mt-4 bg-[#ec520b] hover:bg-[#022550] text-white px-4 py-2 rounded-lg text-sm"
@@ -545,8 +563,25 @@ const Properties = () => {
         backgroundImage={heroImage}
       />
 
-      {/* Botón Flotante de WhatsApp */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Botones Flotantes */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        {/* Botón Scroll to Top */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="group flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-[#022550] to-[#033366] hover:from-[#ec520b] hover:to-[#ff6b1a] text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+            aria-label="Volver arriba"
+          >
+            <ChevronUp className="h-6 w-6 sm:h-7 sm:w-7" />
+            
+            <span className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+              Volver arriba
+              <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
+            </span>
+          </button>
+        )}
+        
+        {/* Botón WhatsApp */}
         <a
           href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20las%20propiedades%20disponibles"
           target="_blank"

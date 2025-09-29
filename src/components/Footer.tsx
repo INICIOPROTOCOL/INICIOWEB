@@ -141,8 +141,8 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img
-                  src="logo_grande_fondo_azul 1.svg"
-                  alt="Logo"
+                  src="/logo_grande_fondo_azul 1.svg"
+                  alt="Logo INICIO"
                   className="w-12 h-12 object-contain"
                 />
               <span className="text-lg sm:text-xl font-bold">
@@ -322,7 +322,7 @@ const Footer = () => {
             <div className="text-sm text-white/80">
               © 2025 Inicio Negocios Inmobiliarios. Todos los derechos reservados.
             </div>
-            <div className="flex space-x-6">
+            {/* <div className="flex space-x-6">
               <Link 
                 to="/privacidad" 
                 className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
@@ -335,7 +335,7 @@ const Footer = () => {
               >
                 Términos de Uso
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

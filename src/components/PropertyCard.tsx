@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface PropertyCardProps {
   property: {
@@ -30,6 +31,7 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
+  const navigate = useNavigate();
   // Imagen principal
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
@@ -83,8 +85,21 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
+   const handleCardClick = (e: React.MouseEvent) => {
+    // Evita abrir el link si el click fue sobre un botón, enlace o ícono dentro
+    const target = e.target as HTMLElement;
+    if (
+      target.closest("button") || 
+      target.closest("a")    // así excluimos los botones y links
+    ) {
+      return;
+    }
+    navigate(`/propiedad/${property.id}`);
+  };
+
+
   return (
-    <Card className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
+    <Card onClick={handleCardClick} className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
       {/* Imagen principal */}
       <div className="relative">
         <img

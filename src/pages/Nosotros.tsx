@@ -112,7 +112,8 @@ const Nosotros = () => {
       </section>
 
       {/* Visión */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-16 sm:py-20 bg-gradient-to-b from-[#ec520b]/90 to-white">
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
             {/* Elementos decorativos */}

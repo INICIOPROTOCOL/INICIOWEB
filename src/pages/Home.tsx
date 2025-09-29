@@ -23,7 +23,8 @@ const Home = () => {
     const fetchFeatured = async () => {
       await request(async () => {
         const response = await axios.get(`${API_URL}/propiedades?destacada=true&limit=3`);
-        return response.data.data || [];
+        // Asegura que featuredProperties sea el array correcto
+        return response.data?.data || response.data || [];
       });
     };
     fetchFeatured();
@@ -68,7 +69,7 @@ const Home = () => {
     }
   ];
 
-  // Eliminar loader para carga rápida
+ 
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -104,15 +105,17 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Sección de Invitación (más ancha y sin mezcla de gradientes) */}
-      <section className="py-8 sm:py-12 bg-gradient-to-b from-gray-50 to-white relative">        
-        <div className="max-w-7xl mx-auto px-2 sm:px-8 lg:px-16 relative">
-          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-4 sm:p-10 shadow-xl relative overflow-hidden">
-            {/* Overlay sutil */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
+      {/* Sección de Invitación actualizada */}
+      <section 
+        className="py-8 sm:py-12 relative bg-[#FFF4E5]"
+      >
+        <div className="max-w-7xl mx-auto px-2 sm:px-8 lg:px-16 relative z-10">
+          <div className="bg-white backdrop-blur-sm border border-white/30 rounded-3xl p-4 sm:p-10 shadow-xl relative overflow-hidden">
+            {/* Overlay sutil interno */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 rounded-3xl"></div>
             
-            <div className="text-center mb-8 relative">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4">
+            <div className="text-center mb-8 relative z-10">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 bg-white/80 shadow-lg">
                 {/* logo de inicio */}
                 <img
                   src="/logo_grande_fondo_azul 1.svg"
@@ -120,19 +123,19 @@ const Home = () => {
                   className="w-16 h-16 object-contain"
                 />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#022550] mb-3 drop-shadow-sm">
                 Estamos para acompañarte
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
+              <p className="text-[#022550] text-sm sm:text-base max-w-md mx-auto drop-shadow-sm font-medium">
                 Tu compañia en el proceso de tus objetivos inmobiliarios
               </p>
             </div>
 
-            {/* Card Solicitar Tasación a lo ancho */}
-            <div className="w-full">
-              <div className="bg-[#ec520b] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300 w-full">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 group-hover:to-white/10 transition-colors duration-300"></div>
+            {/* Card Solicitar Tasación */}
+            <div className="w-full relative z-10">
+              <div className="bg-[#ec520b] rounded-xl p-6 text-white relative overflow-hidden group transform hover:scale-105 transition-all duration-300 w-full shadow-xl">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full -translate-y-6 translate-x-6"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10 group-hover:to-black/20 transition-colors duration-300"></div>
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <Calculator className="h-8 w-8 mb-4 text-white/90" />
@@ -145,7 +148,7 @@ const Home = () => {
                     asChild
                     className="w-full md:w-auto bg-white text-[#ec520b] hover:bg-[#022550] hover:text-white font-semibold shadow-lg transition-all duration-300"
                   >
-                    <Link to="/tasaciones">
+                    <Link to="/contacto?servicio=tasacion#formulario">
                       Solicitar Tasación
                       <Calculator className="ml-2 h-4 w-4" />
                     </Link>
@@ -159,8 +162,12 @@ const Home = () => {
 
 
       {/* Featured Properties */}
-      <section className="py-8 sm:py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section 
+        className="py-8 sm:py-12 relative bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(/family-inicio.png)` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/70"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-6 sm:mb-10">
             <Badge variant="outline" className="mb-2">Propiedades Destacadas</Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
@@ -176,15 +183,23 @@ const Home = () => {
                 <div key={i} className="h-56 sm:h-64 bg-gray-100 rounded-xl animate-pulse" />
               ))
             ) : (
-              featuredProperties?.map((property: any, index: number) => (
-                <div 
-                  key={property.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                >
-                  <PropertyCard property={property} />
+              Array.isArray(featuredProperties) && featuredProperties.length > 0 ? (
+                featuredProperties
+                  .filter((property: any) => property.destacada === true)
+                  .map((property: any, index: number) => (
+                    <div 
+                      key={property.id}
+                      className="group animate-fade-in-up transition-all duration-500 hover:scale-105 hover:shadow-xl"
+                      style={{ animationDelay: `${index * 0.15}s` }}
+                    >
+                      <PropertyCard property={property} />
+                    </div>
+                  ))
+              ) : (
+                <div className="col-span-full text-center py-12 text-gray-400">
+                  No hay propiedades destacadas actualmente.
                 </div>
-              ))
+              )
             )}
           </div>
         </div>

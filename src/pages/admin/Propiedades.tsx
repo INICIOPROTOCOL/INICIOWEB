@@ -105,6 +105,7 @@ interface PropiedadForm {
   operaciones: { tipo_operacion_id: string; precio: string; moneda: string; disponible: boolean }[];
   imagenes: File[];
   imagenesExistentes: string[];
+  destacada?: boolean;
 }
 
 const Propiedades: React.FC = () => {
@@ -170,6 +171,18 @@ const Propiedades: React.FC = () => {
   const [tiposCaracteristica, setTiposCaracteristica] = useState<TipoCaracteristica[]>([]);
   const [tiposOperacion, setTiposOperacion] = useState<TipoOperacion[]>([]);
 
+  // Mover imagen en el array
+  const moveImagen = (from: number, to: number) => {
+    if (to < 0 || to >= form.imagenes.length) return;
+    setForm(prev => {
+      const arr = [...prev.imagenes];
+      const temp = arr[from];
+      arr.splice(from, 1);
+      arr.splice(to, 0, temp);
+      return { ...prev, imagenes: arr };
+    });
+  };
+
   // Formulario
   const [form, setForm] = useState<PropiedadForm>({
     titulo: '',
@@ -190,8 +203,9 @@ const Propiedades: React.FC = () => {
     fondo: '',
     caracteristicas: [],
     operaciones: [{ tipo_operacion_id: '', precio: '', moneda: 'USD', disponible: true }],
-    imagenes: [],
-    imagenesExistentes: []
+  imagenes: [],
+  imagenesExistentes: [],
+  destacada: false
   });
 
   // Cargar datos iniciales
@@ -1110,6 +1124,21 @@ const Propiedades: React.FC = () => {
                           <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
                             {file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}
                           </div>
+                          {/* Botones para ordenar imágenes */}
+                          <div className="absolute bottom-1 right-1 flex gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveImagen(index, index - 1)}
+                              className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 disabled:opacity-50"
+                            >↑</button>
+                            <button
+                              type="button"
+                              disabled={index === form.imagenes.length - 1}
+                              onClick={() => moveImagen(index, index + 1)}
+                              className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 disabled:opacity-50"
+                            >↓</button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1119,6 +1148,17 @@ const Propiedades: React.FC = () => {
             </div>
 
             {/* Botones */}
+            {/* Checkbox destacada */}
+            <div className="mb-6 flex items-center">
+              <input
+                type="checkbox"
+                id="destacada"
+                checked={form.destacada}
+                onChange={e => setForm(prev => ({ ...prev, destacada: e.target.checked }))}
+                className="h-4 w-4 text-[#ec520b] focus:ring-[#022550] border-gray-300 rounded"
+              />
+              <label htmlFor="destacada" className="ml-2 block text-sm text-gray-700">Propiedad destacada</label>
+            </div>
             <div className="flex justify-end space-x-3 pt-6 border-t">
               <Button variant="outline" onClick={resetForm}>
                 Cancelar

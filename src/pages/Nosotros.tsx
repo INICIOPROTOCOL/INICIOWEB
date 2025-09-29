@@ -39,7 +39,7 @@ const Nosotros = () => {
       }
     ],
     fundacion: {
-      año: "2022", 
+      año: "2021", 
       historia: "En INICIO, crecemos y nos adaptamos constantemente para ofrecerte la mejor experiencia. Tu tranquilidad y éxito son nuestro principal objetivo."
     },
   };

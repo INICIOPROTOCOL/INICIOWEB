@@ -14,7 +14,7 @@ export const useScrollToHash = () => {
             behavior: 'smooth',
             block: 'start'
           });
-        }, 500);
+        }, 300);
       }
     } else {
       // Si no hay hash, SIEMPRE ir al inicio inmediatamente

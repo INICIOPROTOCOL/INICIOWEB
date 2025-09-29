@@ -23,18 +23,19 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 shadow-sm" style={{ backgroundColor: '#002553' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link rel='icon' type='image/x-icon' to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity" >
-            <img
-              src="/logo_grande_fondo_azul 1.svg"
-              alt="Logo"
-              className="h-12 max-w-[100px] w-auto object-contain"
-            />
-            <img
-              src="/inicio_negocios_ico.svg"
-              alt="Logo"
-              className="h-12 max-w-[100px] w-auto object-contain"
-            />
-        </Link>
+          <Link to="/" className="flex items-center space-x-3">
+              <img
+                src="/logo_grande_fondo_azul 1.svg"
+                alt="Logo"
+                className="h-12 w-auto object-contain"
+              />
+              <div className="flex flex-col leading-tight -translate-y-1">
+  <span className="text-[#ec520b] font-bold text-lg tracking-wide">INICIO</span>
+  <span className="text-white text-xs">NEGOCIOS INMOBILIARIOS</span>
+</div>
+ 
+            </Link>
+
 
           {/* Desktop Navigation - Menú responsive con hover mejorado */}
           <div className="hidden lg:flex items-center space-x-1">

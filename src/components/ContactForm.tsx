@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useApiRequest } from '@/hooks/useApiRequest';
@@ -22,6 +22,7 @@ interface ContactFormProps {
   showHeader?: boolean; // Nueva prop
   backgroundImage?: string;
   className?: string;
+  defaultTipoInmueble?: string; // Nueva prop para pre-seleccionar servicio
 }
 
 const ContactForm = ({ 
@@ -31,7 +32,8 @@ const ContactForm = ({
   showContactInfo = true,
   showHeader = true, // Por defecto true
   backgroundImage,
-  className = ""
+  className = "",
+  defaultTipoInmueble = "" // Nuevo prop con valor por defecto
 }: ContactFormProps) => {
   // Estado para el formulario de contacto
   const [contactForm, setContactForm] = useState({
@@ -43,7 +45,26 @@ const ContactForm = ({
     mensaje: ''
   });
   const [modal, setModal] = useState<{ open: boolean; success: boolean; message: string }>({ open: false, success: false, message: '' });
+  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
   const { loading, error, request } = useApiRequest({ retries: 2, retryDelay: 1500 });
+
+  // Efecto para establecer el tipo de inmueble por defecto
+  useEffect(() => {
+    if (defaultTipoInmueble) {
+      setContactForm(prev => ({
+        ...prev,
+        tipoInmueble: defaultTipoInmueble
+      }));
+    }
+  }, [defaultTipoInmueble]);
+
+  // Función para mostrar toast
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'success', message: '' });
+    }, 4000);
+  };
 
   // Opciones para el select de inmuebles
   const tiposInmuebles = [
@@ -74,7 +95,7 @@ const ContactForm = ({
     const payload = {
       nombre: contactForm.nombre,
       apellido: contactForm.apellido,
-      celular: contactForm.celular,
+      telefono: contactForm.celular,
       email: contactForm.email,
       tipoInmueble: contactForm.tipoInmueble,
       mensaje: contactForm.mensaje
@@ -89,7 +110,7 @@ const ContactForm = ({
       return await res.json();
     });
     if (!error) {
-      setModal({ open: true, success: true, message: '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.' });
+      showToast('success', '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
       setContactForm({
         nombre: '',
         apellido: '',
@@ -99,7 +120,7 @@ const ContactForm = ({
         mensaje: ''
       });
     } else {
-      setModal({ open: true, success: false, message: error });
+      showToast('error', `Error al enviar: ${error}`);
     }
   };
 
@@ -112,6 +133,35 @@ const ContactForm = ({
       className={`py-16 sm:py-20 relative bg-cover bg-center bg-no-repeat ${className}`}
       style={sectionStyle}
     >
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed top-6 right-6 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+          toast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        } animate-slide-in-right`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {toast.type === 'success' ? (
+                <CheckCircle className="h-5 w-5 mr-2" />
+              ) : (
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              <span className="text-sm font-medium">{toast.message}</span>
+            </div>
+            <button 
+              onClick={() => setToast({ show: false, type: 'success', message: '' })}
+              className="ml-3 text-white hover:text-gray-200"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
       {/* Modal de éxito/error */}
       {modal.open && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">

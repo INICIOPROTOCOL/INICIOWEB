@@ -2,9 +2,21 @@ import { Link } from 'react-router-dom';
 import { Home, Phone, Mail, MapPin, Facebook, Instagram, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useApiRequest } from '@/hooks/useApiRequest';
 
 const Footer = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
+  const { loading, error, request } = useApiRequest({ retries: 2, retryDelay: 1500 });
+
+  // Función para mostrar toast
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'success', message: '' });
+    }, 4000);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -17,25 +29,111 @@ const Footer = () => {
       if (allowedTypes.includes(file.type)) {
         setSelectedFile(file);
       } else {
-        alert('Por favor selecciona un archivo PDF o Word (.doc, .docx)');
+        showToast('error', 'Por favor selecciona un archivo PDF o Word (.doc, .docx)');
         e.target.value = '';
       }
     }
   };
 
-  const handleSubmitCV = () => {
+  const handleSubmitCV = async () => {
     if (!selectedFile) {
-      alert('Por favor selecciona tu CV antes de enviar');
+      showToast('error', 'Por favor selecciona tu CV antes de enviar');
       return;
     }
-    // Aquí iría la lógica para enviar el CV
-    alert('¡CV enviado correctamente! Nos pondremos en contacto contigo pronto.');
-    setSelectedFile(null);
-    const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+
+    setUploading(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    
+    try {
+      // Convertir el archivo a base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        
+        const payload = {
+          pdfBase64: base64,
+          nombreArchivo: selectedFile.name
+        };
+        
+        try {
+          await request(async () => {
+            const response = await fetch(`${API_URL}/contactos/send-cv`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+              throw new Error('Error al enviar el CV');
+            }
+            
+            return await response.json();
+          });
+
+          if (!error) {
+            showToast('success', `CV enviado correctamente! Tu CV "${selectedFile.name}" ha sido enviado a nuestro equipo.`);
+            setSelectedFile(null);
+            const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+          } else {
+            showToast('error', `Error al enviar CV: ${error}`);
+          }
+        } catch (err) {
+          showToast('error', 'Error al enviar el CV. Por favor, inténtalo nuevamente.');
+          console.error('Error uploading CV:', err);
+        } finally {
+          setUploading(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        showToast('error', 'Error al leer el archivo. Por favor, inténtalo nuevamente.');
+        setUploading(false);
+      };
+      
+      reader.readAsDataURL(selectedFile);
+      
+    } catch (err) {
+      showToast('error', 'Error al procesar el archivo. Por favor, inténtalo nuevamente.');
+      console.error('Error processing file:', err);
+      setUploading(false);
+    }
   };
 
   return (
+    <>
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed top-6 right-6 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+          toast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {toast.type === 'success' ? (
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              <span className="text-sm font-medium">{toast.message}</span>
+            </div>
+            <button 
+              onClick={() => setToast({ show: false, type: 'success', message: '' })}
+              className="ml-3 text-white hover:text-gray-200"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
     <footer className="bg-[#022550] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -101,7 +199,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link 
-                  to="/ventas" 
+                  to="/nuestros-servicios#ventas" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Venta de Propiedades
@@ -109,7 +207,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/alquileres" 
+                  to="/nuestros-servicios#alquileres" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Alquileres
@@ -117,7 +215,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/tasaciones" 
+                  to="/nuestros-servicios#tasaciones" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Tasaciones
@@ -125,7 +223,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/legales" 
+                  to="/nuestros-servicios#legales" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Asesoría Legal
@@ -133,7 +231,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/contabilidad" 
+                  to="/nuestros-servicios#contabilidad" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Asesoría Contable
@@ -141,7 +239,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/administraciones" 
+                  to="/nuestros-servicios#administraciones" 
                   className="text-sm text-white/80 hover:text-[#ec520b] transition-colors duration-300"
                 >
                   Administraciones
@@ -204,9 +302,16 @@ const Footer = () => {
               <Button 
                 onClick={handleSubmitCV}
                 className="w-full bg-[#ec520b] hover:bg-[#d64807] text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 border border-[#ec520b]/20"
-                disabled={!selectedFile}
+                disabled={!selectedFile || uploading || loading}
               >
-                Enviar CV
+                {(uploading || loading) ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Enviando...
+                  </div>
+                ) : (
+                  'Enviar CV'
+                )}
               </Button>
             </div>
           </div>
@@ -235,6 +340,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };
 

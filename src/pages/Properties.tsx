@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import PropertyCard from '@/components/PropertyCard';
 import ContactForm from '@/components/ContactForm';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, Home } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Propiedad {
   id: number;
@@ -65,222 +73,410 @@ interface Propiedad {
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const Properties = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [habitaciones, setHabitaciones] = useState('');
-  useScrollToTop();
-  const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
-  const propiedades = data ?? [];
   const [tipo, setTipo] = useState('');
-  const [operacion, setOperacion] = useState(''); // ahora guarda el id
+  const [operacion, setOperacion] = useState('');
   const [precioMin, setPrecioMin] = useState('');
   const [precioMax, setPrecioMax] = useState('');
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState('');
   const [tiposPropiedad, setTiposPropiedad] = useState<{ id: number; nombre: string }[]>([]);
   const [ubicaciones, setUbicaciones] = useState<{ id: number; ciudad: string; provincia: string; pais: string; barrio?: string }[]>([]);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState('');
   const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
-
-  const navigate = useNavigate();
-
+  const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
+  const propiedades = data ?? [];
+  // Keep a mounted flag to prevent state updates on unmounted component
   useEffect(() => {
-    const fetchAll = async () => {
+    let mounted = true;
+
+    const fetchMeta = async () => {
+      try {
+        const [tiposRes, ubicacionesRes, tiposOperacionRes] = await Promise.all([
+          axios.get(`${API_URL}/tipos`),
+          axios.get(`${API_URL}/ubicaciones`),
+          axios.get(`${API_URL}/tipos-operacion`),
+        ]);
+        if (!mounted) return;
+        setTiposPropiedad(tiposRes.data || []);
+        setUbicaciones(ubicacionesRes.data || []);
+        setTiposOperacion(tiposOperacionRes.data || []);
+      } catch (err) {
+        // ignore - useApiRequest will handle propiedades fetch fallback
+        // console.error('meta fetch error', err);
+      }
+    };
+
+    const fetchProps = async () => {
       await request(async () => {
         const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
+        if (!mounted) return [];
         localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
-        const tiposRes = await axios.get(`${API_URL}/tipos`);
-        setTiposPropiedad(tiposRes.data || []);
-        const ubicacionesRes = await axios.get(`${API_URL}/ubicaciones`);
-        setUbicaciones(ubicacionesRes.data || []);
-        const tiposOperacionRes = await axios.get(`${API_URL}/tipos-operacion`);
-        setTiposOperacion(tiposOperacionRes.data || []);
         return propiedadesRes.data || [];
       });
     };
-    fetchAll();
+
+    fetchMeta();
+    fetchProps();
+
+    return () => {
+      mounted = false;
+    };
+    // run only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    setOperacion(queryParams.get('operacion') || '');
+    setTipo(queryParams.get('tipo') || '');
+    setUbicacionSeleccionada(queryParams.get('ubicacion') || '');
+  }, [location.search]);
+
+  // Debounced update of query params.
+  const debounceRef = useRef<number | null>(null);
+  const updateQueryParams = (key: string, value: string | number) => {
+    // normalize value: if numeric string, convert to number
+    const parsed = value === '' ? '' : Number(value);
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = window.setTimeout(() => {
+      // Use current window.location to compose params (avoid stale location in closures)
+      const queryParams = new URLSearchParams(window.location.search);
+      if (parsed === '') {
+        queryParams.delete(key);
+      } else {
+        queryParams.set(key, String(parsed));
+      }
+    // update URL query params (debounced)
+      navigate(`?${queryParams.toString()}`, { replace: true });
+    }, 400) as unknown as number;
+  };
+
+  // Clear debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const handleOperacionChange = (value: string) => {
+    // treat '0' as clear/empty
+    const normalized = value === '0' || value === '' ? '' : String(Number(value));
+    setOperacion(normalized);
+    updateQueryParams('operacion', normalized === '' ? '' : Number(normalized));
+  };
+
+  const handleTipoChange = (value: string) => {
+    const normalized = value === '0' || value === '' ? '' : String(Number(value));
+    setTipo(normalized);
+    updateQueryParams('tipo', normalized === '' ? '' : Number(normalized));
+  };
+
+  const handleUbicacionChange = (value: string) => {
+    const normalized = value === '0' || value === '' ? '' : String(Number(value));
+    setUbicacionSeleccionada(normalized);
+    updateQueryParams('ubicacion', normalized === '' ? '' : Number(normalized));
+  };
+
+  const clearFilters = () => {
+    setOperacion('');
+    setTipo('');
+    setUbicacionSeleccionada('');
+    setHabitaciones('');
+    setPrecioMin('');
+    setPrecioMax('');
+    navigate('/propiedades', { replace: true });
+  };
+
+  // Helpers to get display names for chips
+  const getOperacionName = (idStr: string) => {
+    if (!idStr) return '';
+    const id = Number(idStr);
+    // Business mapping: show 'Comprar' for id === 2 (frontend label for users)
+    if (id === 4) return 'Compra';
+    const found = tiposOperacion.find(t => t.id === id);
+    return found ? found.nombre : idStr;
+  };
+
+  // Helper to robustly extract operation type id from various backend shapes
+  const getOperacionId = (op: unknown): number | undefined => {
+    if (!op || typeof op !== 'object') return undefined;
+    const rec = op as Record<string, unknown>;
+    const tipoOper = rec['tipo_operacion'];
+    if (tipoOper && typeof tipoOper === 'object') {
+      const id = (tipoOper as Record<string, unknown>)['id'];
+      if (typeof id === 'number') return id;
+    }
+    const tipoOperId = rec['tipo_operacion_id'];
+    if (typeof tipoOperId === 'number') return tipoOperId;
+    const tiposOper = rec['tipos_operacion'];
+    if (tiposOper && typeof tiposOper === 'object') {
+      const id = (tiposOper as Record<string, unknown>)['id'];
+      if (typeof id === 'number') return id;
+    }
+    const tipoOperNumber = rec['tipo_operacion'];
+    if (typeof tipoOperNumber === 'number') return tipoOperNumber;
+    return undefined;
+  };
+
+  const getTipoName = (idStr: string) => {
+    if (!idStr) return '';
+    const id = Number(idStr);
+    const found = tiposPropiedad.find(t => t.id === id);
+    return found ? found.nombre : idStr;
+  };
+
+  const getUbicacionName = (idStr: string) => {
+    if (!idStr) return '';
+    const id = Number(idStr);
+    const found = ubicaciones.find(u => u.id === id);
+    return found ? `${found.ciudad} (${found.provincia})` : idStr;
+  };
+
+  const filteredProperties = propiedades.filter(p => {
+    const matchesOperacion = !operacion || (
+      p.operaciones_propiedad?.some(op => {
+        const opId = getOperacionId(op);
+        return opId !== undefined && opId === Number(operacion);
+      })
+    );
+
+    const matchesTipo = !tipo || p.tipos_propiedad?.id === Number(tipo);
+
+    const matchesUbicacion = !ubicacionSeleccionada || p.ubicaciones?.id === Number(ubicacionSeleccionada);
+
+    const matchesHabitaciones = !habitaciones || (p.habitaciones ?? 0) >= Number(habitaciones);
+
+    const matchesPrecio = (!precioMin && !precioMax) || (
+      p.operaciones_propiedad?.some(op => {
+        const precio = op.precio ?? 0;
+        return (!precioMin || precio >= Number(precioMin)) &&
+               (!precioMax || precio <= Number(precioMax));
+      })
+    );
+
+    return matchesOperacion && matchesTipo && matchesUbicacion && matchesHabitaciones && matchesPrecio;
+  });
+
+  // production-ready: no debug output
+
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section con Filtros */}
       <section 
-        className="relative min-h-[40vh] sm:min-h-[32vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(/assets/hero-bg.jpg)` }}
+        className="relative min-h-[80vh] bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(/family-inicio.png)` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/90 via-[#022550]/70 to-[#ec520b]/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/85 via-[#022550]/60 to-[#ec520b]/20"></div>
         
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Propiedades
-            </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
-              Explora nuestra selección exclusiva de propiedades.
-            </p>
+        <div className="relative z-10 flex flex-col justify-center min-h-[80vh] py-20">
+          {/* Título */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
+            <div className="animate-fade-in">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Propiedades
+              </h1>
+              <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
+                Explora nuestra selección exclusiva de propiedades.
+              </p>
+            </div>
           </div>
+
+          {/* NOTE: Filters moved below the hero so they can be sticky when scrolling */}
         </div>
       </section>
 
-      {/* Results Section */}
-      <section className="py-8 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Filtros mejorados - Estilo SearchForm */}
-          <div className="mb-8">
-            <Card className="w-full bg-white/85 backdrop-blur-md border border-white/20 shadow-xl">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
-
-                  
-                  {/* Tipo de Operación dinámico */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      Operación
-                    </label>
-                    <select
-                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      value={operacion}
-                      onChange={e => setOperacion(e.target.value)}
-                    >
-                      <option value="">Todas</option>
-                      {(Array.isArray(tiposOperacion) ? tiposOperacion : []).map(tipo => (
-                        <option key={tipo.id} value={tipo.id}>
-                          {tipo.nombre.toLowerCase() === 'venta' ? 'Compra' : tipo.nombre.charAt(0).toUpperCase() + tipo.nombre.slice(1).toLowerCase()}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Tipo de Propiedad dinámico (igual que SearchForm) */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      Tipo de Propiedad
-                    </label>
-                    <select
-                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      value={tipo}
-                      onChange={e => setTipo(e.target.value)}
-                    >
-                      <option value="">Todos los tipos</option>
-                      {(Array.isArray(tiposPropiedad) ? tiposPropiedad : []).map(tp => (
-                        <option key={tp.id} value={tp.nombre}>{tp.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Ubicación dinámico (igual que admin/Ubicaciones) */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      Ubicación
-                    </label>
-                    <select
-                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      value={ubicacionSeleccionada}
-                      onChange={e => setUbicacionSeleccionada(e.target.value)}
-                    >
-                      <option value="">Todas las ubicaciones</option>
-                      {(Array.isArray(ubicaciones) ? ubicaciones : []).map(ubi => (
-                        <option key={ubi.id} value={ubi.ciudad}>{ubi.ciudad} ({ubi.provincia})</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Habitaciones */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      Habitaciones
-                    </label>
-                    <select
-                      className="w-full bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      value={habitaciones}
-                      onChange={e => setHabitaciones(e.target.value)}
-                    >
-                      <option value="">Todas</option>
-                      {[1,2,3,4,5,6,7,8].map(n => (
-                        <option key={n} value={n}>{n}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Precio compacto (rango en una sola línea) */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                      Precio (rango)
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        className="w-1/2 bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                        placeholder="Mín"
-                        value={precioMin}
-                        onChange={e => setPrecioMin(e.target.value)}
-                        min={0}
-                      />
-                      <span className="self-center text-gray-400">-</span>
-                      <input
-                        type="number"
-                        className="w-1/2 bg-white/80 border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                        placeholder="Máx"
-                        value={precioMax}
-                        onChange={e => setPrecioMax(e.target.value)}
-                        min={0}
-                      />
-                    </div>
-                  </div>
-
+      {/* Sticky Filters Bar (visible while scrolling) */}
+      <section className="sticky top-16 z-40 bg-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
+          <Card className="w-full bg-white border border-gray-200 shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
+                {/* Tipo de Operación dinámico */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                    Tipo de Operación
+                  </label>
+                  <Select value={operacion} onValueChange={handleOperacionChange}>
+                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="0">Todas</SelectItem>
+                        {tiposOperacion.map(op => (
+                          <SelectItem key={op.id} value={String(op.id)}>{op.id === 4 ? 'Compra' : op.nombre}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* Tipo de Propiedad dinámico */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                    Tipo de Propiedad
+                  </label>
+                  <Select value={tipo} onValueChange={handleTipoChange}>
+                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
+                      <SelectValue placeholder="Todos los tipos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="0">Todos los tipos</SelectItem>
+                        {tiposPropiedad.map(tp => (
+                          <SelectItem key={tp.id} value={String(tp.id)}>{tp.nombre}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Ubicación dinámico (wider) */}
+                <div className="flex-[1.5]">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                    Ubicación
+                  </label>
+                  <Select value={ubicacionSeleccionada} onValueChange={handleUbicacionChange}>
+                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
+                      <SelectValue placeholder="Todas las ubicaciones" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="0">Todas las ubicaciones</SelectItem>
+                        {ubicaciones.map(ubi => (
+                          <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Habitaciones */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                    Habitaciones
+                  </label>
+                  <Select value={habitaciones} onValueChange={(v) => setHabitaciones(v === '0' ? '' : v)}>
+                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="0">Todas</SelectItem>
+                        {[1,2,3,4,5,6,7,8].map(n => (
+                          <SelectItem key={n} value={String(n)}>{String(n)}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Precio compacto */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
+                    Precio (rango)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      className="w-1/2 bg-white border-gray-200 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder="Mín"
+                      value={precioMin}
+                      onChange={e => setPrecioMin(e.target.value)}
+                      min={0}
+                    />
+                    <span className="self-center text-gray-500">-</span>
+                    <input
+                      type="number"
+                      className="w-1/2 bg-white border-gray-200 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder="Máx"
+                      value={precioMax}
+                      onChange={e => setPrecioMax(e.target.value)}
+                      min={0}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Active Filters and Clear Button */}
+      <section className="py-4 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex flex-wrap gap-2">
+            {operacion && (
+              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                Operación: {getOperacionName(operacion)}
+                <button
+                  onClick={() => handleOperacionChange('')}
+                  className="ml-2 text-white hover:text-gray-200"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {tipo && (
+              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                Tipo: {getTipoName(tipo)}
+                <button
+                  onClick={() => handleTipoChange('')}
+                  className="ml-2 text-white hover:text-gray-200"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {ubicacionSeleccionada && (
+              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                Ubicación: {getUbicacionName(ubicacionSeleccionada)}
+                <button
+                  onClick={() => handleUbicacionChange('')}
+                  className="ml-2 text-white hover:text-gray-200"
+                >
+                  ×
+                </button>
+              </span>
+            )}
           </div>
+          <button
+            onClick={clearFilters}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      </section>
 
-
-          {/* Loading State */}
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <span className="animate-spin h-8 w-8 border-4 border-[#ec520b] border-t-transparent rounded-full inline-block" />
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center h-40">
-              <Home className="h-10 w-10 text-gray-400 mb-2" />
-              <div className="text-xl font-bold text-[#ec520b] mb-2">Error al cargar propiedades</div>
-              <p className="text-gray-600">{error}</p>
+  {/* Results Section */}
+  <section className="py-8 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {filteredProperties.length > 0 ? (
+            <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
+              {filteredProperties.map(property => (
+                <div
+                  key={property.id}
+                  className="cursor-pointer"
+                  onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      window.open(`/propiedad/${property.id}`, '_blank');
+                    }
+                  }}
+                  role="button"
+                  aria-label={`Ver detalle de ${property.titulo}`}
+                >
+                  <PropertyCard property={property} />
+                </div>
+              ))}
             </div>
           ) : (
-            /* Properties Grid filtrada */
-            <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
-              {(Array.isArray(propiedades) ? propiedades : [])
-                .filter(p =>
-                  (!tipo || p.tipos_propiedad?.nombre === tipo) &&
-                  (!operacion ||
-                    (Array.isArray(p.operaciones_propiedad) &&
-                      p.operaciones_propiedad.length > 0 &&
-                      p.operaciones_propiedad.some(
-                        op => String(op.tipos_operacion?.id) === operacion
-                      ))
-                  ) &&
-                  (!precioMin || (p.operaciones_propiedad?.[0]?.precio ?? 0) >= Number(precioMin)) &&
-                  (!precioMax || (p.operaciones_propiedad?.[0]?.precio ?? 0) <= Number(precioMax)) &&
-                  (!ubicacionSeleccionada || p.ubicaciones?.ciudad === ubicacionSeleccionada) &&
-                  (!habitaciones || (p.habitaciones ?? 0) === Number(habitaciones))
-                )
-                .map((property, idx) => (
-                  <div
-                    key={property.id}
-                    className="cursor-pointer"
-                    onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
-                    tabIndex={0}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        window.open(`/propiedad/${property.id}`, '_blank');
-                      }
-                    }}
-                    role="button"
-                    aria-label={`Ver detalle de ${property.titulo}`}
-                  >
-                    <PropertyCard property={property} />
-                  </div>
-                ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && propiedades.length === 0 && (
             <div className="text-center py-16">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Home className="h-12 w-12 text-gray-400" />
@@ -291,6 +487,12 @@ const Properties = () => {
               <p className="text-sm text-gray-500">
                 Puedes agregar propiedades desde el panel de administración.
               </p>
+              <button
+                onClick={clearFilters}
+                className="mt-4 bg-[#ec520b] hover:bg-[#022550] text-white px-4 py-2 rounded-lg text-sm"
+              >
+                Ver todas las propiedades
+              </button>
             </div>
           )}
         </div>
@@ -331,6 +533,8 @@ const Properties = () => {
           </div>
         </div>
       </section>
+
+      {/* debug panel removed */}
 
       {/* ContactForm para consultas */}
       <ContactForm 

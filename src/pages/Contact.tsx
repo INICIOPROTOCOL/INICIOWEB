@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ContactForm from '@/components/ContactForm';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
+import { useScrollToHash } from '@/hooks/useScrollToHash';
 import { 
   Phone, 
   Mail, 
@@ -16,12 +17,43 @@ import {
   CheckCircle,
   Shield
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import heroImage from '@/assets/hero-bg.jpg';
 
 const Contact = () => {
   // Hook para scroll al inicio
   useScrollToTop();
+  
+  // Hook para scroll a sección específica via hash
+  useScrollToHash();
+  
+  // Obtener parámetros de URL para pre-seleccionar servicio
+  const [searchParams] = useSearchParams();
+  const servicioParam = searchParams.get('servicio');
+  
+  // Mapear parámetro de URL a valor del select
+  const getDefaultTipoInmueble = () => {
+    switch (servicioParam) {
+      case 'tasacion':
+        return 'Tasación de propiedad';
+      case 'venta':
+        return 'Venta de propiedad';
+      case 'compra':
+        return 'Compra de propiedad';
+      case 'alquiler':
+        return 'Alquiler de propiedad';
+      case 'busco-alquilar':
+        return 'Busco alquilar';
+      case 'legal':
+        return 'Asesoramiento legal';
+      case 'contable':
+        return 'Servicios contables';
+      case 'administracion':
+        return 'Administración de propiedad';
+      default:
+        return '';
+    }
+  };
 
   // Datos de contacto y empresa
   const contactInfo = {
@@ -186,7 +218,7 @@ const Contact = () => {
       </section>
 
       {/* Formulario de Contacto con diseño innovador */}
-      <section className="relative">
+      <section id="formulario" className="relative scroll-mt-20">
         {/* Fondo con imagen y overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -216,6 +248,7 @@ const Contact = () => {
                 showHeader={false}
                 showContactInfo={true}
                 className="!py-0"
+                defaultTipoInmueble={getDefaultTipoInmueble()}
               />
             </div>
           </div>

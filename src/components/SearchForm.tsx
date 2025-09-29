@@ -132,15 +132,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
       ubicacion: selectedUbicacion || ubicacionInput.trim()
     };
 
-    // Si hay callback personalizado, usarlo
-    if (onSearch) {
-      onSearch(filters);
-      return;
-    }
-
     // Construir query params para la navegación
     const queryParams = new URLSearchParams();
-    
+
     if (operationType) queryParams.set('operacion', operationType);
     if (selectedTipoPropiedad) queryParams.set('tipo', selectedTipoPropiedad);
     if (selectedUbicacion || ubicacionInput.trim()) {

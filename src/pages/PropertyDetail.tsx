@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useParams } from 'react-router-dom';
 import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check } from 'lucide-react';
+import { Tag } from 'lucide-react';
+import logoInicioBlanco from '@/assets/inicio_icono_blanco.svg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,14 +132,12 @@ const PropertyDetail = () => {
 
   // Ordenar imágenes: principal primero, luego por orden
   const imagenes = propiedad.imagenes_propiedad
-    ? [
-        ...propiedad.imagenes_propiedad
-          .filter((img) => img.es_principal)
-          .sort((a, b) => a.orden - b.orden),
-        ...propiedad.imagenes_propiedad
-          .filter((img) => !img.es_principal)
-          .sort((a, b) => a.orden - b.orden),
-      ]
+    ? [...propiedad.imagenes_propiedad].sort((a, b) => {
+        // Primero principal, luego por orden
+        if (a.es_principal && !b.es_principal) return -1;
+        if (!a.es_principal && b.es_principal) return 1;
+        return a.orden - b.orden;
+      })
     : [];
 
   const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
@@ -203,8 +203,8 @@ const PropertyDetail = () => {
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Gallery Modal */}
+  <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Gallery Modal Mejorado */}
       {isGalleryOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
           <button
@@ -213,126 +213,128 @@ const PropertyDetail = () => {
           >
             <X className="h-8 w-8" />
           </button>
-          
           <div className="relative w-full h-full flex items-center justify-center">
             {imagenes.length > 0 && (
               <>
                 <img
                   src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
                   alt={`${propiedad.titulo} - Imagen ${currentImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain"
+                  className="max-w-3xl max-h-[80vh] object-contain rounded-2xl shadow-2xl border-4 border-[#ec520b]"
+                  style={{ boxShadow: '0 8px 32px rgba(34,37,80,0.25)' }}
                 />
-                
                 {imagenes.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
+                      className="absolute left-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b] bg-opacity-80 text-white p-3 rounded-full hover:bg-[#022550] shadow-lg"
                     >
-                      <ArrowLeft className="h-6 w-6" />
+                      <ArrowLeft className="h-7 w-7" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
+                      className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-[#ec520b] bg-opacity-80 text-white p-3 rounded-full hover:bg-[#022550] shadow-lg"
                     >
-                      <ArrowRight className="h-6 w-6" />
+                      <ArrowRight className="h-7 w-7" />
                     </button>
                   </>
                 )}
               </>
             )}
           </div>
-          
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white">
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold bg-[#022550]/80 px-4 py-2 rounded-xl shadow">
             {currentImageIndex + 1} / {imagenes.length}
           </div>
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Content Mejorado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Collage Image Gallery Section */}
+          {/* Collage Mejorado: principal grande, otras abajo en grid */}
           <div className="lg:col-span-2">
-            {/* Collage: principal grande, otras a la derecha */}
             {imagenes.length > 0 ? (
-              <div className="flex gap-4 h-[420px] sm:h-[520px]">
+              <div className="grid grid-cols-3 gap-4 h-[520px]">
                 {/* Imagen principal grande */}
                 <div
-                  className="flex-1 rounded-lg overflow-hidden cursor-pointer group relative min-w-0"
-                  onClick={() => setIsGalleryOpen(true)}
-                  style={{ minWidth: 0 }}
+                  className="col-span-2 row-span-2 rounded-2xl overflow-hidden cursor-pointer group relative shadow-lg border-4 border-[#022550] flex items-center justify-center h-full bg-white"
+                  onClick={() => { setCurrentImageIndex(0); setIsGalleryOpen(true); }}
+                  style={{ gridRow: '1 / span 2', gridColumn: '1 / span 2' }}
                 >
                   <img
                     src={imagenes[0]?.url_imagen || '/placeholder.svg'}
                     alt={propiedad.titulo}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                  <span className="absolute bottom-2 right-2 bg-[#ec520b]/80 text-white text-xs px-3 py-1 rounded shadow-lg">
                     Ver galería
                   </span>
                 </div>
-                {/* Otras imágenes en columna a la derecha */}
-                <div className="flex flex-col gap-4 w-40 sm:w-56">
-                  {imagenes.slice(1, 5).map((img, idx) => (
-                    <div
-                      key={img.url_imagen}
-                      className="rounded-lg overflow-hidden cursor-pointer group relative flex-1 min-h-0"
-                      onClick={() => {
-                        setCurrentImageIndex(idx + 1);
-                        setIsGalleryOpen(true);
-                      }}
-                    >
-                      <img
-                        src={img.url_imagen}
-                        alt={`${propiedad.titulo} - Imagen ${idx + 2}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                  ))}
-                  {imagenes.length > 5 && (
-                    <div
-                      className="rounded-lg overflow-hidden bg-black/60 flex items-center justify-center text-white text-lg font-semibold cursor-pointer min-h-0 flex-1"
-                      onClick={() => setIsGalleryOpen(true)}
-                    >
-                      +{imagenes.length - 5}
-                    </div>
-                  )}
-                </div>
+                {/* Mosaico de imágenes secundarias */}
+                {imagenes.slice(1, 5).map((img, idx) => (
+                  <div
+                    key={img.url_imagen}
+                    className="rounded-xl overflow-hidden cursor-pointer group relative flex items-center justify-center h-full bg-white border-2 border-[#ec520b]/30 shadow"
+                    onClick={() => { setCurrentImageIndex(idx + 1); setIsGalleryOpen(true); }}
+                    style={{ gridColumn: idx === 0 ? 3 : undefined, gridRow: idx === 0 ? 1 : undefined }}
+                  >
+                    <img
+                      src={img.url_imagen}
+                      alt={`${propiedad.titulo} - Imagen ${idx + 2}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <span className="absolute bottom-2 right-2 bg-[#022550]/80 text-white text-xs px-2 py-1 rounded shadow">
+                      Ver
+                    </span>
+                  </div>
+                ))}
+                {imagenes.length > 5 && (
+                  <div
+                    className="rounded-xl overflow-hidden bg-[#ec520b]/80 flex items-center justify-center text-white text-lg font-semibold cursor-pointer h-full"
+                    onClick={() => setIsGalleryOpen(true)}
+                    style={{ gridColumn: 3, gridRow: 2 }}
+                  >
+                    +{imagenes.length - 5}
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="w-full h-[420px] sm:h-[520px] bg-gray-200 rounded-lg flex items-center justify-center">
+              <div className="w-full h-[520px] bg-gray-200 rounded-lg flex items-center justify-center">
                 <Home className="h-16 w-16 text-gray-400" />
               </div>
             )}
 
             {/* Descripción debajo de las imágenes */}
-            <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-[#022550] mb-4">Descripción</h2>
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+            <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border-2 border-[#022550]/10">
+              <h2 className="text-2xl font-bold text-[#022550] mb-4 flex items-center gap-2">
+                <Eye className="h-6 w-6 text-[#ec520b]" />
+                Descripción
+              </h2>
+              <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
                 {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
               </div>
             </div>
 
-            {/* Características agrupadas por tipo, bien separadas */}
+            {/* Características agrupadas por tipo, bien separadas, con iconos */}
             {Object.keys(caracteristicasPorTipo).length > 0 && (
               <div className="mt-8">
-                <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center">
+                <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center flex items-center justify-center gap-2">
+                  <Check className="h-6 w-6 text-green-600" />
                   Características de la propiedad
                 </h2>
                 <div className="flex flex-col gap-6">
                   {Object.entries(caracteristicasPorTipo).map(([tipo, caracteristicas]) => (
-                    <div key={tipo} className="bg-white rounded-lg shadow p-4">
-                      <h3 className="text-lg font-semibold text-[#ec520b] mb-2 border-b border-gray-100 pb-1">
+                    <div key={tipo} className="bg-white rounded-xl shadow p-6 border-2 border-[#ec520b]/10">
+                      <h3 className="text-lg font-semibold text-[#ec520b] mb-2 border-b border-gray-100 pb-1 flex items-center gap-2">
+                        <Tag className="h-5 w-5 text-[#022550]" />
                         {tipo}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {caracteristicas.map((caracteristica, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center gap-1 bg-[#022550]/10 text-[#022550] text-xs px-3 py-1 rounded-full"
+                            className="inline-flex items-center gap-1 bg-[#022550]/10 text-[#022550] text-sm px-4 py-2 rounded-full shadow"
                           >
-                            <Check className="h-3 w-3 text-green-600" />
+                            <Check className="h-4 w-4 text-green-600" />
                             {caracteristica}
                           </span>
                         ))}
@@ -506,46 +508,7 @@ const PropertyDetail = () => {
         </div>
 
         {/* Additional Property Details - Only Measurements (sin cambios) */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Measurements */}
-          <Card className="bg-white shadow-lg">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-[#022550] mb-4">Medidas</h3>
-              <div className="space-y-3 text-sm">
-                {propiedad.area_construida && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Área construida:</span>
-                    <span className="font-medium">{propiedad.area_construida} m²</span>
-                  </div>
-                )}
-                {propiedad.area_total && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Área total:</span>
-                    <span className="font-medium">{propiedad.area_total} m²</span>
-                  </div>
-                )}
-                {propiedad.superficie_lote && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Superficie del lote:</span>
-                    <span className="font-medium">{propiedad.superficie_lote} m²</span>
-                  </div>
-                )}
-                {propiedad.frente && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Frente:</span>
-                    <span className="font-medium">{propiedad.frente} m</span>
-                  </div>
-                )}
-                {propiedad.fondo && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Fondo:</span>
-                    <span className="font-medium">{propiedad.fondo} m</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Sección de medidas eliminada para mejor UX/UI */}
       </div>
 
       {/* Floating WhatsApp Button (sin cambios) */}

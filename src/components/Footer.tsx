@@ -21,15 +21,35 @@ const Footer = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('Archivo seleccionado:', {
+        nombre: file.name,
+        tipo: file.type,
+        tamaño: file.size,
+        tamañoMB: (file.size / 1024 / 1024).toFixed(2) + ' MB'
+      });
+
       const allowedTypes = [
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
-      if (allowedTypes.includes(file.type)) {
+      
+      const allowedExtensions = ['.pdf', '.doc', '.docx'];
+      const fileExtension = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+      
+      if (allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension)) {
+        // Validar tamaño (máximo 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          showToast('error', `El archivo es demasiado grande (${(file.size / 1024 / 1024).toFixed(2)} MB). Por favor selecciona un archivo menor a 10MB.`);
+          e.target.value = '';
+          return;
+        }
+        
         setSelectedFile(file);
+        showToast('success', `Archivo "${file.name}" seleccionado correctamente (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
       } else {
-        showToast('error', 'Por favor selecciona un archivo PDF o Word (.doc, .docx)');
+        showToast('error', `Tipo de archivo no válido: ${file.type || 'desconocido'}. Por favor selecciona un archivo PDF o Word (.doc, .docx)`);
         e.target.value = '';
       }
     }
@@ -41,52 +61,92 @@ const Footer = () => {
       return;
     }
 
+    // Validar tamaño del archivo (máximo 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+    if (selectedFile.size > maxSize) {
+      showToast('error', 'El archivo es demasiado grande. Por favor selecciona un archivo menor a 10MB.');
+      return;
+    }
+
     setUploading(true);
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
     
+    console.log('Enviando CV:', {
+      nombre: selectedFile.name,
+      tamaño: selectedFile.size,
+      tipo: selectedFile.type
+    });
+
     try {
       // Convertir el archivo a base64
       const reader = new FileReader();
       reader.onload = async () => {
-        const base64 = (reader.result as string).split(',')[1];
-        
-        const payload = {
-          pdfBase64: base64,
-          nombreArchivo: selectedFile.name
-        };
-        
         try {
-          await request(async () => {
-            const response = await fetch(`${API_URL}/contactos/send-cv`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            
-            if (!response.ok) {
-              throw new Error('Error al enviar el CV');
-            }
-            
-            return await response.json();
+          const base64 = (reader.result as string).split(',')[1];
+          
+          const payload = {
+            pdfBase64: base64,
+            nombreArchivo: selectedFile.name,
+            tipoArchivo: selectedFile.type,
+            tamañoArchivo: selectedFile.size
+          };
+          
+          console.log('Payload preparado:', {
+            nombreArchivo: payload.nombreArchivo,
+            tipoArchivo: payload.tipoArchivo,
+            tamañoArchivo: payload.tamañoArchivo,
+            base64Length: base64.length
           });
 
-          if (!error) {
-            showToast('success', `CV enviado correctamente! Tu CV "${selectedFile.name}" ha sido enviado a nuestro equipo.`);
-            setSelectedFile(null);
-            const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
-          } else {
-            showToast('error', `Error al enviar CV: ${error}`);
+          const response = await fetch(`${API_URL}/contactos/send-cv`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          console.log('Respuesta del servidor:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+          });
+
+          if (!response.ok) {
+            // Intentar obtener el mensaje de error del servidor
+            let errorMessage = 'Error al enviar el CV';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorData.error || errorMessage;
+              console.error('Error del servidor:', errorData);
+            } catch (parseError) {
+              const errorText = await response.text();
+              console.error('Error del servidor (texto):', errorText);
+              errorMessage = `Error ${response.status}: ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
           }
+
+          const result = await response.json();
+          console.log('CV enviado exitosamente:', result);
+          
+          showToast('success', `CV enviado correctamente! Tu CV "${selectedFile.name}" ha sido enviado a nuestro equipo.`);
+          setSelectedFile(null);
+          const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
+          if (fileInput) fileInput.value = '';
+          
         } catch (err) {
-          showToast('error', 'Error al enviar el CV. Por favor, inténtalo nuevamente.');
-          console.error('Error uploading CV:', err);
+          console.error('Error en el proceso de envío:', err);
+          const errorMessage = err instanceof Error ? err.message : 'Error desconocido al enviar el CV';
+          showToast('error', errorMessage);
         } finally {
           setUploading(false);
         }
       };
       
-      reader.onerror = () => {
+      reader.onerror = (error) => {
+        console.error('Error al leer el archivo:', error);
         showToast('error', 'Error al leer el archivo. Por favor, inténtalo nuevamente.');
         setUploading(false);
       };
@@ -94,8 +154,8 @@ const Footer = () => {
       reader.readAsDataURL(selectedFile);
       
     } catch (err) {
+      console.error('Error general:', err);
       showToast('error', 'Error al procesar el archivo. Por favor, inténtalo nuevamente.');
-      console.error('Error processing file:', err);
       setUploading(false);
     }
   };
@@ -290,7 +350,7 @@ const Footer = () => {
                 <div className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white/80 hover:bg-white/15 transition-colors duration-300 cursor-pointer flex items-center justify-between">
                   <span className="flex items-center">
                     <Upload className="h-4 w-4 mr-2 text-[#ec520b]" />
-                    {selectedFile ? selectedFile.name : 'Adjuntar CV (PDF, Word)'}
+                    {selectedFile ? selectedFile.name : 'Adjuntar CV (PDF)'}
                   </span>
                 </div>
               </div>

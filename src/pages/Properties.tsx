@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Home, ChevronUp } from 'lucide-react';
+import { MessageCircle, Home, ChevronUp, Filter, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -73,6 +74,7 @@ interface Propiedad {
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const Properties = () => {
+  useScrollToTop(); // Hook para scroll automático al inicio al cambiar de página
   const location = useLocation();
   const navigate = useNavigate();
   const [habitaciones, setHabitaciones] = useState('');
@@ -87,6 +89,7 @@ const Properties = () => {
   const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
   const propiedades = data ?? [];
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
   
   // Keep a mounted flag to prevent state updates on unmounted component
   useEffect(() => {
@@ -211,6 +214,17 @@ const Properties = () => {
     navigate('/propiedades', { replace: true });
   };
 
+  // Contar filtros activos
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (operacion) count++;
+    if (tipo) count++;
+    if (ubicacionSeleccionada) count++;
+    if (habitaciones) count++;
+    if (precioMin || precioMax) count++;
+    return count;
+  };
+
   // Helpers to get display names for chips
   const getOperacionName = (idStr: string) => {
     if (!idStr) return '';
@@ -268,7 +282,7 @@ const Properties = () => {
 
     const matchesUbicacion = !ubicacionSeleccionada || p.ubicaciones?.id === Number(ubicacionSeleccionada);
 
-    const matchesHabitaciones = !habitaciones || (p.habitaciones ?? 0) >= Number(habitaciones);
+    const matchesHabitaciones = !habitaciones || (p.habitaciones ?? 0) === Number(habitaciones);
 
     const matchesPrecio = (!precioMin && !precioMax) || (
       p.operaciones_propiedad?.some(op => {
@@ -286,14 +300,14 @@ const Properties = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section con Filtros */}
+      {/* Hero Section con Filtros Transparentes */}
       <section 
-        className="relative min-h-[80vh] bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[90vh] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(/family-inicio.png)` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/85 via-[#022550]/60 to-[#ec520b]/20"></div>
         
-        <div className="relative z-10 flex flex-col justify-center min-h-[80vh] py-20">
+        <div className="relative z-10 flex flex-col justify-center min-h-[90vh] py-20">
           {/* Título */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
             <div className="animate-fade-in">
@@ -306,195 +320,216 @@ const Properties = () => {
             </div>
           </div>
 
-          {/* NOTE: Filters moved below the hero so they can be sticky when scrolling */}
-        </div>
-      </section>
+          {/* Filtros Transparentes al final del Hero */}
+          <div className="absolute bottom-8 left-0 right-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
+                    {/* Tipo de Operación */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                        Tipo de Operación
+                      </label>
+                      <Select value={operacion} onValueChange={handleOperacionChange}>
+                        <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                          <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="0">Todas</SelectItem>
+                            {tiposOperacion.map(op => (
+                              <SelectItem key={op.id} value={String(op.id)}>{op.id === 4 ? 'Compra' : op.nombre}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-      {/* Sticky Filters Bar (visible while scrolling) */}
-      <section className="sticky top-16 z-40 bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
-          <Card className="w-full bg-white border border-gray-200 shadow-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
-                {/* Tipo de Operación dinámico */}
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                    Tipo de Operación
-                  </label>
-                  <Select value={operacion} onValueChange={handleOperacionChange}>
-                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
-                      <SelectValue placeholder="Todas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="0">Todas</SelectItem>
-                        {tiposOperacion.map(op => (
-                          <SelectItem key={op.id} value={String(op.id)}>{op.id === 4 ? 'Compra' : op.nombre}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Tipo de Propiedad */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                        Tipo de Propiedad
+                      </label>
+                      <Select value={tipo} onValueChange={handleTipoChange}>
+                        <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                          <SelectValue placeholder="Todos los tipos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="0">Todos los tipos</SelectItem>
+                            {tiposPropiedad.map(tp => (
+                              <SelectItem key={tp.id} value={String(tp.id)}>{tp.nombre}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Tipo de Propiedad dinámico */}
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                    Tipo de Propiedad
-                  </label>
-                  <Select value={tipo} onValueChange={handleTipoChange}>
-                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
-                      <SelectValue placeholder="Todos los tipos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="0">Todos los tipos</SelectItem>
-                        {tiposPropiedad.map(tp => (
-                          <SelectItem key={tp.id} value={String(tp.id)}>{tp.nombre}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Ubicación */}
+                    <div className="flex-[1.5]">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                        Ubicación
+                      </label>
+                      <Select value={ubicacionSeleccionada} onValueChange={handleUbicacionChange}>
+                        <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                          <SelectValue placeholder="Todas las ubicaciones" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="0">Todas las ubicaciones</SelectItem>
+                            {ubicaciones.map(ubi => (
+                              <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Ubicación dinámico (wider) */}
-                <div className="flex-[1.5]">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                    Ubicación
-                  </label>
-                  <Select value={ubicacionSeleccionada} onValueChange={handleUbicacionChange}>
-                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
-                      <SelectValue placeholder="Todas las ubicaciones" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="0">Todas las ubicaciones</SelectItem>
-                        {ubicaciones.map(ubi => (
-                          <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Habitaciones */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                        Habitaciones
+                      </label>
+                      <Select value={habitaciones} onValueChange={(v) => setHabitaciones(v === '0' ? '' : v)}>
+                        <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                          <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="0">Todas</SelectItem>
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                              <SelectItem key={n} value={String(n)}>{String(n)}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Habitaciones */}
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                    Habitaciones
-                  </label>
-                  <Select value={habitaciones} onValueChange={(v) => setHabitaciones(v === '0' ? '' : v)}>
-                    <SelectTrigger className="w-full bg-white border-gray-200 hover:border-[#022550]/50 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm">
-                      <SelectValue placeholder="Todas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="0">Todas</SelectItem>
-                        {[1,2,3,4,5,6,7,8].map(n => (
-                          <SelectItem key={n} value={String(n)}>{String(n)}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Precio compacto */}
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center lg:text-left">
-                    Precio (rango)
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      className="w-1/2 bg-white border-gray-200 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder="Mín"
-                      value={precioMin}
-                      onChange={e => setPrecioMin(e.target.value)}
-                      min={0}
-                    />
-                    <span className="self-center text-gray-500">-</span>
-                    <input
-                      type="number"
-                      className="w-1/2 bg-white border-gray-200 focus:border-[#022550] focus:ring-2 focus:ring-[#022550]/20 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder="Máx"
-                      value={precioMax}
-                      onChange={e => setPrecioMax(e.target.value)}
-                      min={0}
-                    />
+                    {/* Precio */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                        Precio (rango)
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          className="w-1/2 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                          placeholder="Mín"
+                          value={precioMin}
+                          onChange={e => setPrecioMin(e.target.value)}
+                          min={0}
+                        />
+                        <span className="self-center text-white/70">-</span>
+                        <input
+                          type="number"
+                          className="w-1/2 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                          placeholder="Máx"
+                          value={precioMax}
+                          onChange={e => setPrecioMax(e.target.value)}
+                          min={0}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Active Filters and Clear Button */}
-      <section className="py-4 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex flex-wrap gap-2">
-            {operacion && (
-              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
-                Operación: {getOperacionName(operacion)}
-                <button
-                  onClick={() => handleOperacionChange('')}
-                  className="ml-2 text-white hover:text-gray-200"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {tipo && (
-              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
-                Tipo: {getTipoName(tipo)}
-                <button
-                  onClick={() => handleTipoChange('')}
-                  className="ml-2 text-white hover:text-gray-200"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {ubicacionSeleccionada && (
-              <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
-                Ubicación: {getUbicacionName(ubicacionSeleccionada)}
-                <button
-                  onClick={() => handleUbicacionChange('')}
-                  className="ml-2 text-white hover:text-gray-200"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+      {/* Active Filters Chips (solo si hay filtros activos) */}
+      {getActiveFiltersCount() > 0 && (
+        <section className="py-4 bg-gray-50 border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              {operacion && (
+                <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                  Operación: {getOperacionName(operacion)}
+                  <button
+                    onClick={() => handleOperacionChange('')}
+                    className="ml-2 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {tipo && (
+                <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                  Tipo: {getTipoName(tipo)}
+                  <button
+                    onClick={() => handleTipoChange('')}
+                    className="ml-2 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {ubicacionSeleccionada && (
+                <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                  Ubicación: {getUbicacionName(ubicacionSeleccionada)}
+                  <button
+                    onClick={() => handleUbicacionChange('')}
+                    className="ml-2 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {habitaciones && (
+                <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                  Habitaciones: {habitaciones}
+                  <button
+                    onClick={() => setHabitaciones('')}
+                    className="ml-2 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {(precioMin || precioMax) && (
+                <span className="bg-[#ec520b] text-white px-3 py-1 rounded-full text-sm">
+                  Precio: {precioMin || '0'} - {precioMax || '∞'}
+                  <button
+                    onClick={() => {
+                      setPrecioMin('');
+                      setPrecioMax('');
+                    }}
+                    className="ml-2 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
+            <button
+              onClick={clearFilters}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm"
+            >
+              Limpiar filtros
+            </button>
           </div>
-          <button
-            onClick={clearFilters}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm"
-          >
-            Limpiar filtros
-          </button>
-        </div>
-      </section>
+        </section>
+      )}
 
   {/* Results Section */}
   <section className="py-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredProperties.length > 0 ? (
+          {loading ? (
+            /* Loader */
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ec520b] rounded-full animate-spin"></div>
+                <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-[#022550] rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+              </div>
+              <p className="mt-4 text-gray-600 font-medium">Cargando propiedades...</p>
+              <p className="text-sm text-gray-500 mt-2">Esto puede tomar unos segundos</p>
+            </div>
+          ) : filteredProperties.length > 0 ? (
             <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
               {filteredProperties.map(property => (
-                <div
-                  key={property.id}
-                  className="cursor-pointer"
-                  onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
-                  tabIndex={0}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      window.open(`/propiedad/${property.id}`, '_blank');
-                    }
-                  }}
-                  role="button"
-                  aria-label={`Ver detalle de ${property.titulo}`}
-                >
-                  <PropertyCard property={property} />
-                </div>
+                <PropertyCard key={property.id} property={property} />
               ))}
             </div>
           ) : (
@@ -503,8 +538,11 @@ const Properties = () => {
                 <Home className="h-12 w-12 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No hay propiedades publicadas aun. 
+                No hay propiedades que coincidan con los filtros
               </h3>
+              <p className="text-gray-600 mb-4">
+                Intenta modificar los filtros para ver más resultados
+              </p>
               <button
                 onClick={clearFilters}
                 className="mt-4 bg-[#ec520b] hover:bg-[#022550] text-white px-4 py-2 rounded-lg text-sm"

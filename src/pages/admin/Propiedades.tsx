@@ -564,7 +564,11 @@ const Propiedades: React.FC = () => {
         agente_id: agenteActual,
         caracteristicas_ids: form.caracteristicas || [],
         operaciones: operacionesPayload,
-        destacada: form.destacada || false
+        destacada: form.destacada || false,
+        // Campos específicos para lotes/terrenos
+        superficie_lote: form.superficie_lote ? parseFloat(form.superficie_lote) : null,
+        frente: form.frente ? parseFloat(form.frente) : null,
+        fondo: form.fondo ? parseFloat(form.fondo) : null
       };
 
       // DEBUG: Mostrar el payload que se enviará al backend

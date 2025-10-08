@@ -89,7 +89,7 @@ const Home = () => {
       >
         <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-fade-in">
+          <div className="animate-fade-in pt-8 sm:pt-0">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Encontra el
               <span className="bg-gradient-to-r from-[#ff7b25] to-[#ff5e00] bg-clip-text text-transparent"> lugar que buscas</span>
@@ -268,7 +268,11 @@ const Home = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-[#ec520b]/5 via-transparent to-[#022550]/5 rounded-3xl"></div>
             <div className="text-center mb-8 relative">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#ec520b] rounded-full mb-4">
-                <img src="/logo_grande_fondo_azul 1.svg" alt="Logo" className="w-10 h-10 object-contain" />
+              <img
+                  src="/logo_grande_fondo_azul 1.svg"
+                  alt="Logo"
+                  className="w-16 h-16 object-contain"
+                />
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Contacto

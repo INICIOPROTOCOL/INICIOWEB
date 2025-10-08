@@ -169,18 +169,18 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
   };
 
   return (
-    <Card className={`w-full max-w-7xl mx-auto bg-white/85 backdrop-blur-md border border-white/20 shadow-xl ${className}`}>
+    <Card className={`w-full max-w-7xl mx-auto bg-white/85 backdrop-blur-md border border-white/20 shadow-xl relative z-10 ${className}`}>
       <CardContent className="p-6 sm:p-8">
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-stretch">
           {/* PASO 1: Tipo de Operación */}
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center md:text-left">
-              <span className="inline-flex items-center justify-center md:justify-start">
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+              <span className="inline-flex items-center justify-center">
                 <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">1</span>
                 Operación
               </span>
             </label>
-            <div className="flex justify-center md:justify-start space-x-4">
+            <div className="flex justify-center space-x-4">
               {tiposOperacion.length > 0 ? (
                 tiposOperacion.map(op => (
                   <Button
@@ -226,8 +226,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
 
           {/* PASO 2: Tipo de Propiedad */}
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center md:text-left">
-              <span className="inline-flex items-center justify-center md:justify-start">
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+              <span className="inline-flex items-center justify-center">
                 <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">2</span>
                 Tipo de Propiedad
               </span>
@@ -263,8 +263,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
 
           {/* PASO 3: Ubicación - Combobox con autocompletado mejorado */}
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center md:text-left">
-              <span className="inline-flex items-center justify-center md:justify-start">
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+              <span className="inline-flex items-center justify-center">
                 <span className="w-5 h-5 bg-[#ec520b] text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">3</span>
                 Ubicación
               </span>
@@ -291,7 +291,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                 
                 {/* Dropdown de resultados */}
                 {showDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
                     {loadingUbicaciones ? (
                       <div className="p-3 text-center text-gray-500">
                         Cargando ubicaciones...
@@ -331,7 +331,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
           </div>
 
           {/* Botón de Búsqueda */}
-          <div className="flex-1 flex items-end justify-center md:justify-start">
+          <div className="flex-1 flex items-end justify-center">
             <Button 
               onClick={handleSearch}
               className="w-full max-w-xs md:max-w-none bg-[#022550] hover:bg-[#ec520b] text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-12 font-semibold"

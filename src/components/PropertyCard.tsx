@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers, Ruler } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,9 @@ interface PropertyCardProps {
     descripcion?: string;
     area_construida?: string | number;
     area_total?: string | number;
+    superficie_lote?: string | number;
+    frente?: string | number;
+    fondo?: string | number;
     habitaciones?: string | number;
     banos?: string | number;
     garages?: string | number;
@@ -32,6 +35,7 @@ interface PropertyCardProps {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const navigate = useNavigate();
+  
   // Imagen principal
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
@@ -48,26 +52,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
       .filter(Boolean)
       .join(' - ') || '';
 
-  // Dirección corta
-  const direccion = property.direccion;
-
   // Título
   const titulo = property.titulo;
-
-  // Descripción breve
-  const descripcion =
-    property.descripcion && property.descripcion.length > 80
-      ? property.descripcion.slice(0, 80) + '...'
-      : property.descripcion;
-
-  // Características principales
-  const area =
-    property.area_total || property.area_construida
-      ? `${property.area_total || property.area_construida} m²`
-      : null;
-  const habitaciones = property.habitaciones;
-  const banos = property.banos;
-  const garages = property.garages;
 
   // Precio
   const operacion = property.operaciones_propiedad?.[0];
@@ -85,40 +71,51 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
-   const handleCardClick = (e: React.MouseEvent) => {
-    // Evita abrir el link si el click fue sobre un botón, enlace o ícono dentro
-    const target = e.target as HTMLElement;
-    if (
-      target.closest("button") || 
-      target.closest("a")    // así excluimos los botones y links
-    ) {
-      return;
+  // handleCardClick removido - ahora solo elementos específicos son clickeables
+
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Evita que se ejecute handleCardClick
+    // WhatsApp se abre en nueva pestaña automáticamente
+    window.open(whatsappLink, '_blank', 'noopener,noreferrer');
+    if (onContact) {
+      onContact();
     }
-    navigate(`/propiedad/${property.id}`);
   };
 
+  const handleVerMasClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Previene cualquier comportamiento por defecto
+    e.stopPropagation(); // Evita que se ejecute handleCardClick
+    // Abrir en nueva pestaña (igual que Properties.tsx)
+    window.open(`/propiedad/${property.id}`, '_blank');
+  };
 
   return (
-    <Card onClick={handleCardClick} className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
+    <Card 
+      className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30"
+    >
       {/* Imagen principal */}
-      <div className="relative">
+      <div 
+        className="relative cursor-pointer"
+        onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+      >
         <img
           src={imageSrc}
           alt={titulo}
           className="w-full h-48 object-cover"
           loading="lazy"
         />
-       {/* Etiqueta tipo de operación en la esquina superior izquierda */}
-          {property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
-            <div className="absolute top-3 left-3">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
-              >
-                {property.operaciones_propiedad[0].tipo_operacion.nombre}
-              </span>
-            </div>
-          )}
+        {/* Etiqueta tipo de operación en la esquina superior izquierda */}
+        {property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
+          <div className="absolute top-3 left-3">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
+            >
+              {property.operaciones_propiedad[0].tipo_operacion.nombre}
+            </span>
+          </div>
+        )}
       </div>
+      
       <CardContent className="p-4 flex flex-col gap-2">
         {/* Tipo de propiedad + ambientes */}
         <div className="flex items-center gap-2 mb-1">
@@ -127,26 +124,52 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
             <span className="text-xs text-gray-600 font-medium">{ambientes}</span>
           )}
         </div>
+        
         {/* Ubicación y dirección */}
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4 text-[#ec520b]" />
           <span>
             {ubicacion}
-            {direccion && (
-              <span className="ml-2 text-xs text-gray-500 font-normal">| {direccion}</span>
+            {property.direccion && (
+              <span className="ml-2 text-xs text-gray-500 font-normal">| {property.direccion}</span>
             )}
           </span>
         </div>
+        
         {/* Título */}
-        <h3 className="font-semibold text-lg text-[#022550] line-clamp-1">{titulo}</h3>
+        <h3 
+          className="font-semibold text-lg text-[#022550] line-clamp-1 cursor-pointer hover:text-[#ec520b] transition-colors"
+          onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+        >
+          {titulo}
+        </h3>
+        
         {/* Características principales */}
         <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
-          {property.area_total && Number(property.area_total) !== 0 && (
+          {/* Superficie de lote - prioritaria para lotes/terrenos */}
+          {property.superficie_lote && Number(property.superficie_lote) !== 0 && (
+            <div className="flex items-center gap-1">
+              <Square className="h-4 w-4 text-[#ec520b]" />
+              <span>{property.superficie_lote} m² lote</span>
+            </div>
+          )}
+          
+          {/* Dimensiones del lote (frente x fondo) */}
+          {property.frente && property.fondo && Number(property.frente) !== 0 && Number(property.fondo) !== 0 && (
+            <div className="flex items-center gap-1">
+              <Ruler className="h-4 w-4 text-[#022550]" />
+              <span>{property.frente}x{property.fondo}m</span>
+            </div>
+          )}
+
+          {/* Superficie total (solo si no hay superficie_lote) */}
+          {property.area_total && Number(property.area_total) !== 0 && !property.superficie_lote && (
             <div className="flex items-center gap-1">
               <Square className="h-4 w-4 text-[#ec520b]" />
               <span>{property.area_total} m²</span>
             </div>
           )}
+          
           {/* Superficie cubierta/construida con icono Layers */}
           {property.area_construida && Number(property.area_construida) !== 0 && (
             <div className="flex items-center gap-1">
@@ -154,6 +177,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
               <span>{property.area_construida} m² cub.</span>
             </div>
           )}
+          
           {property.habitaciones && Number(property.habitaciones) !== 0 && (
             <div className="flex items-center gap-1">
               <Bed className="h-4 w-4 text-[#ec520b]" />
@@ -168,40 +192,34 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           )}
           {property.garages && Number(property.garages) !== 0 && (
             <div className="flex items-center gap-1">
-              <Car className="h-4 w-4 text-[#ec520b]" />
+              <Car className="h-4 w-4 text-[#022550]" />
               <span>{property.garages}</span>
             </div>
           )}
         </div>
+        
         {/* Precio */}
         <div className="text-xl font-bold text-[#ec520b] mt-2">{precio}</div>
-        {/* Botón de acción */}
-        <div className="flex gap-2 mt-3">
-          <Link
-            to={`/propiedad/${property.id}`}
-            className="flex-1"
-            target="_blank"
-            rel="noopener noreferrer"
+        
+        {/* Botones de acción */}
+        <div className="flex gap-2 mt-3" data-interactive="true">
+          <Button
+            onClick={handleVerMasClick}
+            variant="outline"
+            type="button"
+            className="flex-1 border-[#022550] text-[#022550] hover:bg-[#022550] hover:text-white transition-all duration-300 font-medium"
           >
-            <Button
-              variant="outline"
-              className="w-full border-[#022550] text-[#022550] hover:bg-[#022550] hover:text-white transition-all duration-300 font-medium"
-            >
-              Ver +
-            </Button>
-          </Link>
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1"
-            onClick={onContact}
+            <Eye className="h-4 w-4 mr-2" />
+            Ver +
+          </Button>
+          
+          <Button 
+            onClick={handleWhatsAppClick}
+            className="flex-1 bg-[#ec520b] hover:bg-[#022550] text-white transition-all duration-300 font-medium"
           >
-            <Button className="w-full bg-[#ec520b] hover:bg-[#022550] text-white transition-all duration-300 font-medium">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              WhatsApp
-            </Button>
-          </a>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            WhatsApp
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useParams } from 'react-router-dom';
-import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check, CheckCircle } from 'lucide-react';
+import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check, CheckCircle, Ruler, Layers } from 'lucide-react';
 import { Tag } from 'lucide-react';
 import logoInicioBlanco from '@/assets/inicio_icono_blanco.svg';
 import { Button } from '@/components/ui/button';
@@ -565,6 +565,38 @@ Solicitud generada desde: ${propertyUrl}`;
 
               {/* Physical Characteristics Icons */}
               <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                {/* Superficie de lote - prioritaria para lotes/terrenos */}
+                {propiedad.superficie_lote && (
+                  <div className="flex items-center gap-2">
+                    <Square className="h-5 w-5 text-[#ec520b]" />
+                    <span className="text-sm font-medium">{propiedad.superficie_lote} m² lote</span>
+                  </div>
+                )}
+                
+                {/* Dimensiones del lote */}
+                {propiedad.frente && propiedad.fondo && (
+                  <div className="flex items-center gap-2">
+                    <Ruler className="h-5 w-5 text-[#022550]" />
+                    <span className="text-sm font-medium">{propiedad.frente} x {propiedad.fondo} m</span>
+                  </div>
+                )}
+                
+                {/* Superficie total (solo si no hay superficie_lote) */}
+                {propiedad.area_total && !propiedad.superficie_lote && (
+                  <div className="flex items-center gap-2">
+                    <Square className="h-5 w-5 text-[#ec520b]" />
+                    <span className="text-sm font-medium">{propiedad.area_total} m² totales</span>
+                  </div>
+                )}
+                
+                {/* Superficie construida */}
+                {propiedad.area_construida && (
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-5 w-5 text-[#022550]" />
+                    <span className="text-sm font-medium">{propiedad.area_construida} m² cubiertos</span>
+                  </div>
+                )}
+                
                 {propiedad.habitaciones && (
                   <div className="flex items-center gap-2">
                     <Bed className="h-5 w-5 text-[#ec520b]" />
@@ -581,14 +613,6 @@ Solicitud generada desde: ${propertyUrl}`;
                   <div className="flex items-center gap-2">
                     <Car className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.garages} cocheras</span>
-                  </div>
-                )}
-                {(propiedad.area_total || propiedad.area_construida) && (
-                  <div className="flex items-center gap-2">
-                    <Square className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">
-                      {propiedad.area_total || propiedad.area_construida} m²
-                    </span>
                   </div>
                 )}
               </div>

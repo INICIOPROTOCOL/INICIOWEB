@@ -63,6 +63,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: propiedad, loading, error, request } = useApiRequest<PropiedadDetalle>({ retries: 2, retryDelay: 1500 });
+  const { loading: visitFormLoading, error: visitFormError, request: visitFormRequest } = useApiRequest({ retries: 2, retryDelay: 1500 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
@@ -73,7 +74,6 @@ const PropertyDetail = () => {
     telefono: '',
     email: '',
     fecha_preferida: '',
-    hora_preferida: '',
     mensaje: ''
   });
 
@@ -216,7 +216,6 @@ const PropertyDetail = () => {
 📍 Propiedad: ${propiedad.titulo}
 🔗 Link: ${propertyUrl}
 📅 Fecha preferida: ${visitForm.fecha_preferida}
-⏰ Hora preferida: ${visitForm.hora_preferida}
 📞 Teléfono: ${visitForm.telefono}
 
 ${visitForm.mensaje ? `Mensaje adicional: ${visitForm.mensaje}` : ''}
@@ -234,35 +233,29 @@ Solicitud generada desde: ${propertyUrl}`;
       mensaje: mensajeCompleto
     };
 
-    try {
-      const response = await fetch(`${API_URL}/contactos`, {
+    // Usar el hook useApiRequest igual que ContactForm
+    await visitFormRequest(async () => {
+      const res = await fetch(`${API_URL}/contactos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) throw new Error('No se pudo enviar la solicitud de visita');
+      return await res.json();
+    });
 
-      if (!response.ok) {
-        throw new Error('No se pudo enviar la solicitud');
-      }
-
-      await response.json();
-      
-      // Mostrar mensaje de éxito
+    // Manejar resultado igual que ContactForm
+    if (!visitFormError) {
       showToast('success', '¡Solicitud de visita enviada! Te contactaremos pronto para coordinar la visita.');
-      
-      // Limpiar formulario
       setVisitForm({
         nombre: '',
         telefono: '',
         email: '',
         fecha_preferida: '',
-        hora_preferida: '',
         mensaje: ''
       });
-      
-    } catch (error) {
-      console.error('Error al enviar solicitud:', error);
-      showToast('error', 'Error al enviar la solicitud. Inténtalo nuevamente.');
+    } else {
+      showToast('error', `Error al enviar solicitud: ${visitFormError}`);
     }
   };
 
@@ -299,6 +292,18 @@ Solicitud generada desde: ${propertyUrl}`;
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loader mientras se envía solicitud de visita */}
+      {visitFormLoading && (
+        <div className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center">
+          <div className="bg-white/80 rounded-xl shadow-xl p-8 flex flex-col items-center">
+            <div className="animate-spin-slow mb-4">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#022550" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <span className="text-lg text-[#022550] font-semibold">Enviando solicitud de visita...</span>
           </div>
         </div>
       )}
@@ -668,18 +673,13 @@ Solicitud generada desde: ${propertyUrl}`;
                           className="border-gray-300 focus:border-[#ec520b]"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div>
                         <Input
                           type="date"
+                          placeholder="Fecha preferida para la visita"
                           value={visitForm.fecha_preferida}
                           onChange={(e) => setVisitForm(prev => ({ ...prev, fecha_preferida: e.target.value }))}
                           required
-                          className="border-gray-300 focus:border-[#ec520b]"
-                        />
-                        <Input
-                          type="time"
-                          value={visitForm.hora_preferida}
-                          onChange={(e) => setVisitForm(prev => ({ ...prev, hora_preferida: e.target.value }))}
                           className="border-gray-300 focus:border-[#ec520b]"
                         />
                       </div>

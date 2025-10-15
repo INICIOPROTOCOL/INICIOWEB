@@ -84,11 +84,11 @@ const Home = () => {
   <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[60vh] sm:min-h-[55vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-[60vh] sm:min-h-[55vh] flex items-center justify-center bg-cover bg-center bg-no-repeat pb-20"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in pt-8 sm:pt-0">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Encontra el

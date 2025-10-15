@@ -1,0 +1,9 @@
+{
+  "name": "loft-luxe-hub",
+  "scripts": {
+    "deploy": "npm run build && echo 'Build completed' && vercel --prod",
+    "deploy-force": "npm run clean && npm run build && echo 'Force deploy with cache clear' && vercel --prod --force",
+    "clean": "rm -rf dist/ && rm -rf .vercel/ && echo 'Cache cleared'",
+    "build-version": "echo \"export const BUILD_VERSION = '$(date +%s)';\" > src/version.ts && npm run build"
+  }
+}

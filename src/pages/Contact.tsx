@@ -202,13 +202,6 @@ const Contact = () => {
                   <p className="text-gray-600 text-sm mb-4">
                     Atención presencial con cita previa
                   </p>
-                  <Button
-                    variant="ghost"
-                    className="text-green-700 hover:text-green-800 font-medium p-0"
-                  >
-                    Ver en mapa
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>

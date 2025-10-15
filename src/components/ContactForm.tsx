@@ -255,7 +255,7 @@ const ContactForm = ({
           {/* WhatsApp */}
           <div className="pt-4 border-t border-gray-200">
             <a 
-              href="https://wa.me/5491123456789" 
+              href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20sus%20servicios%20inmobiliarios" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-300 font-semibold"

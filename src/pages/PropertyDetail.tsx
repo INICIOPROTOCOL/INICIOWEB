@@ -71,7 +71,7 @@ const PropertyDetail = () => {
   // Estados del formulario de visita (siempre abierto)
   const [visitForm, setVisitForm] = useState({
     nombre: '',
-    telefono: '',
+    celular: '', // Cambiar a celular para coincidir con ContactForm
     email: '',
     fecha_preferida: '',
     mensaje: ''
@@ -209,27 +209,95 @@ const PropertyDetail = () => {
   const handleVisitFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Construir el mensaje completo con todos los datos
+    // Construir información detallada de la propiedad para el cliente
     const propertyUrl = window.location.href;
-    const mensajeCompleto = `SOLICITUD DE VISITA - ${propiedad.titulo}
+    const operacionInfo = operacionPrincipal 
+      ? `${tipoOperacionNombre} - ${formatPrice(operacionPrincipal.precio, operacionPrincipal.moneda)}`
+      : 'Precio a consultar';
+    
+    const ubicacionCompleta = [
+      propiedad.direccion,
+      propiedad.ubicaciones?.barrio,
+      propiedad.ubicaciones?.ciudad,
+      propiedad.ubicaciones?.provincia
+    ].filter(Boolean).join(', ');
 
-📍 Propiedad: ${propiedad.titulo}
-🔗 Link: ${propertyUrl}
+    // Construir características principales para el resumen
+    const caracteristicasPrincipales = [];
+    if (propiedad.superficie_lote) caracteristicasPrincipales.push(`${propiedad.superficie_lote}m² lote`);
+    if (propiedad.frente && propiedad.fondo) caracteristicasPrincipales.push(`${propiedad.frente}x${propiedad.fondo}m`);
+    if (propiedad.area_construida) caracteristicasPrincipales.push(`${propiedad.area_construida}m² construidos`);
+    if (propiedad.habitaciones) caracteristicasPrincipales.push(`${propiedad.habitaciones} habitaciones`);
+    if (propiedad.banos) caracteristicasPrincipales.push(`${propiedad.banos} baños`);
+    if (propiedad.garages) caracteristicasPrincipales.push(`${propiedad.garages} cocheras`);
+
+    const mensajeCompleto = `🏠 SOLICITUD DE VISITA - NUEVA CONSULTA
+
+═══════════════════════════════════════════════
+📋 INFORMACIÓN DE LA PROPIEDAD
+═══════════════════════════════════════════════
+
+🏷️ Título: ${propiedad.titulo}
+
+� Operación: ${operacionInfo}
+
+🏠 Tipo: ${propiedad.tipos_propiedad?.nombre || 'No especificado'}
+
+📍 Ubicación: ${ubicacionCompleta}
+
+${caracteristicasPrincipales.length > 0 ? `🏗️ Características: ${caracteristicasPrincipales.join(' | ')}
+
+` : ''}�🔗 VER PROPIEDAD COMPLETA: ${propertyUrl}
+
+
+═══════════════════════════════════════════════
+👤 DATOS DEL INTERESADO
+═══════════════════════════════════════════════
+
+👨‍💼 Nombre: ${visitForm.nombre}
+
+📞 Teléfono: ${visitForm.celular}
+
+📧 Email: ${visitForm.email}
+
 📅 Fecha preferida: ${visitForm.fecha_preferida}
-📞 Teléfono: ${visitForm.telefono}
 
-${visitForm.mensaje ? `Mensaje adicional: ${visitForm.mensaje}` : ''}
+${visitForm.mensaje ? `
+
+💬 Mensaje del cliente:
+"${visitForm.mensaje}"
+
+` : ''}
+
+═══════════════════════════════════════════════
+⚡ ACCIONES RÁPIDAS
+═══════════════════════════════════════════════
+
+📱 WhatsApp directo: https://wa.me/54${visitForm.celular.replace(/[^\d]/g, '')}
+
+🏠 Ver propiedad: ${propertyUrl}
+
+📧 Responder email: ${visitForm.email}
+
 
 --
-Solicitud generada desde: ${propertyUrl}`;
+✨ Solicitud generada desde el sitio web de INICIO
+🕐 Fecha y hora: ${new Date().toLocaleString('es-AR', { 
+  timeZone: 'America/Argentina/Buenos_Aires',
+  year: 'numeric',
+  month: 'long', 
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}`;
 
     // Preparar datos en el formato que espera el backend (igual a ContactForm)
     const payload = {
       nombre: visitForm.nombre,
       apellido: '', // Campo vacío para solicitudes de visita
-      telefono: visitForm.telefono,
+      telefono: visitForm.celular,
       email: visitForm.email,
-      tipoInmueble: 'Solicitud de visita',
+      tipoInmueble: `Solicitud de visita - ${propiedad.titulo}`,
       mensaje: mensajeCompleto
     };
 
@@ -249,7 +317,7 @@ Solicitud generada desde: ${propertyUrl}`;
       showToast('success', '¡Solicitud de visita enviada! Te contactaremos pronto para coordinar la visita.');
       setVisitForm({
         nombre: '',
-        telefono: '',
+        celular: '',
         email: '',
         fecha_preferida: '',
         mensaje: ''
@@ -657,8 +725,8 @@ Solicitud generada desde: ${propertyUrl}`;
                         <Input
                           type="tel"
                           placeholder="Teléfono"
-                          value={visitForm.telefono}
-                          onChange={(e) => setVisitForm(prev => ({ ...prev, telefono: e.target.value }))}
+                          value={visitForm.celular}
+                          onChange={(e) => setVisitForm(prev => ({ ...prev, celular: e.target.value }))}
                           required
                           className="border-gray-300 focus:border-[#ec520b]"
                         />

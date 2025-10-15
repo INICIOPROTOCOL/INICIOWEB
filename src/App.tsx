@@ -24,19 +24,25 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import Login from "@/pages/admin/Login";
 import PropertyDetail from "./pages/PropertyDetail";
+import { useForceRefresh } from "./hooks/useForceRefresh";
 
 const queryClient = new QueryClient();
 
 // Layout para páginas públicas
-const PublicLayout = () => (
-  <div className="flex flex-col min-h-screen">
-    <Navbar />
-    <main className="flex-1">
-      <Outlet />
-    </main>
-    <Footer />
-  </div>
-);
+const PublicLayout = () => {
+  // Hook para forzar actualizaciones y evitar caché
+  useForceRefresh();
+  
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

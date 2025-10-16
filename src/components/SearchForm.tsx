@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,9 +57,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
   const [loadingOperaciones, setLoadingOperaciones] = useState(false);
   const [selectedUbicacion, setSelectedUbicacion] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Cargar tipos de propiedad, operaciones y ubicaciones al montar el componente
   useEffect(() => {
@@ -109,7 +106,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
     }
   }, [ubicacionInput, ubicaciones]);
 
-  // Cerrar dropdown al hacer click fuera y manejar scroll/resize
+  // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -117,28 +114,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
       }
     };
 
-    const handleScroll = () => {
-      if (showDropdown) {
-        updateDropdownPosition();
-      }
-    };
-
-    const handleResize = () => {
-      if (showDropdown) {
-        updateDropdownPosition();
-      }
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-    window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', handleResize);
     };
-  }, [showDropdown]);
+  }, []);
 
   // Manejar selección de ubicación
   const handleUbicacionSelect = (ubicacion: Ubicacion) => {
@@ -146,18 +127,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
     setUbicacionInput(ubicacionText);
     setSelectedUbicacion(ubicacion.id.toString());
     setShowDropdown(false);
-  };
-
-  // Calcular posición del dropdown
-  const updateDropdownPosition = () => {
-    if (inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width
-      });
-    }
   };
 
   // Manejar búsqueda
@@ -198,13 +167,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
 
   // Manejar focus en input de ubicación
   const handleUbicacionFocus = () => {
-    updateDropdownPosition();
+    // Al hacer foco, mostrar todas las ubicaciones disponibles
+    setUbicacionesFiltradas(ubicaciones);
     setShowDropdown(true);
   };
 
   return (
-    <Card className={`w-full max-w-7xl mx-auto bg-white/85 backdrop-blur-md border border-white/20 shadow-xl relative z-20 overflow-visible ${className}`}>
-      <CardContent className="p-6 sm:p-8 overflow-visible">
+    <Card className={`w-full max-w-7xl mx-auto bg-white/85 backdrop-blur-md border border-white/20 shadow-xl relative z-20 ${className}`}>
+      <CardContent className="p-6 sm:p-8">
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-stretch">
           {/* PASO 1: Tipo de Operación */}
           <div className="flex-1">
@@ -304,17 +274,15 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
               </span>
             </label>
             <div className="flex justify-center">
-              <div className="relative w-full z-30" ref={dropdownRef}>
+              <div className="relative w-full" ref={dropdownRef}>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 z-10" />
                   <Input
-                    ref={inputRef}
                     value={ubicacionInput}
                     onChange={(e) => {
                       setUbicacionInput(e.target.value);
                       setSelectedUbicacion('');
                       if (!showDropdown) {
-                        updateDropdownPosition();
                         setShowDropdown(true);
                       }
                     }}
@@ -327,16 +295,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 </div>
                 
-                {/* Dropdown de resultados - Portal para evitar overflow */}
-                {showDropdown && dropdownPosition && createPortal(
-                  <div 
-                    className="fixed bg-white border border-gray-200 rounded-lg shadow-2xl z-[9999] max-h-48 overflow-y-auto"
-                    style={{
-                      top: dropdownPosition.top,
-                      left: dropdownPosition.left,
-                      width: dropdownPosition.width,
-                    }}
-                  >
+                {/* Dropdown de resultados con z-index alto */}
+                {showDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto">
                     {loadingUbicaciones ? (
                       <div className="p-3 text-center text-gray-500">
                         Cargando ubicaciones...
@@ -369,8 +330,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                         {ubicacionInput.trim() ? `No se encontraron ubicaciones para "${ubicacionInput}"` : 'Escribe para buscar ubicaciones'}
                       </div>
                     )}
-                  </div>,
-                  document.body
+                  </div>
                 )}
               </div>
             </div>

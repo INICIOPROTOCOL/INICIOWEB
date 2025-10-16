@@ -579,7 +579,11 @@ const Properties = () => {
                   size="lg"
                   className="bg-[#022550] hover:bg-[#ec520b] transform hover:scale-105 transition-all duration-300 border-0"
                 >
-                  <a href="https://wa.me/5493515155669?text=Hola,%20no%20encontré%20la%20propiedad%20que%20busco,%20¿pueden%20ayudarme?">
+                  <a 
+                    href="https://wa.me/5493515155669?text=Hola,%20no%20encontré%20la%20propiedad%20que%20busco,%20¿pueden%20ayudarme?"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <MessageCircle className="mr-2 h-5 w-5" />
                     Contactar por WhatsApp
                   </a>

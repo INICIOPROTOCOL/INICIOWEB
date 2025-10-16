@@ -240,7 +240,7 @@ const Footer = () => {
                 asChild
               >
                 <a 
-                  href="https://www.instagram.com/inicio_inmob/" 
+                  href="https://www.instagram.com/inicio.inmobiliaria/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   aria-label="Síguenos en Instagram"

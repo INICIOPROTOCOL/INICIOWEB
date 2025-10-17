@@ -45,7 +45,6 @@ const TiposPropiedad: React.FC = () => {
       try {
         const response = await axios.get(`${API_URL}/tipos`);
         setTipos(response.data || []);
-        console.log('📦 Tipos de propiedad cargados:', response.data?.length || 0);
       } catch (error) {
         console.error('Error al cargar tipos de propiedad:', error);
         showToast('Error al cargar tipos de propiedad', 'error');

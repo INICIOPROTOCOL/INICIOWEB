@@ -57,7 +57,6 @@ const Ubicaciones: React.FC = () => {
       try {
         const response = await axios.get(`${API_URL}/ubicaciones`);
         setUbicaciones(response.data || []);
-        console.log('📦 Ubicaciones cargadas:', response.data?.length || 0);
       } catch (error) {
         console.error('Error al cargar ubicaciones:', error);
         showToast('Error al cargar ubicaciones', 'error');
@@ -114,17 +113,7 @@ const Ubicaciones: React.FC = () => {
           barrio: payload.barrio,
           codigo_postal: payload.codigo_postal
         };
-        console.log('[PUT] Actualizar ubicación:', {
-          url: `${API_URL}/ubicaciones/${editingId}`,
-          payload: updatePayload
-        });
         const response = await axios.put(`${API_URL}/ubicaciones/${editingId}`, updatePayload);
-        console.log('[PUT] Respuesta backend:', response);
-        setUbicaciones(prev => prev.map(ubicacion => 
-          ubicacion.id === editingId 
-            ? { ...ubicacion, ...updatePayload }
-            : ubicacion
-        ));
         showToast('Ubicación actualizada exitosamente', 'success');
       } else {
         // Crear nueva ubicación completa

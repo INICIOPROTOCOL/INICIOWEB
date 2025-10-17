@@ -131,27 +131,19 @@ const Propiedades: React.FC = () => {
       try {
         // Obtener email del usuario autenticado desde el contexto
         const email = authUser?.email;
-        console.log('[DEBUG] Email obtenido de useAuth:', email);
         if (!email) {
-          console.error('[DEBUG] No se encontró email en el usuario autenticado');
           return;
         }
         // Consultar el id en la tabla usuarios (backend debe exponer este endpoint)
         const url = `${API_URL}/usuarios/by-email?email=${encodeURIComponent(email)}`;
-        console.log('[DEBUG] Consultando backend:', url);
         const res = await axios.get(url);
-        console.log('[DEBUG] Respuesta backend usuarios/by-email:', res.data);
         if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           setAgenteActual(res.data[0].id);
-          console.log('[DEBUG] agenteActual seteado:', res.data[0].id);
         } else if (res.data && res.data.id) {
           setAgenteActual(res.data.id);
-          console.log('[DEBUG] agenteActual seteado:', res.data.id);
         } else {
-          console.error('[DEBUG] No se encontró usuario en la respuesta del backend');
         }
       } catch (err) {
-        console.error('[DEBUG] Error al obtener agente_id:', err);
       }
     };
     fetchAgenteId();
@@ -230,7 +222,6 @@ const Propiedades: React.FC = () => {
     const loadData = async () => {
       setLoadingData(true);
       try {
-        console.log('🔍 Cargando datos desde:', API_URL);
         const [propsRes, tiposRes, ubicRes, caracRes] = await Promise.all([
           axios.get(`${API_URL}/propiedades`),
           axios.get(`${API_URL}/tipos`),
@@ -532,7 +523,6 @@ const Propiedades: React.FC = () => {
 
     setLoading(true);
     try {
-      console.log('[DEBUG] Valor de agenteActual al guardar:', agenteActual);
       if (!agenteActual) {
         showToast('No se pudo identificar el agente actual', 'error');
         setLoading(false);
@@ -571,8 +561,6 @@ const Propiedades: React.FC = () => {
         fondo: form.fondo ? parseFloat(form.fondo) : null
       };
 
-      // DEBUG: Mostrar el payload que se enviará al backend
-      console.log('[DEBUG] Payload enviado al backend:', basePayload);
 
       if (!editingId) {
         response = await axios.post(`${API_URL}/propiedades`, basePayload);
@@ -619,7 +607,6 @@ const Propiedades: React.FC = () => {
       setPropiedades(res.data || []);
       resetForm();
     } catch (error) {
-      console.error('Error al guardar propiedad:', error);
       showToast('Error al guardar propiedad', 'error');
     }
     setLoading(false);
@@ -678,7 +665,6 @@ const Propiedades: React.FC = () => {
       showToast('Propiedad eliminada correctamente', 'success');
       setPropiedades(prev => prev.filter(p => p.id !== id));
     } catch (error) {
-      console.error('Error al eliminar propiedad:', error);
       showToast('Error al eliminar propiedad', 'error');
     }
     setLoading(false);

@@ -29,7 +29,6 @@ const TiposOperacion: React.FC = () => {
     try {
       const response = await axios.get(`${API_URL}/tipos-operacion`); // Usar endpoint correcto
       setTipos(response.data || []);
-      console.log('📦 Tipos de operación cargados:', response.data?.length || 0);
     } catch (error) {
       console.error('Error al cargar tipos de operación:', error);
       showToast('Error al cargar tipos de operación', 'error');

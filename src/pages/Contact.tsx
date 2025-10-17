@@ -116,9 +116,10 @@ const Contact = () => {
                 <MessageCircle className="h-5 w-5 mr-2" />
                 WhatsApp Directo
               </a>
+              {/* Botón de llamar - Solo visible en móviles */}
               <a
                 href="tel:+5493515155669"
-                className="inline-flex items-center justify-center px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-300 font-semibold transform hover:scale-105 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/30"
+                className="sm:hidden inline-flex items-center justify-center px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-300 font-semibold transform hover:scale-105 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/30"
               >
                 <Phone className="h-5 w-5 mr-2" />
                 Llamar Ahora

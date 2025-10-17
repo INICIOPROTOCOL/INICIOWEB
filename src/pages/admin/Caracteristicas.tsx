@@ -61,8 +61,6 @@ const Caracteristicas: React.FC = () => {
       setCaracteristicas(caracRes.data || []);
       setTiposCaracteristica(tiposRes.data || []);
       
-      console.log('📦 Características cargadas:', caracRes.data?.length || 0);
-      console.log('📦 Tipos de características cargados:', tiposRes.data?.length || 0);
     } catch (error) {
       console.error('Error al cargar datos:', error);
       showToast('Error al cargar datos', 'error');

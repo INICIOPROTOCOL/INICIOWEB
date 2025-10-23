@@ -164,7 +164,7 @@ const PropertyDetail = () => {
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin h-12 w-12 border-4 border-[#ec520b] border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando propiedad...</p>
+          <p className="text-gray-600 font-montserrat">Cargando propiedad...</p>
         </div>
       </div>
     );
@@ -175,8 +175,8 @@ const PropertyDetail = () => {
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
         <div className="text-center">
           <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Propiedad no encontrada</h2>
-          <p className="text-gray-600">{error || 'La propiedad que buscas no existe o ha sido eliminada.'}</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-poppins">Propiedad no encontrada</h2>
+          <p className="text-gray-600 font-montserrat">{error || 'La propiedad que buscas no existe o ha sido eliminada.'}</p>
         </div>
       </div>
     );
@@ -549,17 +549,17 @@ ${visitForm.mensaje ? `
             ) : (
               <div className="w-full h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex flex-col items-center justify-center border-4 border-gray-300 border-dashed">
                 <Home className="h-20 w-20 text-gray-400 mb-4" />
-                <p className="text-gray-500 text-lg font-medium">Sin imágenes disponibles</p>
+                <p className="text-gray-500 text-lg font-medium font-montserrat">Sin imágenes disponibles</p>
               </div>
             )}
 
             {/* Descripción debajo de las imágenes */}
             <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border-2 border-[#022550]/10">
-              <h2 className="text-2xl font-bold text-[#022550] mb-4 flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-[#022550] mb-4 flex items-center gap-2 font-poppins">
                 <Eye className="h-6 w-6 text-[#ec520b]" />
                 Descripción
               </h2>
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
+              <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg font-montserrat">
                 {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
               </div>
             </div>
@@ -567,7 +567,7 @@ ${visitForm.mensaje ? `
             {/* Características agrupadas por tipo, bien separadas, con iconos */}
             {Object.keys(caracteristicasPorTipo).length > 0 && (
               <div className="mt-8">
-                <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center flex items-center justify-center gap-2">
+                <h2 className="text-2xl font-bold text-[#022550] mb-6 text-center flex items-center justify-center gap-2 font-poppins">
                   <Check className="h-6 w-6 text-green-600" />
                   Características de la propiedad
                 </h2>
@@ -600,7 +600,7 @@ ${visitForm.mensaje ? `
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
               {/* Title and Location */}
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#022550] mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#022550] mb-2 font-poppins">
                 {propiedad.titulo}
               </h1>
               

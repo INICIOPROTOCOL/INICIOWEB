@@ -58,7 +58,7 @@ const Nosotros = () => {
             <Badge variant="outline" className="mb-6 bg-white/20 text-white border-white/30">
               Conoce Nuestra Historia
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
               Nosotros
             </h1>
           </div>
@@ -76,7 +76,7 @@ const Nosotros = () => {
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                  SOMOS INICIO NEGOCIOS INMOBILIARIOS
               </h2>
-              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+              <p className="text-gray-600 text-lg leading-relaxed mb-8 font-montserrat">
                 {empresaData.quienesSomos}
               </p>
               
@@ -86,7 +86,7 @@ const Nosotros = () => {
 </div>
                 <div>
                   <div className="font-semibold text-gray-900">Fundada en {empresaData.fundacion.año}</div>
-                  <div className="text-gray-600 text-sm">{empresaData.fundacion.historia}</div>
+                  <div className="text-gray-600 text-sm font-montserrat">{empresaData.fundacion.historia}</div>
                 </div>
               </div>
             </div>
@@ -101,7 +101,7 @@ const Nosotros = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">
                     Nuestra Misión
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed font-montserrat">
                     {empresaData.mision}
                   </p>
                 </div>
@@ -134,7 +134,7 @@ const Nosotros = () => {
                 Hacia Dónde Vamos
               </h2>
               
-              <p className="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto">
+              <p className="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto font-montserrat">
                 {empresaData.vision}
               </p>
             </div>
@@ -170,7 +170,7 @@ const Nosotros = () => {
                       <h3 className="text-xl font-semibold text-gray-900 mb-3">
                         {valor.titulo}
                       </h3>
-                      <p className="text-gray-600 leading-relaxed text-center">
+                      <p className="text-gray-600 leading-relaxed text-center font-montserrat">
                         {valor.descripcion}
                       </p>
                     </div>

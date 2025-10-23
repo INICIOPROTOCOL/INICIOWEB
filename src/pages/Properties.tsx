@@ -311,10 +311,10 @@ const Properties = () => {
           {/* Título */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
             <div className="animate-fade-in">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
                 Propiedades
               </h1>
-              <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
+              <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light font-montserrat">
                 Explora nuestra selección exclusiva de propiedades.
               </p>
             </div>
@@ -328,7 +328,7 @@ const Properties = () => {
                   <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
                     {/* Tipo de Operación */}
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
                         Tipo de Operación
                       </label>
                       <Select value={operacion} onValueChange={handleOperacionChange}>
@@ -348,7 +348,7 @@ const Properties = () => {
 
                     {/* Tipo de Propiedad */}
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
                         Tipo de Propiedad
                       </label>
                       <Select value={tipo} onValueChange={handleTipoChange}>
@@ -368,7 +368,7 @@ const Properties = () => {
 
                     {/* Ubicación */}
                     <div className="flex-[1.5]">
-                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
                         Ubicación
                       </label>
                       <Select value={ubicacionSeleccionada} onValueChange={handleUbicacionChange}>
@@ -388,7 +388,7 @@ const Properties = () => {
 
                     {/* Habitaciones */}
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
                         Habitaciones
                       </label>
                       <Select value={habitaciones} onValueChange={(v) => setHabitaciones(v === '0' ? '' : v)}>
@@ -408,7 +408,7 @@ const Properties = () => {
 
                     {/* Precio */}
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left">
+                      <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
                         Precio (rango)
                       </label>
                       <div className="flex gap-2">
@@ -523,8 +523,8 @@ const Properties = () => {
                 <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ec520b] rounded-full animate-spin"></div>
                 <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-[#022550] rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
               </div>
-              <p className="mt-4 text-gray-600 font-medium">Cargando propiedades...</p>
-              <p className="text-sm text-gray-500 mt-2">Esto puede tomar unos segundos</p>
+              <p className="mt-4 text-gray-600 font-medium font-montserrat">Cargando propiedades...</p>
+              <p className="text-sm text-gray-500 mt-2 font-montserrat">Esto puede tomar unos segundos</p>
             </div>
           ) : filteredProperties.length > 0 ? (
             <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}>
@@ -537,10 +537,10 @@ const Properties = () => {
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Home className="h-12 w-12 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2 font-poppins">
                 No hay propiedades que coincidan con los filtros
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4 font-montserrat">
                 Intenta modificar los filtros para ver más resultados
               </p>
               <button
@@ -566,10 +566,10 @@ const Properties = () => {
                 <Home className="h-8 w-8 text-white" />
               </div>
               
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 font-poppins">
                 ¿No encontraste lo que buscabas?
               </h3>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-gray-600 mb-8 max-w-2xl mx-auto font-montserrat">
                 Nuestro equipo puede ayudarte a encontrar la propiedad perfecta. Contáctanos y recibe atención personalizada.
               </p>
               

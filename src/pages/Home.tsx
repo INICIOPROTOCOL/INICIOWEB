@@ -90,11 +90,11 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
         <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in pt-8 sm:pt-0">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
               Encontra el
               <span className="bg-gradient-to-r from-[#ff7b25] to-[#ff5e00] bg-clip-text text-transparent"> lugar que buscas</span>
             </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto font-montserrat">
               La inmobiliaria mas completa para la busqueda de tu propiedad
             </p>
           </div>
@@ -123,10 +123,10 @@ const Home = () => {
                   className="w-16 h-16 object-contain"
                 />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#022550] mb-3 drop-shadow-sm">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#022550] mb-3 drop-shadow-sm font-poppins">
                 Estamos para acompañarte
               </h3>
-              <p className="text-[#022550] text-sm sm:text-base max-w-md mx-auto drop-shadow-sm font-medium">
+              <p className="text-[#022550] text-sm sm:text-base max-w-md mx-auto drop-shadow-sm font-medium font-montserrat">
                 Tu compañia en el proceso de tus objetivos inmobiliarios
               </p>
             </div>
@@ -140,7 +140,7 @@ const Home = () => {
                   <div>
                     <Calculator className="h-8 w-8 mb-4 text-white/90" />
                     <h4 className="text-lg font-semibold mb-2">¿Estás buscando vender tu propiedad?</h4>
-                    <p className="text-white/80 text-sm mb-4 md:mb-0">
+                    <p className="text-white/80 text-sm mb-4 md:mb-0 font-montserrat">
                       Solicita una tasación profesional
                     </p>
                   </div>
@@ -170,10 +170,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-6 sm:mb-10">
             <Badge variant="outline" className="mb-2">Propiedades Destacadas</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 font-poppins">
               Las mejores oportunidades del mercado
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-xs sm:text-base">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-xs sm:text-base font-montserrat">
               Descubre una selección exclusiva de propiedades premium, cuidadosamente elegidas por nuestro equipo de expertos.
             </p>
           </div>
@@ -213,10 +213,10 @@ const Home = () => {
             <Badge variant="outline" className="mb-2 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
               Nuestros Servicios
             </Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 font-poppins">
               Soluciones inmobiliarias integrales
             </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto text-xs sm:text-base mb-4">
+            <p className="text-gray-600 max-w-3xl mx-auto text-xs sm:text-base mb-4 font-montserrat">
               Ofrecemos un servicio completo que abarca todas tus necesidades inmobiliarias, legales y contables
             </p>
           </div>
@@ -238,7 +238,7 @@ const Home = () => {
                         <span className="text-sm sm:text-base font-semibold text-gray-800 group-hover:text-white transition-colors text-center mb-2">
                           {service.title}
                         </span>
-                        <span className="text-xs text-gray-500 group-hover:text-white/80 text-center px-2 leading-tight">
+                        <span className="text-xs text-gray-500 group-hover:text-white/80 text-center px-2 leading-tight font-montserrat">
                           {service.description}
                         </span>
                         <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -250,7 +250,7 @@ const Home = () => {
                 })}
               </div>
               <div className="text-center mt-6 pt-4 border-t border-gray-200/50">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 font-montserrat">
                   <CheckCircle className="inline h-3 w-3 mr-1 text-green-500" />
                   Todos nuestros servicios incluyen asesoramiento personalizado.
                 </p>
@@ -274,16 +274,16 @@ const Home = () => {
                   className="w-16 h-16 object-contain"
                 />
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-poppins">
                 Contacto
               </h2>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-[#022550] text-lg sm:text-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-[#022550] text-lg sm:text-xl font-montserrat">
                 <span>Podes comunicarte por</span>
                 <a 
                   href="https://wa.me/message/2672WUGF2M56K1" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-300 font-semibold text-sm sm:text-base"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-300 font-semibold text-sm sm:text-base font-montserrat"
                 >
                   <MessageCircle className="h-4 w-4" />
                   WhatsApp

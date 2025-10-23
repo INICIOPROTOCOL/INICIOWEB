@@ -136,7 +136,7 @@ const Contact = () => {
             <Badge variant="outline" className="mb-4 text-[#ec520b] border-[#ec520b]/30 bg-[#ec520b]/5">
               Múltiples formas de contacto
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 font-poppins">
               Elige la forma que prefieras
             </h2>
           </div>
@@ -148,15 +148,15 @@ const Contact = () => {
                 <div className="w-16 h-16 bg-[#ec520b] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <Phone className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 font-poppins">
                   Teléfono
                 </h3>
-                <p className="text-lg font-medium text-[#ec520b] mb-2">
+                <p className="text-lg font-medium text-[#ec520b] mb-2 font-montserrat">
                   {contactInfo.telefono}
                 </p>
                 <a
                   href={`tel:${contactInfo.telefono}`}
-                  className="inline-flex items-center text-[#ec520b] hover:text-[#022550] font-medium transition-colors"
+                  className="inline-flex items-center text-[#ec520b] hover:text-[#022550] font-medium transition-colors font-montserrat"
                 >
                   Llamar ahora
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -170,15 +170,15 @@ const Contact = () => {
                 <div className="w-16 h-16 bg-[#022550] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <Mail className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 font-poppins">
                   Email
                 </h3>
-                <p className="text-lg font-medium text-[#022550] mb-2">
+                <p className="text-lg font-medium text-[#022550] mb-2 font-montserrat">
                   {contactInfo.email}
                 </p>
                 <a
                   href={`mailto:${contactInfo.email}`}
-                  className="inline-flex items-center text-[#022550] hover:text-[#ec520b] font-medium transition-colors"
+                  className="inline-flex items-center text-[#022550] hover:text-[#ec520b] font-medium transition-colors font-montserrat"
                 >
                   Enviar email
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -194,13 +194,13 @@ const Contact = () => {
                   <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                     <MapPin className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3 font-poppins">
                     Oficina
                   </h3>
-                  <p className="text-lg font-medium text-green-700 mb-2">
+                  <p className="text-lg font-medium text-green-700 mb-2 font-montserrat">
                     {contactInfo.ubicacion}
                   </p>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-gray-600 text-sm mb-4 font-montserrat">
                     Atención presencial con cita previa
                   </p>
                 </div>
@@ -228,10 +228,10 @@ const Contact = () => {
               <Badge variant="outline" className="mb-4 bg-white/20 text-white border-white/30">
                 Formulario de Contacto
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-poppins">
                 ¡Conversemos sobre tu proyecto!
               </h2>
-              <p className="text-white/90 text-lg max-w-2xl mx-auto">
+              <p className="text-white/90 text-lg max-w-2xl mx-auto font-montserrat">
                 Completa el formulario y un especialista se comunicará contigo en menos de 24 horas
               </p>
             </div>
@@ -257,10 +257,10 @@ const Contact = () => {
             <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#022550]/20 rounded-full translate-y-8 -translate-x-8"></div>
             
             <div className="relative z-10">
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 font-poppins">
                 ¿Listo para dar el siguiente paso?
               </h3>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-gray-600 mb-8 max-w-2xl mx-auto font-montserrat">
                 No esperes más. Nuestro equipo está preparado para ayudarte a alcanzar tus objetivos inmobiliarios.
               </p>
               

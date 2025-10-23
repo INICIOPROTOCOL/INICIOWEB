@@ -44,7 +44,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-1">
             <Link
               to="/"
-              className={`px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors  hover:bg-[#ec520b]`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway`}
             >
               Home
             </Link>
@@ -53,7 +53,7 @@ const Navbar = () => {
             <div className="relative group">
               <Link
                 to="/nuestros-servicios"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b] group-hover:bg-[#ec520b]"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b] group-hover:bg-[#ec520b] font-raleway"
               >
                 Nuestros Servicios
               </Link>
@@ -66,7 +66,7 @@ const Navbar = () => {
                     <Link
                       key={servicio.href}
                       to={servicio.href}
-                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-[#ec520b] hover:text-white transition-colors duration-200"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-[#ec520b] hover:text-white transition-colors duration-200 font-raleway"
                     >
                       {servicio.label}
                     </Link>
@@ -77,21 +77,21 @@ const Navbar = () => {
 
             <Link
               to="/nosotros"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b]"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway"
             >
               Nosotros
             </Link>
 
             <Link
               to="/contacto"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b]"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway"
             >
               Contacto
             </Link>
 
             <Link
               to="/propiedades"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors bg-[#ec520b]"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors bg-[#ec520b] font-raleway"
               style={{ backgroundColor: "#ec520b" }}
             >
               Ver Propiedades
@@ -145,7 +145,7 @@ const Navbar = () => {
                     <Link
                       to="/"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b] hover:text-white"
+                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b] hover:text-white font-raleway"
                     >
                       Home
                     </Link>
@@ -154,7 +154,7 @@ const Navbar = () => {
                     <Link
                       to="/propiedades"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white bg-[#ec520b] transition-colors shadow-md"
+                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white bg-[#ec520b] transition-colors shadow-md font-raleway"
                     >
                       Ver Propiedades
                     </Link>
@@ -167,7 +167,7 @@ const Navbar = () => {
                       <Link
                         to="/nuestros-servicios"
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b]"
+                        className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway"
                       >
                         Nuestros Servicios
                       </Link>
@@ -182,7 +182,7 @@ const Navbar = () => {
                             key={servicio.href}
                             to={servicio.href}
                             onClick={() => setIsOpen(false)}
-                            className="flex items-center px-4 py-2 rounded-lg text-sm text-white/90 transition-colors hover:bg-[#ec520b]/80 hover:text-white hover:pl-6"
+                            className="flex items-center px-4 py-2 rounded-lg text-sm text-white/90 transition-colors hover:bg-[#ec520b]/80 hover:text-white hover:pl-6 font-raleway"
                           >
                             <span className="w-2 h-2 bg-[#ec520b] rounded-full mr-3 opacity-60"></span>
                             {servicio.label}
@@ -198,7 +198,7 @@ const Navbar = () => {
                     <Link
                       to="/nosotros"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b]"
+                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway"
                     >
                       Nosotros
                     </Link>
@@ -206,7 +206,7 @@ const Navbar = () => {
                     <Link
                       to="/contacto"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b]"
+                      className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-white transition-colors hover:bg-[#ec520b] font-raleway"
                     >
                       Contacto
                     </Link>
@@ -220,7 +220,7 @@ const Navbar = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
+                    className="flex items-center justify-center w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium font-raleway"
                   >
                     <MessageCircle className="h-5 w-5 mr-2" />
                     Contactar por WhatsApp

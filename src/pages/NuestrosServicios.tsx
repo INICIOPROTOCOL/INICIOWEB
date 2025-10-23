@@ -124,10 +124,10 @@ const NuestrosServicios = () => {
         
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
               Nuestros Servicios
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light">
+            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light font-montserrat">
               Soluciones integrales para tus necesidades inmobiliarias, legales y contables
             </p>
           </div>
@@ -156,7 +156,7 @@ const NuestrosServicios = () => {
                         <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">
                           {servicio.titulo}
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 font-montserrat">
                           {servicio.descripcionCorta}
                         </p>
                       </div>
@@ -171,7 +171,7 @@ const NuestrosServicios = () => {
                         {servicio.caracteristicas.map((caracteristica, idx) => (
                           <div key={idx} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
-                            <span className="text-gray-600 text-sm">{caracteristica}</span>
+                            <span className="text-gray-600 text-sm font-montserrat">{caracteristica}</span>
                           </div>
                         ))}
                       </div>

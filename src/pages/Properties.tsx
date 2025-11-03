@@ -121,7 +121,6 @@ const Properties = () => {
       await request(async () => {
         const propiedadesRes = await axios.get(`${API_URL}/propiedades-sync`);
         if (!mounted) return [];
-        console.log('Propiedades sincronizadas desde BD:', propiedadesRes.data);
         localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
         return propiedadesRes.data || [];
       });

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers, Ruler } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { capitalizeFirst, capitalizeAndFixAccent } from '@/utils/capitalize';
+import { capitalizeAndFixAccent } from '@/utils/capitalize';
 
 interface PropertyCardProps {
   property: {
@@ -37,8 +37,16 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const navigate = useNavigate();
 
-  // Debug para ver la estructura de operaciones_propiedad
   console.log('PropertyCard property:', property);
+  if (property.operaciones_propiedad) {
+    console.log('operaciones_propiedad[0]:', property.operaciones_propiedad[0]);
+    if (property.operaciones_propiedad[0]) {
+      console.log('tipo_operacion:', property.operaciones_propiedad[0].tipo_operacion);
+    }
+  }
+  if (property.tipos_propiedad) {
+    console.log('tipos_propiedad:', property.tipos_propiedad);
+  }
 
   // Imagen principal
   const imagenPrincipal =
@@ -46,23 +54,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
     property.imagenes_propiedad?.[0];
   const imageSrc = imagenPrincipal?.url_imagen || '/logo_grande_fondo_azul.png';
 
-
-
-  // Restaurar variable original 'operacion' para evitar error y mantener compatibilidad
   const operacion = property.operaciones_propiedad?.[0];
-  // Tipo de operación: soporta ambos nombres (tipo_operacion y tipos_operacion)
-  const tipoOperacion = operacion
-    ? capitalizeAndFixAccent(
-        (operacion as any).tipo_operacion?.nombre ||
-        (operacion as any).tipos_operacion?.nombre ||
-        'N/A'
-      )
-    : '';
+  // Soporta ambos nombres, igual que en PropertyDetail
+  const tipoOperacion =
+    operacion?.tipo_operacion?.nombre
+      ? capitalizeAndFixAccent(operacion.tipo_operacion.nombre)
+      : operacion?.tipos_operacion?.nombre
+        ? capitalizeAndFixAccent(operacion.tipos_operacion.nombre)
+        : '';
 
-  // Tipo de propiedad
   const tipoProp = property.tipos_propiedad?.nombre
     ? capitalizeAndFixAccent(property.tipos_propiedad.nombre)
-    : 'N/A';
+    : '';
 
   // Ubicación
   const ubicacion =
@@ -107,11 +110,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   };
 
   return (
-    <Card 
-      className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30"
-    >
+    <Card className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
       {/* Imagen principal */}
-      <div 
+      <div
         className="relative cursor-pointer"
         onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
       >
@@ -121,18 +122,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           className="w-full h-48 object-cover"
           loading="lazy"
         />
-        {/* Etiqueta tipo de operación en la esquina superior izquierda */}
+        {/* Etiqueta tipo de operación */}
         {tipoOperacion && (
           <div className="absolute top-3 left-3">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
-            >
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow">
               {tipoOperacion}
             </span>
           </div>
         )}
       </div>
-      
+
       <CardContent className="p-4 flex flex-col gap-2">
         {/* Tipo de propiedad */}
         <div className="flex items-center gap-2 mb-1">

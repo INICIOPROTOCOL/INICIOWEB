@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers, Ruler } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { capitalizeFirst, capitalizeAndFixAccent } from '@/utils/capitalize';
 
 interface PropertyCardProps {
   property: {
@@ -35,16 +36,33 @@ interface PropertyCardProps {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const navigate = useNavigate();
-  
+
+  // Debug para ver la estructura de operaciones_propiedad
+  console.log('PropertyCard property:', property);
+
   // Imagen principal
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
     property.imagenes_propiedad?.[0];
   const imageSrc = imagenPrincipal?.url_imagen || '/logo_grande_fondo_azul.png';
 
-  // Tipo de propiedad + ambientes
-  const tipoProp = property.tipos_propiedad?.nombre || '';
-  const ambientes = property.habitaciones ? `${property.habitaciones} ambientes` : '';
+
+
+  // Restaurar variable original 'operacion' para evitar error y mantener compatibilidad
+  const operacion = property.operaciones_propiedad?.[0];
+  // Tipo de operación: soporta ambos nombres (tipo_operacion y tipos_operacion)
+  const tipoOperacion = operacion
+    ? capitalizeAndFixAccent(
+        (operacion as any).tipo_operacion?.nombre ||
+        (operacion as any).tipos_operacion?.nombre ||
+        'N/A'
+      )
+    : '';
+
+  // Tipo de propiedad
+  const tipoProp = property.tipos_propiedad?.nombre
+    ? capitalizeAndFixAccent(property.tipos_propiedad.nombre)
+    : 'N/A';
 
   // Ubicación
   const ubicacion =
@@ -56,7 +74,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const titulo = property.titulo;
 
   // Precio
-  const operacion = property.operaciones_propiedad?.[0];
   const formatPrice = (precio: number, moneda: string) =>
     new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -105,23 +122,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           loading="lazy"
         />
         {/* Etiqueta tipo de operación en la esquina superior izquierda */}
-        {property.operaciones_propiedad?.[0]?.tipo_operacion?.nombre && (
+        {tipoOperacion && (
           <div className="absolute top-3 left-3">
             <span
               className={`px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow`}
             >
-              {property.operaciones_propiedad[0].tipo_operacion.nombre}
+              {tipoOperacion}
             </span>
           </div>
         )}
       </div>
       
       <CardContent className="p-4 flex flex-col gap-2">
-        {/* Tipo de propiedad + ambientes */}
+        {/* Tipo de propiedad */}
         <div className="flex items-center gap-2 mb-1">
-          <Badge className="bg-[#022550] text-white font-medium">{tipoProp}</Badge>
-          {ambientes && (
-            <span className="text-xs text-gray-600 font-medium">{ambientes}</span>
+          {tipoProp && (
+            <Badge className="bg-[#022550] text-white font-medium">{tipoProp}</Badge>
           )}
         </div>
         

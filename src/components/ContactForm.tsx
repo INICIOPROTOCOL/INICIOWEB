@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useApiRequest } from '@/hooks/useApiRequest';
@@ -13,6 +13,7 @@ import {
   Phone, 
   User
 } from 'lucide-react';
+// import ReCAPTCHA from 'react-google-recaptcha';
 
 interface ContactFormProps {
   title?: string;
@@ -47,6 +48,8 @@ const ContactForm = ({
   const [modal, setModal] = useState<{ open: boolean; success: boolean; message: string }>({ open: false, success: false, message: '' });
   const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
   const { loading, error, request } = useApiRequest({ retries: 2, retryDelay: 1500 });
+  // const recaptchaRef = useRef<ReCAPTCHA>(null);
+  // const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Efecto para establecer el tipo de inmueble por defecto
   useEffect(() => {
@@ -91,6 +94,13 @@ const ContactForm = ({
   // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validación básica
+    // if (!recaptchaToken) {
+    //   alert('Por favor, completa el reCAPTCHA.');
+    //   return;
+    // }
+
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
     const payload = {
       nombre: contactForm.nombre,
@@ -98,7 +108,8 @@ const ContactForm = ({
       telefono: contactForm.celular,
       email: contactForm.email,
       tipoInmueble: contactForm.tipoInmueble,
-      mensaje: contactForm.mensaje
+      mensaje: contactForm.mensaje,
+      recaptchaToken, // <-- agrega el token aquí
     };
     await request(async () => {
       const res = await fetch(`${API_URL}/contactos`, {
@@ -388,6 +399,16 @@ const ContactForm = ({
                       placeholder="Describe tu consulta, ubicación preferida, presupuesto, características deseadas, etc."
                     ></textarea>
                   </div>
+
+                  {/* reCAPTCHA */}
+                  {/*
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    onChange={token => setRecaptchaToken(token)}
+                    className="mt-4"
+                  />
+                  */}
 
                   {/* Botón de envío */}
                   <div className="text-center pt-4">

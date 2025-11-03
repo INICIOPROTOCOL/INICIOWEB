@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { uploadImageToSupabase } from '@/lib/uploadImage';
+import { capitalizeAndFixAccent } from '@/utils/capitalize';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -717,7 +718,7 @@ const Propiedades: React.FC = () => {
                       .filter(tipo => tipo.id !== 1)
                       .map(tipo => (
                         <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                          {tipo.nombre}
+                          {capitalizeAndFixAccent(tipo.nombre)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -735,7 +736,7 @@ const Propiedades: React.FC = () => {
                       .filter(tipo => tipo.id !== 1)
                       .map(tipo => (
                         <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                          {tipo.nombre}
+                          {capitalizeAndFixAccent(tipo.nombre)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -800,7 +801,7 @@ const Propiedades: React.FC = () => {
                         .filter(tipo => tipo.id !== 1)
                         .map(tipo => (
                           <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                            {tipo.nombre}
+                            {capitalizeAndFixAccent(tipo.nombre)}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -1072,7 +1073,7 @@ const Propiedades: React.FC = () => {
                           .filter(tipo => tipo.id !== 1)
                           .map(tipo => (
                             <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                              {tipo.nombre}
+                              {capitalizeAndFixAccent(tipo.nombre)}
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -1148,7 +1149,7 @@ const Propiedades: React.FC = () => {
                             onCheckedChange={(checked) => handleCaracteristicaChange(caracteristica.id, checked as boolean)}
                           />
                           <Label htmlFor={`caracteristica-${caracteristica.id}`} className="text-sm">
-                            {caracteristica.nombre}
+                            {capitalizeAndFixAccent(caracteristica.nombre)}
                           </Label>
                         </div>
                       ))}
@@ -1437,7 +1438,7 @@ const Propiedades: React.FC = () => {
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center text-sm text-gray-600">
                       <Building className="h-4 w-4 mr-2" />
-                      {tipoPropiedad} • {ubicacion}
+                      {capitalizeAndFixAccent(tipoPropiedad)} • {ubicacion}
                     </div>
                     
                     {(propiedad.habitaciones || propiedad.banos) && (
@@ -1465,7 +1466,7 @@ const Propiedades: React.FC = () => {
                         variant="outline" 
                         className="text-[#ec520b] border-[#ec520b] bg-[#ec520b]/10"
                       >
-                        {operacionPrincipal.tipo_operacion?.nombre}: {operacionPrincipal.moneda} {operacionPrincipal.precio?.toLocaleString()}
+                        {capitalizeAndFixAccent(operacionPrincipal.tipo_operacion?.nombre)}: {operacionPrincipal.moneda} {operacionPrincipal.precio?.toLocaleString()}
                       </Badge>
                     </div>
                   )}

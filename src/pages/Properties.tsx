@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useMediaQuery } from '@/hooks/useMediaQuery'; // crea este hook si no existe
 
 interface Propiedad {
   id: number;
@@ -87,10 +88,15 @@ const Properties = () => {
   const [ubicaciones, setUbicaciones] = useState<{ id: number; ciudad: string; provincia: string; pais: string; barrio?: string }[]>([]);
   const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
   const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
-  const propiedades = data ?? [];
+  const propiedades = Array.isArray(data)
+  ? data
+  : (data && Array.isArray(data.properties) ? data.properties : []);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
-  
+
+  // Detecta si es mobile
+  const isMobile = window.innerWidth < 1024; // o usa un hook de media query
+
   // Keep a mounted flag to prevent state updates on unmounted component
   useEffect(() => {
     let mounted = true;
@@ -107,14 +113,13 @@ const Properties = () => {
         setUbicaciones(ubicacionesRes.data || []);
         setTiposOperacion(tiposOperacionRes.data || []);
       } catch (err) {
-        // ignore - useApiRequest will handle propiedades fetch fallback
-        // console.error('meta fetch error', err);
+        // ignore
       }
     };
 
     const fetchProps = async () => {
       await request(async () => {
-        const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
+        const propiedadesRes = await axios.get(`${API_URL}/propiedades-sync`);
         if (!mounted) return [];
         localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
         return propiedadesRes.data || [];
@@ -127,7 +132,6 @@ const Properties = () => {
     return () => {
       mounted = false;
     };
-    // run only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -300,13 +304,12 @@ const Properties = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section con Filtros Transparentes */}
+      {/* Hero Section */}
       <section 
         className="relative min-h-[90vh] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(/family-inicio.png)` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#022550]/85 via-[#022550]/60 to-[#ec520b]/20"></div>
-        
         <div className="relative z-10 flex flex-col justify-center min-h-[90vh] py-20">
           {/* Título */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
@@ -320,8 +323,21 @@ const Properties = () => {
             </div>
           </div>
 
-          {/* Filtros Transparentes al final del Hero */}
-          <div className="absolute bottom-8 left-0 right-0">
+          {/* Botón para mostrar filtros en mobile */}
+          <div className="absolute bottom-8 left-0 right-0 block lg:hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+              <Button
+                className="bg-white/90 text-[#022550] font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-[#ec520b] hover:text-white transition-all duration-300"
+                onClick={() => setShowFiltersModal(true)}
+              >
+                <Filter className="mr-2 h-5 w-5" />
+                Mostrar filtros
+              </Button>
+            </div>
+          </div>
+
+          {/* Filtros visibles solo en desktop */}
+          <div className="absolute bottom-8 left-0 right-0 hidden lg:block">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
                 <CardContent className="p-4 sm:p-6">
@@ -639,6 +655,137 @@ const Properties = () => {
           </span>
         </a>
       </div>
+
+      {/* Modal de filtros para mobile */}
+      <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+        <DialogContent className="max-w-md w-full mx-auto rounded-2xl p-0 overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-poppins px-6 pt-6">Filtrar propiedades</DialogTitle>
+          </DialogHeader>
+          <div className="p-6">
+            <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col gap-4 lg:gap-6 items-stretch">
+                  {/* Tipo de Operación */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
+                      Tipo de Operación
+                    </label>
+                    <Select value={operacion} onValueChange={handleOperacionChange}>
+                      <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                        <SelectValue placeholder="Todas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="0">Todas</SelectItem>
+                          {tiposOperacion.map(op => (
+                            <SelectItem key={op.id} value={String(op.id)}>{op.id === 4 ? 'Compra' : op.nombre}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Tipo de Propiedad */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
+                      Tipo de Propiedad
+                    </label>
+                    <Select value={tipo} onValueChange={handleTipoChange}>
+                      <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                        <SelectValue placeholder="Todos los tipos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="0">Todos los tipos</SelectItem>
+                          {tiposPropiedad.map(tp => (
+                            <SelectItem key={tp.id} value={String(tp.id)}>{tp.nombre}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Ubicación */}
+                  <div className="flex-[1.5]">
+                    <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
+                      Ubicación
+                    </label>
+                    <Select value={ubicacionSeleccionada} onValueChange={handleUbicacionChange}>
+                      <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                        <SelectValue placeholder="Todas las ubicaciones" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="0">Todas las ubicaciones</SelectItem>
+                          {ubicaciones.map(ubi => (
+                            <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Habitaciones */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
+                      Habitaciones
+                    </label>
+                    <Select value={habitaciones} onValueChange={(v) => setHabitaciones(v === '0' ? '' : v)}>
+                      <SelectTrigger className="w-full bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 hover:bg-white/30 focus:bg-white/30 transition-all duration-300">
+                        <SelectValue placeholder="Todas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="0">Todas</SelectItem>
+                          {[1,2,3,4,5,6,7,8].map(n => (
+                            <SelectItem key={n} value={String(n)}>{String(n)}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Precio */}
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-white/90 mb-2 text-center lg:text-left font-montserrat">
+                      Precio (rango)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        className="w-1/2 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                        placeholder="Mín"
+                        value={precioMin}
+                        onChange={e => setPrecioMin(e.target.value)}
+                        min={0}
+                      />
+                      <span className="self-center text-white/70">-</span>
+                      <input
+                        type="number"
+                        className="w-1/2 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-300 rounded-lg px-3 py-2 text-sm"
+                        placeholder="Máx"
+                        value={precioMax}
+                        onChange={e => setPrecioMax(e.target.value)}
+                        min={0}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end mt-4">
+              <Button
+                className="bg-[#ec520b] text-white px-6 py-2 rounded-lg"
+                onClick={() => setShowFiltersModal(false)}
+              >
+                Aplicar filtros
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

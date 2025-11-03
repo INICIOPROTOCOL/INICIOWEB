@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, MapPin, ChevronDown } from 'lucide-react';
 import axios from 'axios';
+import { capitalizeFirst } from '@/utils/capitalize';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -257,7 +258,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                         value={tipo.id.toString()}
                         className="hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10"
                       >
-                        {tipo.nombre}
+                        {capitalizeFirst(tipo.nombre)}
                       </SelectItem>
                     ))}
                 </SelectContent>

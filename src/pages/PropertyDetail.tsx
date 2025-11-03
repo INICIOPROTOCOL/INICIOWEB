@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import axios from 'axios';
+// import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { capitalizeAndFixAccent } from '@/utils/capitalize';
 
 interface PropiedadDetalle {
   id: number;
@@ -119,6 +121,14 @@ const PropertyDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // Solo dependemos de 'id' - 'request' causa loop infinito
 
+  // Justo después de obtener la propiedad y los tipos en el useEffect:
+  useEffect(() => {
+    if (propiedad && tiposCaracteristica.length > 0) {
+      console.log('Características de la propiedad:', propiedad.propiedades_caracteristicas);
+      console.log('Tipos de característica:', tiposCaracteristica);
+    }
+  }, [propiedad, tiposCaracteristica]);
+
   // Ordenar imágenes: principal primero, luego por orden
   const imagenes = propiedad?.imagenes_propiedad
     ? [...propiedad.imagenes_propiedad].sort((a, b) => {
@@ -159,6 +169,36 @@ const PropertyDetail = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isGalleryOpen, imagenes.length, nextImage, prevImage]);
 
+  // Dentro del modal de galería (isGalleryOpen)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        // Swipe left → next image
+        nextImage();
+      } else {
+        // Swipe right → previous image
+        prevImage();
+      }
+    }
+    setTouchStartX(null);
+  };
+
+  // const { isLoaded } = useJsApiLoader({
+  //   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+  // });
+
+  const lat = propiedad ? propiedad.latitud : undefined;
+  const lng = propiedad ? propiedad.longitud : undefined;
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
@@ -184,16 +224,18 @@ const PropertyDetail = () => {
 
   const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
   const tipoOperacionNombre = operacionPrincipal
-    ? (tiposOperacion.find(t => t.id === (operacionPrincipal as unknown as { tipo_operacion_id: number }).tipo_operacion_id)?.nombre ||
-       operacionPrincipal.tipos_operacion?.nombre ||
-       'N/A')
+    ? capitalizeAndFixAccent(
+        tiposOperacion.find(t => t.id === (operacionPrincipal as unknown as { tipo_operacion_id: number }).tipo_operacion_id)?.nombre ||
+        operacionPrincipal.tipos_operacion?.nombre ||
+        'N/A'
+      )
     : 'N/A';
   const caracteristicasPorTipo = propiedad.propiedades_caracteristicas?.reduce((acc, item) => {
-    const tipoId = item.caracteristicas.tipo_caracteristica?.id; // Usar tipo_caracteristica.id
+    const tipoId = item.caracteristicas.tipo_caracteristica?.id;
     const tipo = tiposCaracteristica.find(t => t.id === tipoId);
-    const tipoNombre = tipo ? tipo.nombre : 'Otros';
+    const tipoNombre = tipo ? capitalizeAndFixAccent(tipo.nombre) : 'Otros';
     if (!acc[tipoNombre]) acc[tipoNombre] = [];
-    acc[tipoNombre].push(item.caracteristicas.nombre);
+    acc[tipoNombre].push(capitalizeAndFixAccent(item.caracteristicas.nombre));
     return acc;
   }, {} as Record<string, string[]>) || {};
 
@@ -224,12 +266,12 @@ const PropertyDetail = () => {
 
     // Construir características principales para el resumen
     const caracteristicasPrincipales = [];
-    if (propiedad.superficie_lote) caracteristicasPrincipales.push(`${propiedad.superficie_lote}m² lote`);
-    if (propiedad.frente && propiedad.fondo) caracteristicasPrincipales.push(`${propiedad.frente}x${propiedad.fondo}m`);
-    if (propiedad.area_construida) caracteristicasPrincipales.push(`${propiedad.area_construida}m² construidos`);
-    if (propiedad.habitaciones) caracteristicasPrincipales.push(`${propiedad.habitaciones} habitaciones`);
-    if (propiedad.banos) caracteristicasPrincipales.push(`${propiedad.banos} baños`);
-    if (propiedad.garages) caracteristicasPrincipales.push(`${propiedad.garages} cocheras`);
+    if (propiedad.superficie_lote && propiedad.superficie_lote !== 0) caracteristicasPrincipales.push(`${propiedad.superficie_lote}m² lote`);
+    if (propiedad.frente && propiedad.fondo && propiedad.frente !== 0 && propiedad.fondo !== 0) caracteristicasPrincipales.push(`${propiedad.frente}x${propiedad.fondo}m`);
+    if (propiedad.area_construida && propiedad.area_construida !== 0) caracteristicasPrincipales.push(`${propiedad.area_construida}m² construidos`);
+    if (propiedad.habitaciones && propiedad.habitaciones !== 0) caracteristicasPrincipales.push(`${propiedad.habitaciones} habitaciones`);
+    if (propiedad.banos && propiedad.banos !== 0) caracteristicasPrincipales.push(`${propiedad.banos} baños`);
+    if (propiedad.garages && propiedad.garages !== 0) caracteristicasPrincipales.push(`${propiedad.garages} cocheras`);
 
     const mensajeCompleto = `🏠 SOLICITUD DE VISITA - NUEVA CONSULTA
 
@@ -241,7 +283,7 @@ const PropertyDetail = () => {
 
 � Operación: ${operacionInfo}
 
-🏠 Tipo: ${propiedad.tipos_propiedad?.nombre || 'No especificado'}
+🏠 Tipo: ${capitalizeAndFixAccent(propiedad.tipos_propiedad?.nombre) || 'No especificado'}
 
 📍 Ubicación: ${ubicacionCompleta}
 
@@ -397,7 +439,11 @@ ${visitForm.mensaje ? `
             {imagenes.length > 0 && (
               <>
                 {/* Imagen principal del modal */}
-                <div className="relative max-w-5xl max-h-[85vh] flex items-center justify-center">
+                <div
+                  className="relative max-w-5xl max-h-[85vh] flex items-center justify-center"
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
                   <img
                     src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
                     alt={`${propiedad.titulo} - Imagen ${currentImageIndex + 1}`}
@@ -576,7 +622,7 @@ ${visitForm.mensaje ? `
                     <div key={tipo} className="bg-white rounded-xl shadow p-6 border-2 border-[#ec520b]/10">
                       <h3 className="text-lg font-semibold text-[#ec520b] mb-2 border-b border-gray-100 pb-1 flex items-center gap-2">
                         <Tag className="h-5 w-5 text-[#022550]" />
-                        {tipo}
+                        {capitalizeAndFixAccent(tipo)}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {caracteristicas.map((caracteristica, index) => (
@@ -594,6 +640,29 @@ ${visitForm.mensaje ? `
                 </div>
               </div>
             )}
+
+            {/* Mapa de ubicación - Solo si hay latitud y longitud */}
+            {/* isLoaded && lat && lng && (
+              <div className="mt-8">
+                <h2 className="text-xl font-bold text-[#022550] mb-2 font-poppins flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-[#ec520b]" />
+                  Ubicación en el mapa
+                </h2>
+                <div className="rounded-2xl overflow-hidden border-2 border-[#022550]/10 shadow-lg" style={{ height: 320 }}>
+                  <GoogleMap
+                    mapContainerStyle={{ width: '100%', height: '320px' }}
+                    center={{ lat, lng }}
+                    zoom={16}
+                    options={{
+                      disableDefaultUI: true,
+                      zoomControl: true,
+                    }}
+                  >
+                    <Marker position={{ lat, lng }} />
+                  </GoogleMap>
+                </div>
+              </div>
+            )} */}
           </div>
 
           {/* Property Info Section (sin cambios) */}
@@ -627,7 +696,7 @@ ${visitForm.mensaje ? `
                   </div>
                   {propiedad.tipos_propiedad && (
                     <p className="text-gray-600 text-sm">
-                      {propiedad.tipos_propiedad.nombre}
+                      {capitalizeAndFixAccent(propiedad.tipos_propiedad.nombre)}
                     </p>
                   )}
                   {!operacionPrincipal.disponible && (
@@ -639,7 +708,7 @@ ${visitForm.mensaje ? `
               {/* Physical Characteristics Icons */}
               <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
                 {/* Superficie de lote - prioritaria para lotes/terrenos */}
-                {propiedad.superficie_lote && (
+                {propiedad.superficie_lote && propiedad.superficie_lote !== 0 && (
                   <div className="flex items-center gap-2">
                     <Square className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.superficie_lote} m² lote</span>
@@ -647,7 +716,7 @@ ${visitForm.mensaje ? `
                 )}
                 
                 {/* Dimensiones del lote */}
-                {propiedad.frente && propiedad.fondo && (
+                {propiedad.frente && propiedad.fondo && propiedad.frente !== 0 && propiedad.fondo !== 0 && (
                   <div className="flex items-center gap-2">
                     <Ruler className="h-5 w-5 text-[#022550]" />
                     <span className="text-sm font-medium">{propiedad.frente} x {propiedad.fondo} m</span>
@@ -655,7 +724,7 @@ ${visitForm.mensaje ? `
                 )}
                 
                 {/* Superficie total (solo si no hay superficie_lote) */}
-                {propiedad.area_total && !propiedad.superficie_lote && (
+                {propiedad.area_total && propiedad.area_total !== 0 && !propiedad.superficie_lote && (
                   <div className="flex items-center gap-2">
                     <Square className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.area_total} m² totales</span>
@@ -663,26 +732,29 @@ ${visitForm.mensaje ? `
                 )}
                 
                 {/* Superficie construida */}
-                {propiedad.area_construida && (
+                {propiedad.area_construida && propiedad.area_construida !== 0 && (
                   <div className="flex items-center gap-2">
                     <Layers className="h-5 w-5 text-[#022550]" />
                     <span className="text-sm font-medium">{propiedad.area_construida} m² cubiertos</span>
                   </div>
                 )}
                 
-                {propiedad.habitaciones && (
+                {/* Habitaciones */}
+                {(!!propiedad.habitaciones && propiedad.habitaciones !== 0) && (
                   <div className="flex items-center gap-2">
                     <Bed className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.habitaciones} hab.</span>
                   </div>
                 )}
-                {propiedad.banos && (
+                {/* Baños */}
+                {(!!propiedad.banos && propiedad.banos !== 0) && (
                   <div className="flex items-center gap-2">
                     <Bath className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.banos} baños</span>
                   </div>
                 )}
-                {propiedad.garages && (
+                {/* Cocheras */}
+                {(!!propiedad.garages && propiedad.garages !== 0) && (
                   <div className="flex items-center gap-2">
                     <Car className="h-5 w-5 text-[#ec520b]" />
                     <span className="text-sm font-medium">{propiedad.garages} cocheras</span>

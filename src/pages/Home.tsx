@@ -118,7 +118,7 @@ const Home = () => {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 bg-white/80 shadow-lg">
                 {/* logo de inicio */}
                 <img
-                  src="/logo_grande_fondo_azul 1.svg"
+                  src="/logo_grande_fondo_azul.svg"
                   alt="Logo"
                   className="w-16 h-16 object-contain"
                 />
@@ -269,7 +269,7 @@ const Home = () => {
             <div className="text-center mb-8 relative">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#ec520b] to-[#ec520b] rounded-full mb-4">
               <img
-                  src="/logo_grande_fondo_azul 1.svg"
+                  src="/logo_grande_fondo_azul.svg"
                   alt="Logo"
                   className="w-16 h-16 object-contain"
                 />

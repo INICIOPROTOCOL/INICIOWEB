@@ -201,9 +201,14 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img
-                  src="/logo_grande_fondo_azul 1.svg"
+                  src="/logo_grande_fondo_azul.svg"
                   alt="Logo INICIO"
                   className="w-12 h-12 object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/inicio_icono_blanco.svg'; // Fallback
+                    target.onerror = null; // Evitar loop infinito
+                  }}
                 />
               <span className="text-lg sm:text-xl font-bold">
                 <span>Inicio</span> Negocios{' '}

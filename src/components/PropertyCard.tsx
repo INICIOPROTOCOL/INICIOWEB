@@ -36,18 +36,6 @@ interface PropertyCardProps {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const navigate = useNavigate();
-
-  console.log('PropertyCard property:', property);
-  if (property.operaciones_propiedad) {
-    console.log('operaciones_propiedad[0]:', property.operaciones_propiedad[0]);
-    if (property.operaciones_propiedad[0]) {
-      console.log('tipo_operacion:', property.operaciones_propiedad[0].tipo_operacion);
-    }
-  }
-  if (property.tipos_propiedad) {
-    console.log('tipos_propiedad:', property.tipos_propiedad);
-  }
-
   // Imagen principal
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
@@ -55,13 +43,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const imageSrc = imagenPrincipal?.url_imagen || '/logo_grande_fondo_azul.png';
 
   const operacion = property.operaciones_propiedad?.[0];
-  // Soporta ambos nombres, igual que en PropertyDetail
   const tipoOperacion =
     operacion?.tipo_operacion?.nombre
       ? capitalizeAndFixAccent(operacion.tipo_operacion.nombre)
-      : operacion?.tipos_operacion?.nombre
-        ? capitalizeAndFixAccent(operacion.tipos_operacion.nombre)
-        : '';
+      : '';
 
   const tipoProp = property.tipos_propiedad?.nombre
     ? capitalizeAndFixAccent(property.tipos_propiedad.nombre)
@@ -76,7 +61,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   // Título
   const titulo = property.titulo;
 
-  // Precio
+  // Precio usando colores corporativos
   const formatPrice = (precio: number, moneda: string) =>
     new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -86,16 +71,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
     }).format(precio);
   const precio = operacion ? formatPrice(operacion.precio, operacion.moneda) : 'Consultar';
 
-  // WhatsApp link con mensaje personalizado y link directo
+  // WhatsApp link siguiendo las instrucciones del proyecto
   const propertyUrl = `${window.location.origin}/propiedad/${property.id}`;
   const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
-  // handleCardClick removido - ahora solo elementos específicos son clickeables
-
   const handleWhatsAppClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evita que se ejecute handleCardClick
-    // WhatsApp se abre en nueva pestaña automáticamente
+    e.stopPropagation();
     window.open(whatsappLink, '_blank', 'noopener,noreferrer');
     if (onContact) {
       onContact();
@@ -103,10 +85,21 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   };
 
   const handleVerMasClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Previene cualquier comportamiento por defecto
-    e.stopPropagation(); // Evita que se ejecute handleCardClick
-    // Abrir en nueva pestaña (igual que Properties.tsx)
+    e.preventDefault();
+    e.stopPropagation();
     window.open(`/propiedad/${property.id}`, '_blank');
+  };
+
+  // Función helper para validar números (maneja tanto string como number y Decimal de Prisma)
+  const isValidNumber = (value: any): boolean => {
+    if (value === null || value === undefined || value === '') return false;
+    const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+    return !isNaN(numValue) && numValue > 0;
+  };
+
+  const formatNumber = (value: any): string => {
+    if (!isValidNumber(value)) return '';
+    return typeof value === 'string' ? value : String(value);
   };
 
   return (
@@ -122,7 +115,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           className="w-full h-48 object-cover"
           loading="lazy"
         />
-        {/* Etiqueta tipo de operación */}
+        {/* Etiqueta tipo de operación siguiendo design system */}
         {tipoOperacion && (
           <div className="absolute top-3 left-3">
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow">
@@ -133,7 +126,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
       </div>
 
       <CardContent className="p-4 flex flex-col gap-2">
-        {/* Tipo de propiedad */}
+        {/* Tipo de propiedad usando colores corporativos */}
         <div className="flex items-center gap-2 mb-1">
           {tipoProp && (
             <Badge className="bg-[#022550] text-white font-medium">{tipoProp}</Badge>
@@ -151,7 +144,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           </span>
         </div>
         
-        {/* Título */}
+        {/* Título con colores corporativos */}
         <h3 
           className="font-semibold text-lg text-[#022550] line-clamp-1 cursor-pointer hover:text-[#ec520b] transition-colors"
           onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
@@ -159,64 +152,69 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           {titulo}
         </h3>
         
-        {/* Características principales */}
-        <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
-          {/* Superficie de lote - prioritaria para lotes/terrenos */}
-          {property.superficie_lote && Number(property.superficie_lote) !== 0 && (
+        {/* Características principales - VALIDACIÓN CORREGIDA */}
+        <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-700">
+          {/* Superficie de lote - Decimal en schema */}
+          {isValidNumber(property.superficie_lote) && (
             <div className="flex items-center gap-1">
               <Square className="h-4 w-4 text-[#ec520b]" />
-              <span>{property.superficie_lote} m² lote</span>
+              <span>{formatNumber(property.superficie_lote)} m² lote</span>
             </div>
           )}
           
-          {/* Dimensiones del lote (frente x fondo) */}
-          {property.frente && property.fondo && Number(property.frente) !== 0 && Number(property.fondo) !== 0 && (
+          {/* Dimensiones del lote - Decimal en schema */}
+          {isValidNumber(property.frente) && isValidNumber(property.fondo) && (
             <div className="flex items-center gap-1">
               <Ruler className="h-4 w-4 text-[#022550]" />
-              <span>{property.frente}x{property.fondo}m</span>
+              <span>{formatNumber(property.frente)}x{formatNumber(property.fondo)}m</span>
             </div>
           )}
 
-          {/* Superficie total (solo si no hay superficie_lote) */}
-          {property.area_total && Number(property.area_total) !== 0 && !property.superficie_lote && (
+          {/* Superficie total - Decimal en schema - solo si no hay superficie_lote */}
+          {isValidNumber(property.area_total) && !isValidNumber(property.superficie_lote) && (
             <div className="flex items-center gap-1">
               <Square className="h-4 w-4 text-[#ec520b]" />
-              <span>{property.area_total} m²</span>
+              <span>{formatNumber(property.area_total)} m²</span>
             </div>
           )}
           
-          {/* Superficie cubierta/construida con icono Layers */}
-          {property.area_construida && Number(property.area_construida) !== 0 && (
+          {/* Superficie construida - Decimal en schema */}
+          {isValidNumber(property.area_construida) && (
             <div className="flex items-center gap-1">
               <Layers className="h-4 w-4 text-[#022550]" />
-              <span>{property.area_construida} m² cub.</span>
+              <span>{formatNumber(property.area_construida)} m² cub.</span>
             </div>
           )}
           
-          {property.habitaciones && Number(property.habitaciones) !== 0 && (
+          {/* Habitaciones - Int en schema */}
+          {isValidNumber(property.habitaciones) && (
             <div className="flex items-center gap-1">
               <Bed className="h-4 w-4 text-[#ec520b]" />
-              <span>{property.habitaciones}</span>
+              <span>{formatNumber(property.habitaciones)} hab.</span>
             </div>
           )}
-          {property.banos && Number(property.banos) !== 0 && (
+
+          {/* Baños - Decimal en schema */}
+          {isValidNumber(property.banos) && (
             <div className="flex items-center gap-1">
               <Bath className="h-4 w-4 text-[#ec520b]" />
-              <span>{property.banos}</span>
+              <span>{formatNumber(property.banos)} baños</span>
             </div>
           )}
-          {property.garages && Number(property.garages) !== 0 && (
+
+          {/* Cocheras - Int en schema */}
+          {isValidNumber(property.garages) && (
             <div className="flex items-center gap-1">
               <Car className="h-4 w-4 text-[#022550]" />
-              <span>{property.garages}</span>
+              <span>{formatNumber(property.garages)} cocheras</span>
             </div>
           )}
         </div>
         
-        {/* Precio */}
+        {/* Precio usando color corporativo */}
         <div className="text-xl font-bold text-[#ec520b] mt-2">{precio}</div>
         
-        {/* Botones de acción */}
+        {/* Botones de acción siguiendo design system */}
         <div className="flex gap-2 mt-3" data-interactive="true">
           <Button
             onClick={handleVerMasClick}

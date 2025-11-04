@@ -28,9 +28,14 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-3">
             <img
-              src="/logo_grande_fondo_azul 1.svg"
-              alt="Logo"
+              src="/logo_grande_fondo_azul.svg"
+              alt="Logo INICIO"
               className="h-12 w-auto object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/inicio_icono_blanco.svg'; // Fallback
+                target.onerror = null; // Evitar loop infinito
+              }}
             />
             <div className="flex flex-col leading-tight -translate-y-1">
               <span className="text-[#ec520b] font-bold text-lg tracking-wide">
@@ -123,9 +128,14 @@ const Navbar = () => {
                     className="flex items-center space-x-3"
                   >
                     <img
-                      src="/logo_grande_fondo_azul 1.svg"
+                      src="/logo_grande_fondo_azul.svg"
                       alt="Logo INICIO"
                       className="w-12 h-12 object-contain flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/inicio_icono_blanco.svg'; // Fallback
+                        target.onerror = null; // Evitar loop infinito
+                      }}
                     />
                     <div className="flex flex-col leading-tight">
                       <span className="text-[#ec520b] font-bold text-lg tracking-wide">

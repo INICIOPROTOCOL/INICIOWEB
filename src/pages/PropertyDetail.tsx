@@ -121,13 +121,6 @@ const PropertyDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // Solo dependemos de 'id' - 'request' causa loop infinito
 
-  // Justo después de obtener la propiedad y los tipos en el useEffect:
-  useEffect(() => {
-    if (propiedad && tiposCaracteristica.length > 0) {
-      console.log('Características de la propiedad:', propiedad.propiedades_caracteristicas);
-      console.log('Tipos de característica:', tiposCaracteristica);
-    }
-  }, [propiedad, tiposCaracteristica]);
 
   // Ordenar imágenes: principal primero, luego por orden
   const imagenes = propiedad?.imagenes_propiedad
@@ -266,12 +259,18 @@ const PropertyDetail = () => {
 
     // Construir características principales para el resumen
     const caracteristicasPrincipales = [];
-    if (propiedad.superficie_lote && propiedad.superficie_lote !== 0) caracteristicasPrincipales.push(`${propiedad.superficie_lote}m² lote`);
-    if (propiedad.frente && propiedad.fondo && propiedad.frente !== 0 && propiedad.fondo !== 0) caracteristicasPrincipales.push(`${propiedad.frente}x${propiedad.fondo}m`);
-    if (propiedad.area_construida && propiedad.area_construida !== 0) caracteristicasPrincipales.push(`${propiedad.area_construida}m² construidos`);
-    if (propiedad.habitaciones && propiedad.habitaciones !== 0) caracteristicasPrincipales.push(`${propiedad.habitaciones} habitaciones`);
-    if (propiedad.banos && propiedad.banos !== 0) caracteristicasPrincipales.push(`${propiedad.banos} baños`);
-    if (propiedad.garages && propiedad.garages !== 0) caracteristicasPrincipales.push(`${propiedad.garages} cocheras`);
+    if (isValidNumber(propiedad.superficie_lote)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.superficie_lote)}m² lote`);
+    if (isValidNumber(propiedad.frente) && isValidNumber(propiedad.fondo)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.frente)}x${formatNumber(propiedad.fondo)}m`);
+    if (isValidNumber(propiedad.area_construida)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.area_construida)}m² construidos`);
+    if (isValidNumber(propiedad.habitaciones)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.habitaciones)} habitaciones`);
+    if (isValidNumber(propiedad.banos)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.banos)} baños`);
+    if (isValidNumber(propiedad.garages)) 
+      caracteristicasPrincipales.push(`${formatNumber(propiedad.garages)} cocheras`);
 
     const mensajeCompleto = `🏠 SOLICITUD DE VISITA - NUEVA CONSULTA
 
@@ -605,7 +604,7 @@ ${visitForm.mensaje ? `
                 <Eye className="h-6 w-6 text-[#ec520b]" />
                 Descripción
               </h2>
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg font-montserrat">
+              <div className="text-gray-700 leading-relaxed text-lg font-montserrat descripcion" style={{ whiteSpace: 'pre-line' }}>
                 {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
               </div>
             </div>
@@ -705,59 +704,61 @@ ${visitForm.mensaje ? `
                 </div>
               )}
 
-              {/* Physical Characteristics Icons */}
+              {/* Physical Characteristics Icons - CORREGIDO para no mostrar 0s */}
               <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-                {/* Superficie de lote - prioritaria para lotes/terrenos */}
-                {propiedad.superficie_lote && propiedad.superficie_lote !== 0 && (
+                {/* Superficie de lote */}
+                {isValidNumber(propiedad.superficie_lote) && (
                   <div className="flex items-center gap-2">
                     <Square className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">{propiedad.superficie_lote} m² lote</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.superficie_lote)} m² lote</span>
                   </div>
                 )}
                 
                 {/* Dimensiones del lote */}
-                {propiedad.frente && propiedad.fondo && propiedad.frente !== 0 && propiedad.fondo !== 0 && (
+                {isValidNumber(propiedad.frente) && isValidNumber(propiedad.fondo) && (
                   <div className="flex items-center gap-2">
                     <Ruler className="h-5 w-5 text-[#022550]" />
-                    <span className="text-sm font-medium">{propiedad.frente} x {propiedad.fondo} m</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.frente)} x {formatNumber(propiedad.fondo)} m</span>
                   </div>
                 )}
                 
-                {/* Superficie total (solo si no hay superficie_lote) */}
-                {propiedad.area_total && propiedad.area_total !== 0 && !propiedad.superficie_lote && (
+                {/* Superficie total - solo si no hay superficie_lote */}
+                {isValidNumber(propiedad.area_total) && !isValidNumber(propiedad.superficie_lote) && (
                   <div className="flex items-center gap-2">
                     <Square className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">{propiedad.area_total} m² totales</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.area_total)} m² totales</span>
                   </div>
                 )}
                 
                 {/* Superficie construida */}
-                {propiedad.area_construida && propiedad.area_construida !== 0 && (
+                {isValidNumber(propiedad.area_construida) && (
                   <div className="flex items-center gap-2">
                     <Layers className="h-5 w-5 text-[#022550]" />
-                    <span className="text-sm font-medium">{propiedad.area_construida} m² cubiertos</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.area_construida)} m² cubiertos</span>
                   </div>
                 )}
                 
                 {/* Habitaciones */}
-                {(!!propiedad.habitaciones && propiedad.habitaciones !== 0) && (
+                {isValidNumber(propiedad.habitaciones) && (
                   <div className="flex items-center gap-2">
                     <Bed className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">{propiedad.habitaciones} hab.</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.habitaciones)} hab.</span>
                   </div>
                 )}
+
                 {/* Baños */}
-                {(!!propiedad.banos && propiedad.banos !== 0) && (
+                {isValidNumber(propiedad.banos) && (
                   <div className="flex items-center gap-2">
                     <Bath className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">{propiedad.banos} baños</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.banos)} baños</span>
                   </div>
                 )}
+
                 {/* Cocheras */}
-                {(!!propiedad.garages && propiedad.garages !== 0) && (
+                {isValidNumber(propiedad.garages) && (
                   <div className="flex items-center gap-2">
                     <Car className="h-5 w-5 text-[#ec520b]" />
-                    <span className="text-sm font-medium">{propiedad.garages} cocheras</span>
+                    <span className="text-sm font-medium">{formatNumber(propiedad.garages)} cocheras</span>
                   </div>
                 )}
               </div>
@@ -887,3 +888,15 @@ ${visitForm.mensaje ? `
 };
 
 export default PropertyDetail;
+
+// Función helper para validar números (igual que en PropertyCard)
+const isValidNumber = (value: string | number | null | undefined): boolean => {
+  if (value === null || value === undefined || value === '') return false;
+  const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+  return !isNaN(numValue) && numValue > 0;
+};
+
+const formatNumber = (value: string | number | null | undefined): string => {
+  if (!isValidNumber(value)) return '';
+  return typeof value === 'string' ? value : String(value);
+};

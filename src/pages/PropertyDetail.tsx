@@ -373,6 +373,8 @@ ${visitForm.mensaje ? `
   const whatsappMessage = `Hola! Estoy interesado en la propiedad: ${propiedad.titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
+
+
   return (
   <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Toast Notification */}
@@ -604,8 +606,15 @@ ${visitForm.mensaje ? `
                 <Eye className="h-6 w-6 text-[#ec520b]" />
                 Descripción
               </h2>
-              <div className="text-gray-700 leading-relaxed text-lg font-montserrat descripcion" style={{ whiteSpace: 'pre-line' }}>
-                {propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.'}
+              <div 
+                className="text-gray-700 leading-relaxed text-lg font-montserrat descripcion" 
+                style={{ 
+                  whiteSpace: 'pre-line',
+                  lineHeight: '1.7',
+                  textAlign: 'justify'
+                }}
+              >
+                {cleanHTMLDescription(propiedad.descripcion || '')}
               </div>
             </div>
 
@@ -899,4 +908,81 @@ const isValidNumber = (value: string | number | null | undefined): boolean => {
 const formatNumber = (value: string | number | null | undefined): string => {
   if (!isValidNumber(value)) return '';
   return typeof value === 'string' ? value : String(value);
+};
+
+// Función mejorada para limpiar HTML complejo siguiendo las instrucciones corporativas
+const cleanHTMLDescription = (htmlString: string): string => {
+  if (!htmlString) return 'Esta propiedad no tiene descripción disponible.';
+  
+  return htmlString
+    // Paso 1: Limpiar entidades HTML
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&aacute;/g, 'á')
+    .replace(/&eacute;/g, 'é')
+    .replace(/&iacute;/g, 'í')
+    .replace(/&oacute;/g, 'ó')
+    .replace(/&uacute;/g, 'ú')
+    .replace(/&ntilde;/g, 'ñ')
+    
+    // Paso 2: Eliminar etiquetas <span> con estilos pero conservar contenido
+    .replace(/<span[^>]*>/gi, '')
+    .replace(/<\/span>/gi, '')
+    
+    // Paso 3: Convertir estructuras HTML a texto con espaciado corporativo
+    .replace(/<\/div><div>/gi, '\n')  // Divs consecutivos = salto simple
+    .replace(/<\/div>/gi, '\n')       // Fin de div = salto de línea
+    .replace(/<div>/gi, '')           // Inicio de div = nada
+    .replace(/<\/p><p>/gi, '\n\n')    // Párrafos consecutivos = doble salto
+    .replace(/<\/p>/gi, '\n\n')       // Fin de párrafo = doble salto
+    .replace(/<p>/gi, '')             // Inicio de párrafo = nada
+    .replace(/<br\s*\/?>/gi, '\n')    // BR = salto simple
+    
+    // Paso 4: Convertir listas a formato corporativo legible
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li>/gi, '• ')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<ul>/gi, '')
+    .replace(/<\/ol>/gi, '\n')
+    .replace(/<ol>/gi, '')
+    
+    // Paso 5: Manejar títulos y texto destacado siguiendo design system
+    .replace(/<\/h[1-6]>/gi, '\n\n')
+    .replace(/<h[1-6][^>]*>/gi, '\n')
+    .replace(/<\/?strong>/gi, '')
+    .replace(/<\/?b>/gi, '')
+    .replace(/<\/?em>/gi, '')
+    .replace(/<\/?i>/gi, '')
+    .replace(/<\/?u>/gi, '')
+    
+    // Paso 6: Eliminar todas las demás etiquetas HTML restantes
+    .replace(/<[^>]*>/g, '')
+    
+    // Paso 7: Normalizar espacios y saltos de línea con espaciado discreto
+    .replace(/[ \t]+/g, ' ')          // Espacios múltiples → espacio único
+    .replace(/\n[ \t]+/g, '\n')       // Espacios al inicio de línea
+    .replace(/[ \t]+\n/g, '\n')       // Espacios al final de línea
+    .replace(/\n{3,}/g, '\n\n')       // Máximo 2 saltos consecutivos (más discreto)
+    
+    // Paso 8: Mejorar formato de listas y puntos
+    .replace(/\n•\s*/g, '\n• ')       // Normalizar bullets
+    .replace(/\n-\s*/g, '\n• ')       // Convertir guiones a bullets corporativos
+    .replace(/\n\.\s*([A-Z])/g, '\n• $1') // Puntos al inicio → bullets
+    
+    // Paso 9: Espaciado discreto alrededor de títulos/secciones
+    .replace(/\n([A-ZÁÉÍÓÚÑ][^:]*:)\s*/g, '\n\n$1\n')  // Títulos con : (espaciado discreto)
+    .replace(/\n(Características|Planta|Superficie|Precio|Ubicación|Barrio|Orientación)/gi, '\n\n$1')
+    
+    // Paso 10: Reducir espacios excesivos entre elementos relacionados
+    .replace(/\n\n(•)/g, '\n$1')      // Reducir espacio antes de listas
+    .replace(/(:\n)\n(•)/g, '$1$2')   // Sin espacio extra después de títulos de listas
+    
+    // Paso 10: Limpieza final siguiendo estándares
+    .replace(/^\n+/, '')              // Quitar saltos al inicio
+    .replace(/\n+$/, '')              // Quitar saltos al final
+    .trim();
 };

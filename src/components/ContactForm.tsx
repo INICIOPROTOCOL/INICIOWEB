@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useApiRequest } from '@/hooks/useApiRequest';
@@ -13,7 +13,7 @@ import {
   Phone, 
   User
 } from 'lucide-react';
-// import ReCAPTCHA from 'react-google-recaptcha';
+
 
 interface ContactFormProps {
   title?: string;
@@ -24,6 +24,7 @@ interface ContactFormProps {
   backgroundImage?: string;
   className?: string;
   defaultTipoInmueble?: string; // Nueva prop para pre-seleccionar servicio
+  propertyId?: string; // Nueva prop para recibir el ID de la propiedad
 }
 
 const ContactForm = ({ 
@@ -34,7 +35,8 @@ const ContactForm = ({
   showHeader = true, // Por defecto true
   backgroundImage,
   className = "",
-  defaultTipoInmueble = "" // Nuevo prop con valor por defecto
+  defaultTipoInmueble = "", // Nuevo prop con valor por defecto
+  propertyId // Recibir el ID de la propiedad
 }: ContactFormProps) => {
   // Estado para el formulario de contacto
   const [contactForm, setContactForm] = useState({
@@ -48,8 +50,6 @@ const ContactForm = ({
   const [modal, setModal] = useState<{ open: boolean; success: boolean; message: string }>({ open: false, success: false, message: '' });
   const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
   const { loading, error, request } = useApiRequest({ retries: 2, retryDelay: 1500 });
-  // const recaptchaRef = useRef<ReCAPTCHA>(null);
-  // const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Efecto para establecer el tipo de inmueble por defecto
   useEffect(() => {
@@ -66,7 +66,7 @@ const ContactForm = ({
     setToast({ show: true, type, message });
     setTimeout(() => {
       setToast({ show: false, type: 'success', message: '' });
-    }, 4000);
+    }, type === 'success' ? 6000 : 4000); // Éxito: 6 segundos, Error: 4 segundos
   };
 
   // Opciones para el select de inmuebles
@@ -95,13 +95,51 @@ const ContactForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validación básica
-    // if (!recaptchaToken) {
-    //   alert('Por favor, completa el reCAPTCHA.');
-    //   return;
-    // }
+    // Validaciones básicas
+    if (!contactForm.nombre.trim()) {
+      showToast('error', 'Por favor, ingresa tu nombre');
+      return;
+    }
+    if (!contactForm.apellido.trim()) {
+      showToast('error', 'Por favor, ingresa tu apellido');
+      return;
+    }
+    if (!contactForm.celular.trim()) {
+      showToast('error', 'Por favor, ingresa tu teléfono');
+      return;
+    }
+    if (!contactForm.email.trim()) {
+      showToast('error', 'Por favor, ingresa tu email');
+      return;
+    }
+    if (!contactForm.tipoInmueble) {
+      showToast('error', 'Por favor, selecciona el tipo de consulta');
+      return;
+    }
+    if (!contactForm.mensaje.trim()) {
+      showToast('error', 'Por favor, ingresa tu mensaje');
+      return;
+    }
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    // Validación de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactForm.email)) {
+      showToast('error', 'Por favor, ingresa un email válido');
+      return;
+    }
+
+    // Validación de teléfono (básica)
+    if (contactForm.celular.length < 8) {
+      showToast('error', 'Por favor, ingresa un teléfono válido');
+      return;
+    }
+
+
+
+    const API_URL = import.meta.env.VITE_API_URL || 'https://iniciowebbackend-production.up.railway.app/api';
+    
+
+    
     const payload = {
       nombre: contactForm.nombre,
       apellido: contactForm.apellido,
@@ -109,29 +147,50 @@ const ContactForm = ({
       email: contactForm.email,
       tipoInmueble: contactForm.tipoInmueble,
       mensaje: contactForm.mensaje,
-      recaptchaToken, // <-- agrega el token aquí
+      propertyId // Incluir el ID de la propiedad en el payload
     };
-    await request(async () => {
-      const res = await fetch(`${API_URL}/contactos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+    
+    // Debug temporal para verificar el payload
+    console.log('Payload enviado:', payload);
+    
+    try {
+      await request(async () => {
+        const res = await fetch(`${API_URL}/contactos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) {
+          let errorText = 'Error del servidor';
+          try {
+            const errorJson = await res.json();
+            errorText = errorJson.message || errorJson.error || 'Error del servidor';
+          } catch {
+            errorText = await res.text() || `Error ${res.status}`;
+          }
+          throw new Error(errorText);
+        }
+        
+        const result = await res.json();
+        return result;
       });
-      if (!res.ok) throw new Error('No se pudo enviar el mensaje');
-      return await res.json();
-    });
-    if (!error) {
-      showToast('success', '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
-      setContactForm({
-        nombre: '',
-        apellido: '',
-        celular: '',
-        email: '',
-        tipoInmueble: '',
-        mensaje: ''
-      });
-    } else {
-      showToast('error', `Error al enviar: ${error}`);
+      
+      if (!error) {
+        showToast('success', '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
+        setContactForm({
+          nombre: '',
+          apellido: '',
+          celular: '',
+          email: '',
+          tipoInmueble: defaultTipoInmueble || '', // Mantener valor por defecto si existe
+          mensaje: ''
+        });
+      } else {
+        showToast('error', `Error al enviar: ${error}`);
+      }
+    } catch (err) {
+      showToast('error', `Error al enviar: ${err instanceof Error ? err.message : 'Error desconocido'}`);
     }
   };
 
@@ -144,27 +203,43 @@ const ContactForm = ({
       className={`py-16 sm:py-20 relative bg-cover bg-center bg-no-repeat ${className}`}
       style={sectionStyle}
     >
-      {/* Toast Notification */}
+      {/* Toast Notification Mejorado */}
       {toast.show && (
-        <div className={`fixed top-6 right-6 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+        <div className={`fixed top-20 right-4 sm:top-24 sm:right-6 z-[9999] p-4 sm:p-6 rounded-xl shadow-2xl max-w-sm sm:max-w-md transform transition-all duration-500 ${
           toast.type === 'success' 
-            ? 'bg-green-500 text-white' 
-            : 'bg-red-500 text-white'
-        } animate-slide-in-right`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              {toast.type === 'success' ? (
-                <CheckCircle className="h-5 w-5 mr-2" />
-              ) : (
-                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              )}
-              <span className="text-sm font-medium">{toast.message}</span>
+            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+            : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+        } animate-slide-in-right border-l-4 ${
+          toast.type === 'success' ? 'border-green-300' : 'border-red-300'
+        }`}>
+          <div className="flex items-start justify-between">
+            <div className="flex items-start">
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                toast.type === 'success' ? 'bg-green-400' : 'bg-red-400'
+              }`}>
+                {toast.type === 'success' ? (
+                  <CheckCircle className="h-5 w-5 text-white" />
+                ) : (
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className={`font-semibold text-sm mb-1 ${
+                  toast.type === 'success' ? 'text-green-50' : 'text-red-50'
+                }`}>
+                  {toast.type === 'success' ? '¡Mensaje Enviado!' : 'Error al Enviar'}
+                </div>
+                <div className="text-sm font-medium text-white/90 leading-relaxed">
+                  {toast.message}
+                </div>
+              </div>
             </div>
             <button 
               onClick={() => setToast({ show: false, type: 'success', message: '' })}
-              className="ml-3 text-white hover:text-gray-200"
+              className="flex-shrink-0 ml-2 p-1 text-white/70 hover:text-white hover:bg-white/20 rounded-full transition-all duration-200"
+              aria-label="Cerrar notificación"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -400,24 +475,19 @@ const ContactForm = ({
                     ></textarea>
                   </div>
 
-                  {/* reCAPTCHA */}
-                  {/*
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                    onChange={token => setRecaptchaToken(token)}
-                    className="mt-4"
-                  />
-                  */}
+
+
+
 
                   {/* Botón de envío */}
                   <div className="text-center pt-4">
                     <Button 
                       type="submit"
                       size="lg"
-                      className="w-full sm:w-auto px-8 py-3 bg-[#ec520b] hover:bg-[#022550] text-white font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                      disabled={loading}
+                      className="w-full sm:w-auto px-8 py-3 bg-[#ec520b] hover:bg-[#022550] text-white font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Enviar Consulta
+                      {loading ? 'Enviando...' : 'Enviar Consulta'}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                     

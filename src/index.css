@@ -146,18 +146,114 @@
   }
 }
 
-/* Toast Animation */
+/* Toast Animation Mejorado */
 @keyframes slide-in-right {
   from {
-    transform: translateX(100%);
+    transform: translateX(100%) scale(0.9);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-10px) scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0) scale(1);
     opacity: 1;
   }
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out;
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Estilos para descripción HTML segura - Real Estate */
+.descripcion-html {
+  /* Paragraphs */
+  & p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  & p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Divs como párrafos */
+  & div {
+    margin-bottom: 0.5rem;
+  }
+
+  & div:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Breaks */
+  & br {
+    line-height: 1.5;
+  }
+
+  /* Texto destacado */
+  & strong, & b {
+    font-weight: 600;
+    color: #022550; /* Color corporativo */
+  }
+
+  & em, & i {
+    font-style: italic;
+    color: #374151;
+  }
+
+  /* Spans con estilos */
+  & span {
+    color: inherit;
+  }
+
+  /* Listas */
+  & ul, & ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  & li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+
+  /* Títulos si los hay */
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    font-weight: 700;
+    color: #022550;
+    margin: 1.5rem 0 1rem 0;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  & h1 { font-size: 1.875rem; }
+  & h2 { font-size: 1.5rem; }
+  & h3 { font-size: 1.25rem; }
+  & h4 { font-size: 1.125rem; }
+
+  /* Espaciado mejorado para contenido inmobiliario */
+  & > div + div {
+    margin-top: 0.75rem;
+  }
+
+  /* Mejorar legibilidad de características */
+  & div:contains("Superficie"), 
+  & div:contains("Planta"), 
+  & div:contains("Habitacion"), 
+  & div:contains("Dormitorio") {
+    font-weight: 500;
+    color: #1f2937;
+  }
 }

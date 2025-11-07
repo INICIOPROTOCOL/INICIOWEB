@@ -150,9 +150,6 @@ const ContactForm = ({
       propertyId // Incluir el ID de la propiedad en el payload
     };
     
-    // Debug temporal para verificar el payload
-    console.log('Payload enviado:', payload);
-    
     try {
       await request(async () => {
         const res = await fetch(`${API_URL}/contactos`, {

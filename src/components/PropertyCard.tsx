@@ -20,8 +20,17 @@ interface PropertyCardProps {
     banos?: string | number;
     garages?: string | number;
     direccion: string;
+    ubicacion_id?: number;
     tipos_propiedad?: { nombre: string };
-    ubicaciones?: { ciudad?: string; barrio?: string };
+    ubicaciones?: { 
+      id: number;
+      pais: string;
+      provincia: string;
+      departamento: string | null;
+      ciudad: string;
+      barrio: string | null;
+      codigo_postal: string | null;
+    };
     imagenes_propiedad?: Array<{ url_imagen: string; es_principal: boolean; orden: number }>;
     operaciones_propiedad?: Array<{
       precio: number;
@@ -35,7 +44,18 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
+  // DEBUG TEMPORAL - Para identificar el problema
+  console.log('=== PROPERTY CARD DEBUG ===');
+  console.log('Property ID:', property.id);
+  console.log('Property title:', property.titulo);
+  console.log('Ubicaciones object:', property.ubicaciones);
+  console.log('Ubicacion_id:', property.ubicacion_id);
+  console.log('Direccion:', property.direccion);
+  console.log('Full property object:', property);
+  console.log('========================');
+
   const navigate = useNavigate();
+  
   // Imagen principal
   const imagenPrincipal =
     property.imagenes_propiedad?.find((img) => img.es_principal) ||
@@ -52,11 +72,23 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
     ? capitalizeAndFixAccent(property.tipos_propiedad.nombre)
     : '';
 
-  // Ubicación
-  const ubicacion =
-    [property.ubicaciones?.ciudad, property.ubicaciones?.barrio]
-      .filter(Boolean)
-      .join(' - ') || '';
+  // Ubicación - mostrar ciudad y barrio (sin país/provincia)
+  const ubicacion = (() => {
+    if (property.ubicaciones?.ciudad) {
+      const partes = [
+        property.ubicaciones.ciudad,
+        property.ubicaciones.barrio
+      ].filter(Boolean);
+      return partes.join(' - ');
+    }
+    
+    // Fallback a dirección si no hay ubicaciones
+    if (property.direccion && property.direccion !== 'No especificado') {
+      return property.direccion;
+    }
+    
+    return 'Consultar ubicación';
+  })();
 
   // Título
   const titulo = property.titulo;
@@ -91,13 +123,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   };
 
   // Función helper para validar números (maneja tanto string como number y Decimal de Prisma)
-  const isValidNumber = (value: any): boolean => {
+  const isValidNumber = (value: string | number | null | undefined): boolean => {
     if (value === null || value === undefined || value === '') return false;
     const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
     return !isNaN(numValue) && numValue > 0;
   };
 
-  const formatNumber = (value: any): string => {
+  const formatNumber = (value: string | number | null | undefined): string => {
     if (!isValidNumber(value)) return '';
     return typeof value === 'string' ? value : String(value);
   };

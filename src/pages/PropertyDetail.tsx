@@ -32,11 +32,13 @@ interface PropiedadDetalle {
   fecha_actualizacion?: string;
   tipos_propiedad?: { nombre: string };
   ubicaciones?: { 
+    id: number;
     pais: string;
-    provincia: string; 
-    ciudad: string; 
-    barrio?: string; 
-    codigo_postal?: string;
+    provincia: string;
+    departamento: string | null;
+    ciudad: string;
+    barrio: string | null;
+    codigo_postal: string | null;
   };
   usuarios?: {
     nombre: string;
@@ -253,9 +255,8 @@ const PropertyDetail = () => {
     
     const ubicacionCompleta = [
       propiedad.direccion,
-      propiedad.ubicaciones?.barrio,
       propiedad.ubicaciones?.ciudad,
-      propiedad.ubicaciones?.provincia
+      propiedad.ubicaciones?.barrio
     ].filter(Boolean).join(', ');
 
     // Construir características principales para el resumen
@@ -608,13 +609,21 @@ ${visitForm.mensaje ? `
                 Descripción
               </h2>
               <div 
-                className="text-gray-700 leading-relaxed text-lg font-montserrat descripcion-html prose prose-lg max-w-none" 
+                className="text-gray-700 leading-relaxed font-montserrat prose prose-lg max-w-none
+                          prose-headings:text-[#022550] prose-headings:font-poppins prose-headings:font-bold
+                          prose-strong:text-[#022550] prose-strong:font-semibold
+                          prose-em:text-[#ec520b] prose-em:not-italic
+                          prose-p:mb-4 prose-p:text-base prose-p:leading-relaxed
+                          prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+                          prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+                          prose-li:mb-2 prose-li:text-gray-700
+                          prose-a:text-[#ec520b] prose-a:hover:text-[#022550] prose-a:transition-colors"
                 style={{ 
-                  lineHeight: '1.7',
+                  lineHeight: '1.8',
                   textAlign: 'justify'
                 }}
                 dangerouslySetInnerHTML={{ 
-                  __html: propiedad.descripcion || 'Esta propiedad no tiene descripción disponible.' 
+                  __html: propiedad.descripcion || '<p class="text-gray-500 italic">Esta propiedad no tiene descripción disponible.</p>' 
                 }}
               />
             </div>
@@ -686,9 +695,8 @@ ${visitForm.mensaje ? `
                 <MapPin className="h-4 w-4 mr-1" />
                 <span className="text-sm">
                   {propiedad.direccion}
-                  {propiedad.ubicaciones?.barrio && `, ${propiedad.ubicaciones.barrio}`}
                   {propiedad.ubicaciones?.ciudad && `, ${propiedad.ubicaciones.ciudad}`}
-                  {propiedad.ubicaciones?.provincia && `, ${propiedad.ubicaciones.provincia}`}
+                  {propiedad.ubicaciones?.barrio && `, ${propiedad.ubicaciones.barrio}`}
                 </span>
               </div>
 

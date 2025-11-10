@@ -30,12 +30,7 @@ const Navbar = () => {
             <img
               src="/logo_grande_fondo_azul.svg"
               alt="Logo INICIO"
-              className="h-12 w-auto object-contain"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/inicio_icono_blanco.svg'; // Fallback
-                target.onerror = null; // Evitar loop infinito
-              }}
+              className="h-12 w-12 object-contain"
             />
             <div className="flex flex-col leading-tight -translate-y-1">
               <span className="text-[#ec520b] font-bold text-lg tracking-wide">
@@ -130,12 +125,7 @@ const Navbar = () => {
                     <img
                       src="/logo_grande_fondo_azul.svg"
                       alt="Logo INICIO"
-                      className="w-12 h-12 object-contain flex-shrink-0"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/inicio_icono_blanco.svg'; // Fallback
-                        target.onerror = null; // Evitar loop infinito
-                      }}
+                      className="h-12 w-12 object-contain flex-shrink-0"
                     />
                     <div className="flex flex-col leading-tight">
                       <span className="text-[#ec520b] font-bold text-lg tracking-wide">

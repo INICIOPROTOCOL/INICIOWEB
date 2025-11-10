@@ -44,15 +44,6 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
-  // DEBUG TEMPORAL - Para identificar el problema
-  console.log('=== PROPERTY CARD DEBUG ===');
-  console.log('Property ID:', property.id);
-  console.log('Property title:', property.titulo);
-  console.log('Ubicaciones object:', property.ubicaciones);
-  console.log('Ubicacion_id:', property.ubicacion_id);
-  console.log('Direccion:', property.direccion);
-  console.log('Full property object:', property);
-  console.log('========================');
 
   const navigate = useNavigate();
   

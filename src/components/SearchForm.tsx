@@ -16,11 +16,11 @@ interface TipoPropiedad {
 }
 
 interface Ubicacion {
-  id: number;
   ciudad: string;
-  barrio?: string;
   provincia: string;
-  pais: string;
+  departamento?: string | null;
+  cantidadUbicaciones?: number;
+  cantidadPropiedades?: number;
 }
 
 interface SearchFormProps {
@@ -67,14 +67,15 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
         const [tiposRes, operacionesRes, ubicacionesRes] = await Promise.all([
           axios.get(`${API_URL}/tipos`),
           axios.get(`${API_URL}/tipos-operacion`),
-          axios.get(`${API_URL}/ubicaciones`)
+          axios.get(`${API_URL}/ubicaciones/ciudades-unicas`) // Nuevo endpoint sin duplicados
         ]);
         
         // Filtrar datos con id=1 que son placeholders
         setTiposPropiedad((tiposRes.data || []).filter((tipo: TipoPropiedad) => tipo.id !== 1));
         setTiposOperacion((operacionesRes.data || []).filter((op: TipoOperacion) => op.id !== 1));
         
-        const ubicacionesData = (ubicacionesRes.data || []).filter((ubic: Ubicacion) => ubic.id !== 1);
+        // Las ubicaciones ahora vienen sin duplicados del backend
+        const ubicacionesData = (ubicacionesRes.data || []);
         setUbicaciones(ubicacionesData);
         setUbicacionesFiltradas(ubicacionesData);
         
@@ -99,7 +100,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
         const searchText = ubicacionInput.toLowerCase();
         return (
           ubicacion.ciudad.toLowerCase().includes(searchText) ||
-          ubicacion.barrio?.toLowerCase().includes(searchText) ||
+          ubicacion.departamento?.toLowerCase().includes(searchText) ||
           ubicacion.provincia.toLowerCase().includes(searchText)
         );
       });
@@ -124,9 +125,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
 
   // Manejar selección de ubicación
   const handleUbicacionSelect = (ubicacion: Ubicacion) => {
-    const ubicacionText = `${ubicacion.ciudad}${ubicacion.barrio ? `, ${ubicacion.barrio}` : ''}`;
+    const ubicacionText = `${ubicacion.ciudad}${ubicacion.departamento ? `, ${ubicacion.departamento}` : ''}`;
     setUbicacionInput(ubicacionText);
-    setSelectedUbicacion(ubicacion.id.toString());
+    setSelectedUbicacion(ubicacion.ciudad); // Usar ciudad como identificador
     setShowDropdown(false);
   };
 
@@ -305,24 +306,30 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, className = '' }) => 
                       </div>
                     ) : ubicacionesFiltradas.length > 0 ? (
                       ubicacionesFiltradas
-                        .filter(ubicacion => ubicacion.id !== 1)
-                        .map((ubicacion) => (
+                        .map((ubicacion, index) => (
                           <button
-                            key={ubicacion.id}
+                            key={`${ubicacion.ciudad}-${ubicacion.provincia}-${ubicacion.departamento}-${index}`}
                             onClick={() => handleUbicacionSelect(ubicacion)}
                             className="w-full px-4 py-3 text-left hover:bg-[#ec520b]/10 focus:bg-[#ec520b]/10 transition-colors border-b border-gray-100 last:border-b-0"
                           >
-                            <div className="flex items-center">
-                              <MapPin className="h-4 w-4 text-[#ec520b] mr-3 flex-shrink-0" />
-                              <div className="flex flex-col">
-                                <span className="font-medium text-gray-900">{ubicacion.ciudad}</span>
-                                {ubicacion.barrio && (
-                                  <span className="text-sm text-gray-500">{ubicacion.barrio}, {ubicacion.provincia}</span>
-                                )}
-                                {!ubicacion.barrio && (
-                                  <span className="text-sm text-gray-500">{ubicacion.provincia}</span>
-                                )}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <MapPin className="h-4 w-4 text-[#ec520b] mr-3 flex-shrink-0" />
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-gray-900">{ubicacion.ciudad}</span>
+                                  {ubicacion.departamento && (
+                                    <span className="text-sm text-gray-500">{ubicacion.departamento}, {ubicacion.provincia}</span>
+                                  )}
+                                  {!ubicacion.departamento && (
+                                    <span className="text-sm text-gray-500">{ubicacion.provincia}</span>
+                                  )}
+                                </div>
                               </div>
+                              {ubicacion.cantidadPropiedades !== undefined && ubicacion.cantidadPropiedades > 0 && (
+                                <span className="text-xs text-gray-400 ml-2">
+                                  ({ubicacion.cantidadPropiedades} {ubicacion.cantidadPropiedades === 1 ? 'propiedad' : 'propiedades'})
+                                </span>
+                              )}
                             </div>
                           </button>
                         ))

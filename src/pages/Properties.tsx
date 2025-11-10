@@ -18,7 +18,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useMediaQuery } from '@/hooks/useMediaQuery'; // crea este hook si no existe
 
 interface Propiedad {
   id: number;
@@ -85,7 +84,7 @@ const Properties = () => {
   const [precioMax, setPrecioMax] = useState('');
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState('');
   const [tiposPropiedad, setTiposPropiedad] = useState<{ id: number; nombre: string }[]>([]);
-  const [ubicaciones, setUbicaciones] = useState<{ id: number; ciudad: string; provincia: string; pais: string; barrio?: string }[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<{ ciudad: string; provincia: string; departamento?: string | null; cantidadUbicaciones?: number; cantidadPropiedades?: number }[]>([]);
   const [tiposOperacion, setTiposOperacion] = useState<{ id: number; nombre: string }[]>([]);
   const { data, loading, error, request } = useApiRequest<Propiedad[]>({ retries: 2, retryDelay: 1500 });
   const propiedades = Array.isArray(data)
@@ -105,12 +104,14 @@ const Properties = () => {
       try {
         const [tiposRes, ubicacionesRes, tiposOperacionRes] = await Promise.all([
           axios.get(`${API_URL}/tipos`),
-          axios.get(`${API_URL}/ubicaciones`),
+          axios.get(`${API_URL}/ubicaciones/ciudades-unicas`), // Nuevo endpoint sin duplicados
           axios.get(`${API_URL}/tipos-operacion`),
         ]);
         if (!mounted) return;
+        const ubicacionesData = ubicacionesRes.data || [];
+        
         setTiposPropiedad(tiposRes.data || []);
-        setUbicaciones(ubicacionesRes.data || []);
+        setUbicaciones(ubicacionesData);
         setTiposOperacion(tiposOperacionRes.data || []);
       } catch (err) {
         // ignore
@@ -145,20 +146,16 @@ const Properties = () => {
   // Debounced update of query params.
   const debounceRef = useRef<number | null>(null);
   const updateQueryParams = (key: string, value: string | number) => {
-    // normalize value: if numeric string, convert to number
-    const parsed = value === '' ? '' : Number(value);
     if (debounceRef.current) {
       window.clearTimeout(debounceRef.current);
     }
     debounceRef.current = window.setTimeout(() => {
-      // Use current window.location to compose params (avoid stale location in closures)
       const queryParams = new URLSearchParams(window.location.search);
-      if (parsed === '') {
+      if (value === '' || value === 0) {
         queryParams.delete(key);
       } else {
-        queryParams.set(key, String(parsed));
+        queryParams.set(key, String(value));
       }
-    // update URL query params (debounced)
       navigate(`?${queryParams.toString()}`, { replace: true });
     }, 400) as unknown as number;
   };
@@ -203,9 +200,9 @@ const Properties = () => {
   };
 
   const handleUbicacionChange = (value: string) => {
-    const normalized = value === '0' || value === '' ? '' : String(Number(value));
+    const normalized = value === '0' || value === '' ? '' : value; // Usar ciudad como string
     setUbicacionSeleccionada(normalized);
-    updateQueryParams('ubicacion', normalized === '' ? '' : Number(normalized));
+    updateQueryParams('ubicacion', normalized);
   };
 
   const clearFilters = () => {
@@ -267,11 +264,10 @@ const Properties = () => {
     return found ? found.nombre : idStr;
   };
 
-  const getUbicacionName = (idStr: string) => {
-    if (!idStr) return '';
-    const id = Number(idStr);
-    const found = ubicaciones.find(u => u.id === id);
-    return found ? `${found.ciudad} (${found.provincia})` : idStr;
+  const getUbicacionName = (ciudadStr: string) => {
+    if (!ciudadStr) return '';
+    const found = ubicaciones.find(u => u.ciudad === ciudadStr);
+    return found ? `${found.ciudad} (${found.provincia})` : ciudadStr;
   };
 
   const filteredProperties = propiedades.filter(p => {
@@ -284,7 +280,7 @@ const Properties = () => {
 
     const matchesTipo = !tipo || p.tipos_propiedad?.id === Number(tipo);
 
-    const matchesUbicacion = !ubicacionSeleccionada || p.ubicaciones?.id === Number(ubicacionSeleccionada);
+    const matchesUbicacion = !ubicacionSeleccionada || p.ubicaciones?.ciudad === ubicacionSeleccionada;
 
     const matchesHabitaciones = !habitaciones || (p.habitaciones ?? 0) === Number(habitaciones);
 
@@ -394,8 +390,15 @@ const Properties = () => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectItem value="0">Todas las ubicaciones</SelectItem>
-                            {ubicaciones.map(ubi => (
-                              <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
+                            {ubicaciones.map((ubi, index) => (
+                              <SelectItem key={`${ubi.ciudad}-${ubi.provincia}-${ubi.departamento}-${index}`} value={ubi.ciudad}>
+                                {`${ubi.ciudad} (${ubi.provincia})`}
+                                {ubi.cantidadPropiedades !== undefined && ubi.cantidadPropiedades > 0 && (
+                                  <span className="text-xs text-gray-400 ml-2">
+                                    • {ubi.cantidadPropiedades} {ubi.cantidadPropiedades === 1 ? 'prop.' : 'props.'}
+                                  </span>
+                                )}
+                              </SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
@@ -718,8 +721,15 @@ const Properties = () => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectItem value="0">Todas las ubicaciones</SelectItem>
-                          {ubicaciones.map(ubi => (
-                            <SelectItem key={ubi.id} value={String(ubi.id)}>{`${ubi.ciudad} (${ubi.provincia})`}</SelectItem>
+                          {ubicaciones.map((ubi, index) => (
+                            <SelectItem key={`modal-${ubi.ciudad}-${ubi.provincia}-${ubi.departamento}-${index}`} value={ubi.ciudad}>
+                              {`${ubi.ciudad} (${ubi.provincia})`}
+                              {ubi.cantidadPropiedades !== undefined && ubi.cantidadPropiedades > 0 && (
+                                <span className="text-xs text-gray-400 ml-2">
+                                  • {ubi.cantidadPropiedades} {ubi.cantidadPropiedades === 1 ? 'prop.' : 'props.'}
+                                </span>
+                              )}
+                            </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>

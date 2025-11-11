@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { MapPin, Home, Bed, Bath, Car, Square, Eye, ArrowLeft, ArrowRight, X, MessageCircle, Calendar, Check, CheckCircle, Ruler, Layers } from 'lucide-react';
 import { Tag } from 'lucide-react';
 import logoInicioBlanco from '@/assets/inicio_icono_blanco.svg';
+import propertyPlaceholder from '@/assets/property-placeholder.svg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -71,6 +72,7 @@ const PropertyDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error'; message: string }>({ show: false, type: 'success', message: '' });
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
   
   // Estados del formulario de visita (siempre abierto)
   const [visitForm, setVisitForm] = useState({
@@ -90,6 +92,20 @@ const PropertyDetail = () => {
     setTimeout(() => {
       setToast({ show: false, type: 'success', message: '' });
     }, 4000);
+  };
+
+  // Handler para errores de carga de imagen (Safari iOS fix)
+  const handleImageError = (index: number) => {
+    console.warn(`Error loading image at index ${index}, using fallback`);
+    setImageErrors(prev => ({ ...prev, [index]: true }));
+  };
+
+  // Función para obtener URL de imagen con fallback a placeholder de casa
+  const getImageUrl = (imagen: { url_imagen: string } | undefined, index: number) => {
+    if (!imagen || imageErrors[index]) {
+      return propertyPlaceholder; // Fallback al ícono de casa naranja
+    }
+    return imagen.url_imagen;
   };
 
   useEffect(() => {
@@ -448,12 +464,14 @@ ${visitForm.mensaje ? `
                   onTouchEnd={handleTouchEnd}
                 >
                   <img
-                    src={imagenes[currentImageIndex]?.url_imagen || '/placeholder.svg'}
+                    src={getImageUrl(imagenes[currentImageIndex], currentImageIndex)}
                     alt={`${propiedad.titulo} - Imagen ${currentImageIndex + 1}`}
                     className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
                     style={{ 
                       boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(236, 82, 11, 0.3)' 
                     }}
+                    onError={() => handleImageError(currentImageIndex)}
+                    loading="lazy"
                   />
                 </div>
                 
@@ -523,9 +541,11 @@ ${visitForm.mensaje ? `
                   onClick={() => { setCurrentImageIndex(0); setIsGalleryOpen(true); }}
                 >
                   <img
-                    src={imagenes[0]?.url_imagen || '/placeholder.svg'}
+                    src={getImageUrl(imagenes[0], 0)}
                     alt={propiedad.titulo}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={() => handleImageError(0)}
+                    loading="lazy"
                   />
                   {/* Overlay con degradado para mejor visibilidad del texto */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
@@ -552,9 +572,11 @@ ${visitForm.mensaje ? `
                         onClick={() => { setCurrentImageIndex(1); setIsGalleryOpen(true); }}
                       >
                         <img
-                          src={imagenes[1].url_imagen}
+                          src={getImageUrl(imagenes[1], 1)}
                           alt={`${propiedad.titulo} - Imagen 2`}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={() => handleImageError(1)}
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                         <div className="absolute bottom-2 right-2 bg-[#022550] text-white text-xs px-2 py-1 rounded-md opacity-90">
@@ -570,9 +592,11 @@ ${visitForm.mensaje ? `
                         onClick={() => { setCurrentImageIndex(2); setIsGalleryOpen(true); }}
                       >
                         <img
-                          src={imagenes[2].url_imagen}
+                          src={getImageUrl(imagenes[2], 2)}
                           alt={`${propiedad.titulo} - Imagen 3`}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={() => handleImageError(2)}
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                         <div className="absolute bottom-2 right-2 bg-[#022550] text-white text-xs px-2 py-1 rounded-md opacity-90">

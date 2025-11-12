@@ -22,9 +22,9 @@ const Home = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       await request(async () => {
+        // ✅ Endpoint 1: Listar propiedades destacadas
         const response = await axios.get(`${API_URL}/propiedades?destacada=true&limit=3`);
-        // Asegura que featuredProperties sea el array correcto
-        return response.data?.data || response.data || [];
+        return response.data || [];
       });
     };
     fetchFeatured();

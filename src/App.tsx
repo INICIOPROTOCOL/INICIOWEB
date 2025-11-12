@@ -60,7 +60,7 @@ const App = () => (
                 <Route path="/nuestros-servicios" element={<NuestrosServicios />} />
                 <Route path="/nosotros" element={<Nosotros />} />
                 <Route path="/contacto" element={<Contact />} />
-                <Route path="/propiedad/:id" element={<PropertyDetail />} />
+                <Route path="/propiedad/:slug" element={<PropertyDetail />} />
               </Route>
               {/* Rutas CMS admin */}
               <Route path="/admin/login" element={<Login />} />

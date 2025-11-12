@@ -21,6 +21,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Propiedad {
   id: number;
+  tokko_id?: number | null;
+  slug: string;
+  origen?: string;
+  destacada?: boolean;
   titulo: string;
   descripcion?: string;
   area_construida?: number;
@@ -120,8 +124,10 @@ const Properties = () => {
 
     const fetchProps = async () => {
       await request(async () => {
-        const propiedadesRes = await axios.get(`${API_URL}/propiedades-sync`);
+        // ✅ Endpoint 1: Listar propiedades
+        const propiedadesRes = await axios.get(`${API_URL}/propiedades`);
         if (!mounted) return [];
+        
         localStorage.setItem('propiedades', JSON.stringify(propiedadesRes.data || []));
         return propiedadesRes.data || [];
       });

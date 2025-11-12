@@ -15,6 +15,10 @@ import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
 
 interface PropiedadDetalle {
   id: number;
+  tokko_id?: number | null;
+  slug: string;
+  origen: string;
+  destacada: boolean;
   titulo: string;
   descripcion?: string;
   area_construida?: number;
@@ -66,7 +70,7 @@ interface PropiedadDetalle {
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const PropertyDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { data: propiedad, loading, error, request } = useApiRequest<PropiedadDetalle>({ retries: 2, retryDelay: 1500 });
   const { loading: visitFormLoading, error: visitFormError, request: visitFormRequest } = useApiRequest({ retries: 2, retryDelay: 1500 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -109,16 +113,48 @@ const PropertyDetail = () => {
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
+    
+    let mounted = true;
     
     const fetchData = async () => {
       try {
-        // Usar request para la propiedad principal
+        // 🔍 Detectar si es ID numérico para decidir la estrategia
+        const isNumericId = /^\d+$/.test(slug);
+        console.log(`🔍 PropertyDetail - Recibido: "${slug}" (${isNumericId ? 'ID' : 'SLUG'})`);
+        
+        // 🚀 DUAL PATH: Priorizar slug, fallback a ID
         await request(async () => {
-          const response = await axios.get(`${API_URL}/propiedades/${id}`);
-          localStorage.setItem(`propiedad_${id}`, JSON.stringify(response.data));
-          return response.data;
+          // Estrategia 1: Si parece ID numérico, intentar primero por ID (más rápido)
+          if (isNumericId) {
+            try {
+              console.log(`📡 Buscando por ID: ${API_URL}/propiedades/${slug}`);
+              const response = await axios.get(`${API_URL}/propiedades/${slug}`);
+              if (!mounted) return null;
+              console.log('✅ Encontrada por ID');
+              return response.data;
+            } catch (idError) {
+              console.warn('⚠️ No encontrada por ID, intentando por slug...');
+            }
+          }
+          
+          // Estrategia 2: Intentar por slug (siempre, incluso si es numérico)
+          try {
+            console.log(`📡 Buscando por SLUG: ${API_URL}/propiedades/slug/${slug}`);
+            const response = await axios.get(`${API_URL}/propiedades/slug/${slug}`);
+            if (!mounted) return null;
+            console.log('✅ Encontrada por SLUG');
+            return response.data;
+          } catch (slugError) {
+            // Si no es numérico y falló, no hay más opciones
+            if (!isNumericId) {
+              throw new Error(`Propiedad con slug "${slug}" no encontrada`);
+            }
+            throw slugError;
+          }
         });
+        
+        if (!mounted) return;
         
         // Fetch datos auxiliares en paralelo
         const [tiposCaracRes, tiposOpRes] = await Promise.all([
@@ -126,18 +162,24 @@ const PropertyDetail = () => {
           axios.get(`${API_URL}/tipos-operacion`)
         ]);
         
+        if (!mounted) return;
         setTiposCaracteristica(tiposCaracRes.data || []);
         setTiposOperacion(tiposOpRes.data || []);
       } catch (error) {
-        console.error('Error al cargar datos:', error);
+        if (!mounted) return;
+        console.error('❌ Error al cargar propiedad:', error);
         setTiposCaracteristica([]);
         setTiposOperacion([]);
       }
     };
 
     fetchData();
+    
+    return () => {
+      mounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // Solo dependemos de 'id' - 'request' causa loop infinito
+  }, [slug]); // Solo dependemos de 'slug'
 
 
   // Ordenar imágenes: principal primero, luego por orden

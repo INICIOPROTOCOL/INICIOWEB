@@ -9,6 +9,10 @@ import { capitalizeAndFixAccent } from '@/utils/capitalize';
 interface PropertyCardProps {
   property: {
     id: number;
+    tokko_id?: number | null;
+    slug: string;
+    origen?: string;
+    destacada?: boolean;
     titulo: string;
     descripcion?: string;
     area_construida?: string | number;
@@ -44,7 +48,6 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
-
   const navigate = useNavigate();
   
   // Imagen principal
@@ -94,8 +97,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
     }).format(precio);
   const precio = operacion ? formatPrice(operacion.precio, operacion.moneda) : 'Consultar';
 
-  // WhatsApp link siguiendo las instrucciones del proyecto
-  const propertyUrl = `${window.location.origin}/propiedad/${property.id}`;
+  // WhatsApp link siguiendo las instrucciones del proyecto - USAR SLUG
+  const propertyUrl = `${window.location.origin}/propiedad/${property.slug || property.id}`;
   const whatsappMessage = `Hola! Me interesa obtener más información sobre la propiedad: ${titulo}. Puedes ver la propiedad aquí: ${propertyUrl}`;
   const whatsappLink = `https://wa.me/5493515155669?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -110,7 +113,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   const handleVerMasClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    window.open(`/propiedad/${property.id}`, '_blank');
+    window.open(`/propiedad/${property.slug || property.id}`, '_blank');
   };
 
   // Función helper para validar números (maneja tanto string como number y Decimal de Prisma)
@@ -130,7 +133,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
       {/* Imagen principal */}
       <div
         className="relative cursor-pointer"
-        onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+        onClick={() => window.open(`/propiedad/${property.slug || property.id}`, '_blank')}
       >
         <img
           src={imageSrc}
@@ -170,7 +173,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         {/* Título con colores corporativos */}
         <h3 
           className="font-semibold text-lg text-[#022550] line-clamp-1 cursor-pointer hover:text-[#ec520b] transition-colors"
-          onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+          onClick={() => window.open(`/propiedad/${property.slug || property.id}`, '_blank')}
         >
           {titulo}
         </h3>

@@ -141,9 +141,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
           className="w-full h-48 object-cover"
           loading="lazy"
         />
+        
+        {/* Badge de Destacada */}
+        {property.destacada && (
+          <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 animate-pulse">
+            ⭐ Destacada
+          </div>
+        )}
+        
         {/* Etiqueta tipo de operación siguiendo design system */}
         {tipoOperacion && (
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 right-3">
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ec520b] text-white shadow">
               {tipoOperacion}
             </span>

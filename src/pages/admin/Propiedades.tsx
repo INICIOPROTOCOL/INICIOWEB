@@ -172,6 +172,7 @@ const Propiedades: React.FC = () => {
   // Estados para filtros
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroOperacion, setFiltroOperacion] = useState<string>('todas');
+  const [filtroDestacada, setFiltroDestacada] = useState<string>('todas'); // ⭐ Nuevo filtro
   const [busqueda, setBusqueda] = useState<string>('');
 
   // Datos auxiliares
@@ -379,6 +380,12 @@ const Propiedades: React.FC = () => {
         op => op.tipo_operacion_id?.toString() === filtroOperacion
       );
       if (!tieneOperacion) return false;
+    }
+    // ⭐ Nuevo: Filtro por destacada
+    if (filtroDestacada && filtroDestacada !== 'todas') {
+      const esDestacada = propiedad.destacada === true;
+      if (filtroDestacada === 'destacadas' && !esDestacada) return false;
+      if (filtroDestacada === 'no-destacadas' && esDestacada) return false;
     }
     // Filtro por búsqueda de texto
     if (busqueda) {
@@ -671,6 +678,37 @@ const Propiedades: React.FC = () => {
     setLoading(false);
   };
 
+  // ⭐ Nuevo: Toggle destacada usando el nuevo endpoint del backend
+  const handleToggleDestacada = async (propiedad: Propiedad) => {
+    if (!propiedad.tokko_id) {
+      showToast('Solo propiedades de Tokko pueden ser destacadas', 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.patch(
+        `${API_URL}/propiedades/tokko/${propiedad.tokko_id}/destacada`,
+        { destacada: !propiedad.destacada }
+      );
+      
+      showToast(response.data.message, 'success');
+      
+      // Actualizar lista local
+      setPropiedades(prev => 
+        prev.map(p => 
+          p.id === propiedad.id 
+            ? { ...p, destacada: !p.destacada }
+            : p
+        )
+      );
+    } catch (error: any) {
+      console.error('Error al actualizar destacada:', error);
+      showToast(error.response?.data?.error || 'Error al actualizar destacada', 'error');
+    }
+    setLoading(false);
+  };
+
   if (loadingData || loading) {
     return <Loader text={loadingData ? 'Cargando datos...' : 'Guardando propiedad...'} color="#ec520b" />;
   }
@@ -742,6 +780,20 @@ const Propiedades: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+              {/* ⭐ Nuevo filtro de destacadas */}
+              <div>
+                <Label htmlFor="filtroDestacada">Destacadas</Label>
+                <Select value={filtroDestacada} onValueChange={setFiltroDestacada}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas</SelectItem>
+                    <SelectItem value="destacadas">⭐ Solo destacadas</SelectItem>
+                    <SelectItem value="no-destacadas">Sin destacar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex items-end">
                 <Button
                   variant="outline"
@@ -749,6 +801,7 @@ const Propiedades: React.FC = () => {
                     setBusqueda('');
                     setFiltroTipo('');
                     setFiltroOperacion('');
+                    setFiltroDestacada('todas'); // ⭐ Resetear filtro destacada
                   }}
                   className="w-full"
                 >
@@ -1390,7 +1443,7 @@ const Propiedades: React.FC = () => {
                 className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-[#ec520b]/30 transition-all duration-200"
               >
                 {/* Imagen miniatura */}
-                <div className="h-48 bg-gray-100 overflow-hidden">
+                <div className="h-48 bg-gray-100 overflow-hidden relative">
                   {primeraImagen ? (
                     <img 
                       src={primeraImagen} 
@@ -1400,6 +1453,20 @@ const Propiedades: React.FC = () => {
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                       <Home className="h-12 w-12 text-gray-400" />
+                    </div>
+                  )}
+                  
+                  {/* Badge de Destacada */}
+                  {propiedad.destacada && (
+                    <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                      ⭐ Destacada
+                    </div>
+                  )}
+
+                  {/* Badge de origen Tokko */}
+                  {propiedad.tokko_id && (
+                    <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                      Tokko
                     </div>
                   )}
                 </div>
@@ -1414,6 +1481,23 @@ const Propiedades: React.FC = () => {
                       <p className="text-sm text-gray-600 truncate">{propiedad.direccion}</p>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+                      {/* Botón Toggle Destacada (solo para propiedades Tokko) */}
+                      {propiedad.tokko_id && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleDestacada(propiedad)}
+                          className={`h-8 w-8 p-0 ${
+                            propiedad.destacada 
+                              ? 'text-yellow-500 hover:bg-yellow-50 hover:text-yellow-600' 
+                              : 'text-gray-400 hover:bg-gray-100 hover:text-yellow-500'
+                          }`}
+                          title={propiedad.destacada ? 'Desmarcar destacada' : 'Marcar como destacada'}
+                        >
+                          <span className="text-lg">{propiedad.destacada ? '⭐' : '☆'}</span>
+                        </Button>
+                      )}
+                      
                       <Button
                         variant="ghost"
                         size="sm"

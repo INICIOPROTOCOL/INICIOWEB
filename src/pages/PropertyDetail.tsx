@@ -728,7 +728,7 @@ ${visitForm.mensaje ? `
               <div className="mt-8">
                 <h2 className="text-2xl font-bold text-[#022550] mb-6 flex items-center gap-2 font-poppins">
                   <MapPin className="h-6 w-6 text-[#ec520b]" />
-                  Ubicación 
+                  Ubicación en el mapa
                 </h2>
                 <PropertyMap
                   latitude={propiedad.latitud}

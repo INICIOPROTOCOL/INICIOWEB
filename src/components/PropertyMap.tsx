@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
 
-// Fix para el icono por defecto de Leaflet (bug conocido con Webpack/Vite)
+// 🔧 Fix para el icono por defecto de Leaflet (bug conocido con Vite)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -43,41 +43,61 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Solo inicializar si no existe el mapa
-    if (mapContainerRef.current && !mapRef.current) {
-      // Crear el mapa con Leaflet directamente (sin react-leaflet)
-      const map = L.map(mapContainerRef.current).setView([latitude, longitude], zoom);
+    // Esperar a que el componente esté montado
+    setIsMounted(true);
+  }, []);
 
-      // Añadir capa de tiles
+  useEffect(() => {
+    // Solo inicializar si está montado y no existe el mapa
+    if (!isMounted || !mapContainerRef.current || mapRef.current) return;
+
+    try {
+      // Crear el mapa
+      const map = L.map(mapContainerRef.current, {
+        center: [latitude, longitude],
+        zoom: zoom,
+        scrollWheelZoom: false, // Deshabilitado por defecto para mejor UX móvil
+        zoomControl: true,
+        attributionControl: true
+      });
+
+      // Agregar capa de tiles de OpenStreetMap
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
       }).addTo(map);
 
-      // Añadir marcador
+      // Agregar marcador con popup
       const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
-
-      // Añadir popup
+      
       marker.bindPopup(`
-        <div class="font-montserrat p-2">
-          <h3 class="font-bold text-[#022550] mb-1 text-sm">${title}</h3>
-          <p class="text-gray-600 text-xs flex items-start gap-1">
-            <span>📍 ${address}</span>
+        <div style="font-family: 'Montserrat', sans-serif; min-width: 200px;">
+          <h3 style="color: #022550; font-weight: 600; margin: 0 0 8px 0; font-size: 14px;">${title}</h3>
+          <p style="color: #666; margin: 0; font-size: 12px; display: flex; align-items: start; gap: 4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ec520b" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            ${address}
           </p>
         </div>
       `);
 
-      // Deshabilitar scroll wheel zoom
-      map.scrollWheelZoom.disable();
-
-      // Guardar referencia
       mapRef.current = map;
 
-      // Ajustar tamaño después de montaje
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
+      // Habilitar zoom con Ctrl+Scroll
+      map.on('focus', () => {
+        map.scrollWheelZoom.enable();
+      });
+      map.on('blur', () => {
+        map.scrollWheelZoom.disable();
+      });
+
+    } catch (error) {
+      console.error('Error al inicializar el mapa:', error);
     }
 
     // Cleanup
@@ -87,17 +107,45 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         mapRef.current = null;
       }
     };
-  }, [latitude, longitude, title, address, zoom]);
+  }, [isMounted, latitude, longitude, title, address, zoom]);
+
+  // Loading state mientras se monta el componente
+  if (!isMounted) {
+    return (
+      <div 
+        className={`relative rounded-2xl overflow-hidden shadow-lg border-2 border-[#022550]/10 ${className}`}
+        style={{ height, width: '100%' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+          <div className="text-center">
+            <MapPin className="h-8 w-8 text-[#ec520b] animate-pulse mx-auto mb-2" />
+            <p className="text-sm text-gray-600 font-montserrat">Cargando mapa...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative rounded-2xl overflow-hidden shadow-lg border-2 border-[#022550]/10 ${className}`}>
+      {/* Badge de ubicación */}
+      <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[#022550] px-3 py-2 rounded-lg shadow-lg z-[1000] flex items-center gap-2">
+        <MapPin className="h-4 w-4 text-[#ec520b]" />
+        <span className="text-sm font-semibold">Ubicación exacta</span>
+      </div>
+
+      {/* Instrucciones de zoom */}
+      <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm text-gray-600 px-3 py-1.5 rounded-lg shadow-lg z-[1000] text-xs">
+        <span className="hidden sm:inline">Ctrl + Scroll para hacer zoom</span>
+        <span className="sm:hidden">Toca para interactuar</span>
+      </div>
+
       {/* Contenedor del mapa */}
       <div 
         ref={mapContainerRef} 
         style={{ height, width: '100%' }}
         className="z-0"
       />
-
     </div>
   );
 };

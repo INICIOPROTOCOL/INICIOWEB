@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
+import PropertyMap from '@/components/PropertyMap';
 import axios from 'axios';
 // import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
@@ -121,17 +122,14 @@ const PropertyDetail = () => {
       try {
         // 🔍 Detectar si es ID numérico para decidir la estrategia
         const isNumericId = /^\d+$/.test(slug);
-        console.log(`🔍 PropertyDetail - Recibido: "${slug}" (${isNumericId ? 'ID' : 'SLUG'})`);
         
         // 🚀 DUAL PATH: Priorizar slug, fallback a ID
         await request(async () => {
           // Estrategia 1: Si parece ID numérico, intentar primero por ID (más rápido)
           if (isNumericId) {
             try {
-              console.log(`📡 Buscando por ID: ${API_URL}/propiedades/${slug}`);
               const response = await axios.get(`${API_URL}/propiedades/${slug}`);
               if (!mounted) return null;
-              console.log('✅ Encontrada por ID');
               return response.data;
             } catch (idError) {
               console.warn('⚠️ No encontrada por ID, intentando por slug...');
@@ -140,10 +138,8 @@ const PropertyDetail = () => {
           
           // Estrategia 2: Intentar por slug (siempre, incluso si es numérico)
           try {
-            console.log(`📡 Buscando por SLUG: ${API_URL}/propiedades/slug/${slug}`);
             const response = await axios.get(`${API_URL}/propiedades/slug/${slug}`);
             if (!mounted) return null;
-            console.log('✅ Encontrada por SLUG');
             return response.data;
           } catch (slugError) {
             // Si no es numérico y falló, no hay más opciones
@@ -669,30 +665,32 @@ ${visitForm.mensaje ? `
             )}
 
             {/* Descripción debajo de las imágenes */}
-            <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border-2 border-[#022550]/10">
-              <h2 className="text-2xl font-bold text-[#022550] mb-4 flex items-center gap-2 font-poppins">
-                <Eye className="h-6 w-6 text-[#ec520b]" />
-                Descripción
-              </h2>
-              <div 
-                className="text-gray-700 leading-relaxed font-montserrat prose prose-lg max-w-none
-                          prose-headings:text-[#022550] prose-headings:font-poppins prose-headings:font-bold
-                          prose-strong:text-[#022550] prose-strong:font-semibold
-                          prose-em:text-[#ec520b] prose-em:not-italic
-                          prose-p:mb-4 prose-p:text-base prose-p:leading-relaxed
-                          prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
-                          prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-                          prose-li:mb-2 prose-li:text-gray-700
-                          prose-a:text-[#ec520b] prose-a:hover:text-[#022550] prose-a:transition-colors"
-                style={{ 
-                  lineHeight: '1.8',
-                  textAlign: 'justify'
-                }}
-                dangerouslySetInnerHTML={{ 
-                  __html: propiedad.descripcion || '<p class="text-gray-500 italic">Esta propiedad no tiene descripción disponible.</p>' 
-                }}
-              />
-            </div>
+            {propiedad.descripcion && (
+              <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border-2 border-[#022550]/10">
+                <h2 className="text-2xl font-bold text-[#022550] mb-6 flex items-center gap-2 font-poppins">
+                  <Eye className="h-6 w-6 text-[#ec520b]" />
+                  Descripción
+                </h2>
+                <div 
+                  className="font-montserrat prose prose-base max-w-none
+                            prose-headings:font-poppins prose-headings:font-bold prose-headings:text-[#022550] prose-headings:mt-6 prose-headings:mb-3
+                            prose-h1:text-2xl prose-h1:border-b-2 prose-h1:border-[#ec520b]/30 prose-h1:pb-2
+                            prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-2
+                            prose-h3:text-lg prose-h3:text-[#ec520b]
+                            prose-h4:text-base prose-h4:text-gray-700 prose-h4:font-semibold
+                            prose-p:text-gray-700 prose-p:text-base prose-p:leading-relaxed prose-p:mb-4
+                            prose-strong:text-[#022550] prose-strong:font-semibold
+                            prose-em:text-[#ec520b] prose-em:not-italic
+                            prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6
+                            prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6
+                            prose-li:text-gray-700 prose-li:text-base prose-li:mb-2 prose-li:leading-relaxed
+                            prose-a:text-[#ec520b] prose-a:hover:text-[#022550] prose-a:transition-colors prose-a:underline
+                            prose-blockquote:border-l-4 prose-blockquote:border-[#ec520b] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
+                            prose-code:text-[#022550] prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded"
+                  dangerouslySetInnerHTML={{ __html: propiedad.descripcion }}
+                />
+              </div>
+            )}
 
             {/* Características agrupadas por tipo, bien separadas, con iconos */}
             {Object.keys(caracteristicasPorTipo).length > 0 && (
@@ -725,28 +723,24 @@ ${visitForm.mensaje ? `
               </div>
             )}
 
-            {/* Mapa de ubicación - Solo si hay latitud y longitud */}
-            {/* isLoaded && lat && lng && (
+            {/* Mapa de ubicación - Leaflet */}
+            {propiedad.latitud && propiedad.longitud && (
               <div className="mt-8">
-                <h2 className="text-xl font-bold text-[#022550] mb-2 font-poppins flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-[#ec520b]" />
-                  Ubicación en el mapa
+                <h2 className="text-2xl font-bold text-[#022550] mb-6 flex items-center gap-2 font-poppins">
+                  <MapPin className="h-6 w-6 text-[#ec520b]" />
+                  Ubicación 
                 </h2>
-                <div className="rounded-2xl overflow-hidden border-2 border-[#022550]/10 shadow-lg" style={{ height: 320 }}>
-                  <GoogleMap
-                    mapContainerStyle={{ width: '100%', height: '320px' }}
-                    center={{ lat, lng }}
-                    zoom={16}
-                    options={{
-                      disableDefaultUI: true,
-                      zoomControl: true,
-                    }}
-                  >
-                    <Marker position={{ lat, lng }} />
-                  </GoogleMap>
-                </div>
+                <PropertyMap
+                  latitude={propiedad.latitud}
+                  longitude={propiedad.longitud}
+                  title={propiedad.titulo}
+                  address={`${propiedad.direccion}${propiedad.ubicaciones?.ciudad ? `, ${propiedad.ubicaciones.ciudad}` : ''}${propiedad.ubicaciones?.barrio ? `, ${propiedad.ubicaciones.barrio}` : ''}`}
+                  zoom={16}
+                  height="400px"
+                />
               </div>
-            )} */}
+            )}
+
           </div>
 
           {/* Property Info Section (sin cambios) */}

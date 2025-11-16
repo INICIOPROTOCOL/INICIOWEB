@@ -35,6 +35,9 @@ interface OperacionPropiedad {
 
 interface Propiedad {
   id: number;
+  tokko_id?: number | null;
+  slug?: string;
+  origen?: string;
   titulo: string;
   descripcion?: string;
   area_construida?: number;
@@ -678,7 +681,7 @@ const Propiedades: React.FC = () => {
     setLoading(false);
   };
 
-  // ⭐ Nuevo: Toggle destacada usando el nuevo endpoint del backend
+  // ⭐ Toggle destacada usando el nuevo endpoint del backend
   const handleToggleDestacada = async (propiedad: Propiedad) => {
     if (!propiedad.tokko_id) {
       showToast('Solo propiedades de Tokko pueden ser destacadas', 'error');
@@ -687,24 +690,37 @@ const Propiedades: React.FC = () => {
 
     setLoading(true);
     try {
+      // 1️⃣ Obtener estado actual
+      const estadoActual = propiedad.destacada || false;
+      
+      // 2️⃣ Invertir el estado actual
+      const nuevoEstado = !estadoActual;
+      
+      console.log(`🔄 Toggling destacada - Tokko ID: ${propiedad.tokko_id}, Estado actual: ${estadoActual}, Nuevo estado: ${nuevoEstado}`);
+      
+      // 3️⃣ Enviar el NUEVO estado al backend
       const response = await axios.patch(
         `${API_URL}/propiedades/tokko/${propiedad.tokko_id}/destacada`,
-        { destacada: !propiedad.destacada }
+        { destacada: nuevoEstado }
       );
       
       showToast(response.data.message, 'success');
       
-      // Actualizar lista local
+      // 4️⃣ Actualizar con la respuesta del backend (no calcular localmente)
       setPropiedades(prev => 
         prev.map(p => 
           p.id === propiedad.id 
-            ? { ...p, destacada: !p.destacada }
+            ? { ...p, destacada: response.data.propiedad.destacada }
             : p
         )
       );
-    } catch (error: any) {
-      console.error('Error al actualizar destacada:', error);
-      showToast(error.response?.data?.error || 'Error al actualizar destacada', 'error');
+      
+      console.log(`✅ Destacada actualizada a: ${response.data.propiedad.destacada}`);
+    } catch (error) {
+      console.error('❌ Error al actualizar destacada:', error);
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      const errorMessage = axiosError.response?.data?.error || 'Error al actualizar destacada';
+      showToast(errorMessage, 'error');
     }
     setLoading(false);
   };

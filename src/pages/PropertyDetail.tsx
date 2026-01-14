@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import PropertyMap from '@/components/PropertyMap';
 import axios from 'axios';
+import { trackEvent } from '@/utils/metaPixel';
 // import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
 
@@ -289,6 +290,24 @@ const PropertyDetail = () => {
     return acc;
   }, {} as Record<string, string[]>) || {};
 
+  useEffect(() => {
+    if (!propiedad) return;
+
+    const eventParams: Record<string, unknown> = {
+      content_name: propiedad.titulo,
+      content_type: 'product',
+      content_ids: [propiedad.id],
+      content_category: tipoOperacionNombre,
+    };
+
+    if (operacionPrincipal?.precio && operacionPrincipal.moneda) {
+      eventParams.value = operacionPrincipal.precio;
+      eventParams.currency = operacionPrincipal.moneda;
+    }
+
+    trackEvent('ViewContent', eventParams);
+  }, [propiedad, operacionPrincipal?.precio, operacionPrincipal?.moneda, tipoOperacionNombre]);
+
   const formatPrice = (precio: number, moneda: string) => {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -412,6 +431,11 @@ ${visitForm.mensaje ? `
     // Manejar resultado igual que ContactForm
     if (!visitFormError) {
       showToast('success', '¡Solicitud de visita enviada! Te contactaremos pronto para coordinar la visita.');
+      trackEvent('Lead', {
+        content_name: propiedad.titulo,
+        content_category: tipoOperacionNombre,
+        content_ids: [propiedad.id],
+      });
       setVisitForm({
         nombre: '',
         celular: '',

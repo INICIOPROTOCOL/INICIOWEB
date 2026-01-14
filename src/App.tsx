@@ -8,8 +8,9 @@ import Propiedades from "@/pages/admin/Propiedades";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -25,6 +26,7 @@ import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import Login from "@/pages/admin/Login";
 import PropertyDetail from "./pages/PropertyDetail";
 import { useForceRefresh } from "./hooks/useForceRefresh";
+import { trackPageView } from "@/utils/metaPixel";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,17 @@ const PublicLayout = () => {
   );
 };
 
+const MetaPixelPageView = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin")) return;
+    trackPageView();
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -52,6 +65,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ToastProvider>
+            <MetaPixelPageView />
             <Routes>
               {/* Layout público */}
               <Route element={<PublicLayout />}>

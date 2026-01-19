@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import PropertyMap from '@/components/PropertyMap';
 import axios from 'axios';
-import { trackEvent } from '@/utils/metaPixel';
+import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
 // import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
 
@@ -317,8 +317,15 @@ const PropertyDetail = () => {
     }).format(precio);
   };
 
+  
+
   const handleVisitFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const eventId = createEventId();
+    const eventSourceUrl = window.location.href;
+    const userAgent = navigator.userAgent;
+    const { fbp, fbc } = getMetaCookies();
     
     // Construir información detallada de la propiedad para el cliente
     const propertyUrl = window.location.href;
@@ -414,7 +421,14 @@ ${visitForm.mensaje ? `
       telefono: visitForm.celular,
       email: visitForm.email,
       tipoInmueble: `Solicitud de visita - ${propiedad.titulo}`,
-      mensaje: mensajeCompleto
+      mensaje: mensajeCompleto,
+      property_id: propiedad.id,
+      propertyId: propiedad.id,
+      event_id: eventId,
+      event_source_url: eventSourceUrl,
+      user_agent: userAgent,
+      fbp,
+      fbc
     };
 
     // Usar el hook useApiRequest igual que ContactForm
@@ -435,7 +449,7 @@ ${visitForm.mensaje ? `
         content_name: propiedad.titulo,
         content_category: tipoOperacionNombre,
         content_ids: [propiedad.id],
-      });
+      }, { eventID: eventId });
       setVisitForm({
         nombre: '',
         celular: '',
@@ -1002,4 +1016,9 @@ const formatNumber = (value: string | number | null | undefined): string => {
   if (!isValidNumber(value)) return '';
   return typeof value === 'string' ? value : String(value);
 };
+
+
+
+
+
 

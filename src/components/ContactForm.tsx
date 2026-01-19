@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { Card, CardContent } from '@/components/ui/card';
+import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -133,8 +134,10 @@ const ContactForm = ({
       showToast('error', 'Por favor, ingresa un teléfono válido');
       return;
     }
-
-
+    const eventId = createEventId();
+    const eventSourceUrl = window.location.href;
+    const userAgent = navigator.userAgent;
+    const { fbp, fbc } = getMetaCookies();
 
     const API_URL = import.meta.env.VITE_API_URL || 'https://iniciowebbackend-production.up.railway.app/api';
     
@@ -147,7 +150,13 @@ const ContactForm = ({
       email: contactForm.email,
       tipoInmueble: contactForm.tipoInmueble,
       mensaje: contactForm.mensaje,
-      propertyId // Incluir el ID de la propiedad en el payload
+      propertyId, // Incluir el ID de la propiedad en el payload
+      property_id: propertyId,
+      event_id: eventId,
+      event_source_url: eventSourceUrl,
+      user_agent: userAgent,
+      fbp,
+      fbc
     };
     
     try {
@@ -175,6 +184,15 @@ const ContactForm = ({
       
       if (!error) {
         showToast('success', '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
+        const leadParams: Record<string, unknown> = {
+          content_name: contactForm.tipoInmueble,
+          content_category: 'Contacto',
+          content_type: 'lead'
+        };
+        if (propertyId) {
+          leadParams.content_ids = [propertyId];
+        }
+        trackEvent('Lead', leadParams, { eventID: eventId });
         setContactForm({
           nombre: '',
           apellido: '',
@@ -505,3 +523,6 @@ const ContactForm = ({
 };
 
 export default ContactForm;
+
+
+

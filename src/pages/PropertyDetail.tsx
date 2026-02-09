@@ -249,30 +249,7 @@ const PropertyDetail = () => {
   const lat = propiedad ? propiedad.latitud : undefined;
   const lng = propiedad ? propiedad.longitud : undefined;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-[#ec520b] border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 font-montserrat">Cargando propiedad...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!propiedad) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <div className="text-center">
-          <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-poppins">Propiedad no encontrada</h2>
-          <p className="text-gray-600 font-montserrat">{error || 'La propiedad que buscas no existe o ha sido eliminada.'}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const operacionPrincipal = propiedad.operaciones_propiedad?.[0];
+  const operacionPrincipal = propiedad?.operaciones_propiedad?.[0];
   const tipoOperacionNombre = operacionPrincipal
     ? capitalizeAndFixAccent(
         tiposOperacion.find(t => t.id === (operacionPrincipal as unknown as { tipo_operacion_id: number }).tipo_operacion_id)?.nombre ||
@@ -280,7 +257,7 @@ const PropertyDetail = () => {
         'N/A'
       )
     : 'N/A';
-  const caracteristicasPorTipo = propiedad.propiedades_caracteristicas?.reduce((acc, item) => {
+  const caracteristicasPorTipo = propiedad?.propiedades_caracteristicas?.reduce((acc, item) => {
     const tipoId = item.caracteristicas.tipo_caracteristica?.id;
     const tipo = tiposCaracteristica.find(t => t.id === tipoId);
     const tipoNombre = tipo ? capitalizeTitle(tipo.nombre) : 'Otros';
@@ -307,6 +284,29 @@ const PropertyDetail = () => {
 
     trackEvent('ViewContent', eventParams);
   }, [propiedad, operacionPrincipal?.precio, operacionPrincipal?.moneda, tipoOperacionNombre]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-[#ec520b] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600 font-montserrat">Cargando propiedad...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!propiedad) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <div className="text-center">
+          <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-poppins">Propiedad no encontrada</h2>
+          <p className="text-gray-600 font-montserrat">{error || 'La propiedad que buscas no existe o ha sido eliminada.'}</p>
+        </div>
+      </div>
+    );
+  }
 
   const formatPrice = (precio: number, moneda: string) => {
     return new Intl.NumberFormat('es-AR', {

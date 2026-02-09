@@ -129,7 +129,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
   };
 
   return (
-    <Card className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30">
+    <Card className="group bg-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 min-h-[140px] overflow-hidden border border-gray-200 hover:border-[#ec520b]/30 h-full flex flex-col">
       {/* Imagen principal */}
       <div
         className="relative cursor-pointer"
@@ -159,7 +159,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         )}
       </div>
 
-      <CardContent className="p-4 flex flex-col gap-2">
+      <CardContent className="p-3.5 flex flex-col gap-1 flex-1">
         {/* Tipo de propiedad usando colores corporativos */}
         <div className="flex items-center gap-2 mb-1">
           {tipoProp && (
@@ -170,7 +170,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         {/* Ubicación y dirección */}
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4 text-[#ec520b]" />
-          <span>
+          <span className="line-clamp-1">
             {ubicacion}
             {property.direccion && (
               <span className="ml-2 text-xs text-gray-500 font-normal">| {property.direccion}</span>
@@ -187,7 +187,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         </h3>
         
         {/* Características principales - VALIDACIÓN CORREGIDA */}
-        <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-700">
+        <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-gray-700 h-[64px] overflow-hidden">
           {/* Superficie de lote - Decimal en schema */}
           {isValidNumber(property.superficie_lote) && (
             <div className="flex items-center gap-1">
@@ -246,10 +246,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
         </div>
         
         {/* Precio usando color corporativo */}
-        <div className="text-xl font-bold text-[#ec520b] mt-2">{precio}</div>
+        <div className="text-xl font-bold text-[#ec520b] mt-1.5">{precio}</div>
         
         {/* Botones de acción siguiendo design system */}
-        <div className="flex gap-2 mt-3" data-interactive="true">
+        <div className="flex gap-2 mt-2.5" data-interactive="true">
           <Button
             onClick={handleVerMasClick}
             variant="outline"

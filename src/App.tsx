@@ -8,7 +8,7 @@ import Propiedades from "@/pages/admin/Propiedades";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -48,8 +48,13 @@ const PublicLayout = () => {
 
 const MetaPixelPageView = () => {
   const location = useLocation();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (location.pathname.startsWith("/admin")) return;
     trackPageView();
   }, [location.pathname, location.search]);

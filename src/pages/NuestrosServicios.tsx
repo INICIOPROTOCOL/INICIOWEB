@@ -137,17 +137,17 @@ const NuestrosServicios = () => {
       {/* Servicios Detallados */}
       <section className="py-10 sm:py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12 items-stretch">
             {serviciosDetallados.map((servicio, index) => {
               const IconComponent = servicio.icono;
               return (
-                <div 
+                <Card 
                   key={servicio.id}
                   id={servicio.id}
-                  className="flex flex-col justify-between h-full scroll-mt-20"
+                  className="flex flex-col h-full scroll-mt-20 border border-gray-100 bg-white/95 shadow-lg"
                 >
-                  {/* Contenido */}
-                  <div className="space-y-5 sm:space-y-6">
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <div className="space-y-5 sm:space-y-6">
                     <div className="flex items-center space-x-4">
                       <div className={`w-16 h-16 bg-gradient-to-r ${servicio.color} rounded-2xl flex items-center justify-center shadow-lg`}>
                         <IconComponent className="h-8 w-8 text-white" />
@@ -162,12 +162,12 @@ const NuestrosServicios = () => {
                       </div>
                     </div>
                     {/* Características */}
-                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
+                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 flex-1">
                       <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
                         ¿Qué incluye?
                       </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-h-[140px] overflow-hidden">
                         {servicio.caracteristicas.map((caracteristica, idx) => (
                           <div key={idx} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-[#ec520b] rounded-full"></div>
@@ -176,8 +176,9 @@ const NuestrosServicios = () => {
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>

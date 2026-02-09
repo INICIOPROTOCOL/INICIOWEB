@@ -59,8 +59,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       const map = L.map(mapContainerRef.current, {
         center: [latitude, longitude],
         zoom: zoom,
-        scrollWheelZoom: false, // Deshabilitado por defecto para mejor UX móvil
-        zoomControl: true,
+        scrollWheelZoom: false, // Deshabilitado para evitar zoom sensible con scroll
+        zoomControl: false,
         attributionControl: true
       });
 
@@ -86,15 +86,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         </div>
       `);
 
-      mapRef.current = map;
+      // Control de zoom en esquina inferior derecha (evita solaparse con el label)
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Habilitar zoom con Ctrl+Scroll
-      map.on('focus', () => {
-        map.scrollWheelZoom.enable();
-      });
-      map.on('blur', () => {
-        map.scrollWheelZoom.disable();
-      });
+      mapRef.current = map;
 
     } catch (error) {
       console.error('Error al inicializar el mapa:', error);
@@ -129,15 +124,15 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   return (
     <div className={`relative rounded-2xl overflow-hidden shadow-lg border-2 border-[#022550]/10 ${className}`}>
       {/* Badge de ubicación */}
-      <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[#022550] px-3 py-2 rounded-lg shadow-lg z-[1000] flex items-center gap-2">
+      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-[#022550] px-3 py-2 rounded-lg shadow-lg z-[1000] flex items-center gap-2">
         <MapPin className="h-4 w-4 text-[#ec520b]" />
         <span className="text-sm font-semibold">Ubicación exacta</span>
       </div>
 
       {/* Instrucciones de zoom */}
-      <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm text-gray-600 px-3 py-1.5 rounded-lg shadow-lg z-[1000] text-xs">
-        <span className="hidden sm:inline">Ctrl + Scroll para hacer zoom</span>
-        <span className="sm:hidden">Toca para interactuar</span>
+      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm text-gray-600 px-3 py-1.5 rounded-lg shadow-lg z-[1000] text-xs">
+        <span className="hidden sm:inline">Zoom con los botones</span>
+        <span className="sm:hidden">Toca y arrastra para mover</span>
       </div>
 
       {/* Contenedor del mapa */}
@@ -151,3 +146,4 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 };
 
 export default PropertyMap;
+

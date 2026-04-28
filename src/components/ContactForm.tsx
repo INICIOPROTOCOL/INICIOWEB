@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { Card, CardContent } from '@/components/ui/card';
 import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
+import { trackClickWhatsApp, trackGenerateLead } from '@/utils/googleAnalytics';
+import { buildLeadTrackingPayload } from '@/utils/trackingAttribution';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -26,6 +28,8 @@ interface ContactFormProps {
   className?: string;
   defaultTipoInmueble?: string; // Nueva prop para pre-seleccionar servicio
   propertyId?: string; // Nueva prop para recibir el ID de la propiedad
+  propertyTitle?: string;
+  leadType?: string;
 }
 
 const ContactForm = ({ 
@@ -37,7 +41,9 @@ const ContactForm = ({
   backgroundImage,
   className = "",
   defaultTipoInmueble = "", // Nuevo prop con valor por defecto
-  propertyId // Recibir el ID de la propiedad
+  propertyId, // Recibir el ID de la propiedad
+  propertyTitle,
+  leadType = "contact_form"
 }: ContactFormProps) => {
   // Estado para el formulario de contacto
   const [contactForm, setContactForm] = useState({
@@ -152,6 +158,12 @@ const ContactForm = ({
       mensaje: contactForm.mensaje,
       propertyId, // Incluir el ID de la propiedad en el payload
       property_id: propertyId,
+      property_title: propertyTitle,
+      ...buildLeadTrackingPayload({
+        property_id: propertyId,
+        property_title: propertyTitle,
+        lead_type: leadType
+      }),
       event_id: eventId,
       event_source_url: eventSourceUrl,
       user_agent: userAgent,
@@ -159,8 +171,10 @@ const ContactForm = ({
       fbc
     };
     
-    try {
-      await request(async () => {
+	    try {
+	      let submitted = false;
+
+	      await request(async () => {
         const res = await fetch(`${API_URL}/contactos`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,21 +192,28 @@ const ContactForm = ({
           throw new Error(errorText);
         }
         
-        const result = await res.json();
-        return result;
-      });
-      
-      if (!error) {
+	        const result = await res.json();
+	        submitted = true;
+	        return result;
+	      });
+	      
+	      if (submitted) {
         showToast('success', '¡Gracias por tu consulta! Nos pondremos en contacto contigo pronto.');
         const leadParams: Record<string, unknown> = {
           content_name: contactForm.tipoInmueble,
           content_category: 'Contacto',
-          content_type: 'lead'
+          content_type: 'lead',
+          lead_type: leadType
         };
         if (propertyId) {
           leadParams.content_ids = [propertyId];
         }
         trackEvent('Lead', leadParams, { eventID: eventId });
+        trackGenerateLead({
+          lead_type: leadType,
+          property_id: propertyId,
+          property_title: propertyTitle,
+        });
         setContactForm({
           nombre: '',
           apellido: '',
@@ -359,6 +380,7 @@ const ContactForm = ({
               href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20sus%20servicios%20inmobiliarios" 
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={() => trackClickWhatsApp({ location: 'contact_form_info' })}
               className="inline-flex items-center justify-center w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-300 font-semibold"
             >
               <MessageCircle className="h-4 w-4 mr-2" />

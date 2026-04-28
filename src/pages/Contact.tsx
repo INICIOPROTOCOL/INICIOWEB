@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import ContactForm from '@/components/ContactForm';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { useScrollToHash } from '@/hooks/useScrollToHash';
+import { trackClickWhatsApp } from '@/utils/googleAnalytics';
 import { 
   Phone, 
   Mail, 
@@ -111,6 +112,7 @@ const Contact = () => {
                 href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20sus%20servicios%20inmobiliarios"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackClickWhatsApp({ location: 'contact_hero' })}
                 className="inline-flex items-center justify-center px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-300 font-semibold transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 <MessageCircle className="h-5 w-5 mr-2" />
@@ -299,6 +301,7 @@ const Contact = () => {
           href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20sus%20servicios%20inmobiliarios"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackClickWhatsApp({ location: 'contact_floating' })}
           className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
           aria-label="Contactar por WhatsApp"
         >
@@ -315,3 +318,5 @@ const Contact = () => {
 };
 
 export default Contact;
+
+

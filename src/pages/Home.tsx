@@ -12,6 +12,7 @@ import { useApiRequest } from '@/hooks/useApiRequest';
 import axios from 'axios';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import heroImage from '@/assets/hero-bg.jpg';
+import { trackClickWhatsApp } from '@/utils/googleAnalytics';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -280,11 +281,12 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-[#022550] text-lg sm:text-xl font-montserrat">
                 <span>Podes comunicarte por</span>
                 <a 
-                  href="https://wa.me/message/2672WUGF2M56K1" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-300 font-semibold text-sm sm:text-base font-montserrat"
-                >
+	                  href="https://wa.me/message/2672WUGF2M56K1" 
+	                  target="_blank" 
+	                  rel="noopener noreferrer"
+	                  onClick={() => trackClickWhatsApp({ location: 'home_contact_section' })}
+	                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-300 font-semibold text-sm sm:text-base font-montserrat"
+	                >
                   <MessageCircle className="h-4 w-4" />
                   WhatsApp
                 </a>
@@ -305,12 +307,13 @@ const Home = () => {
       {/* Botón Flotante de WhatsApp */}
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/message/2672WUGF2M56K1"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
-          aria-label="Contactar por WhatsApp"
-        >
+	          href="https://wa.me/message/2672WUGF2M56K1"
+	          target="_blank"
+	          rel="noopener noreferrer"
+	          onClick={() => trackClickWhatsApp({ location: 'home_floating' })}
+	          className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+	          aria-label="Contactar por WhatsApp"
+	        >
           <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8" />
           <span className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
             ¡Contáctanos por WhatsApp!

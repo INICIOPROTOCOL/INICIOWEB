@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import heroImage from '@/assets/hero-bg.jpg';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { trackClickWhatsApp } from '@/utils/googleAnalytics';
 
 interface Propiedad {
   id: number;
@@ -608,6 +609,7 @@ const Properties = () => {
                     href="https://wa.me/5493515155669?text=Hola,%20no%20encontré%20la%20propiedad%20que%20busco,%20¿pueden%20ayudarme?"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackClickWhatsApp({ location: 'properties_empty_state' })}
                   >
                     <MessageCircle className="mr-2 h-5 w-5" />
                     Contactar por WhatsApp
@@ -653,6 +655,7 @@ const Properties = () => {
           href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20las%20propiedades%20disponibles"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackClickWhatsApp({ location: 'properties_floating' })}
           className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
           aria-label="Contactar por WhatsApp"
         >
@@ -807,3 +810,4 @@ const Properties = () => {
 };
 
 export default Properties;
+

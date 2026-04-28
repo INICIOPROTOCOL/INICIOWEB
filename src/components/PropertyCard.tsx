@@ -5,6 +5,7 @@ import { MapPin, Bed, Bath, Square, Car, MessageCircle, Eye, Layers, Ruler } fro
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { capitalizeAndFixAccent } from '@/utils/capitalize';
+import { trackClickWhatsApp } from '@/utils/googleAnalytics';
 
 interface PropertyCardProps {
   property: {
@@ -104,6 +105,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onContact }) => {
 
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    trackClickWhatsApp({
+      location: 'property_card',
+      property_id: property.id,
+      property_title: titulo,
+    });
     window.open(whatsappLink, '_blank', 'noopener,noreferrer');
     if (onContact) {
       onContact();

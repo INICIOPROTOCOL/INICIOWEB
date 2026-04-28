@@ -12,6 +12,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import PropertyMap from '@/components/PropertyMap';
 import axios from 'axios';
 import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
+import { trackClickWhatsApp, trackGenerateLead, trackViewProperty } from '@/utils/googleAnalytics';
+import { buildLeadTrackingPayload } from '@/utils/trackingAttribution';
 // import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
 
@@ -283,6 +285,14 @@ const PropertyDetail = () => {
     }
 
     trackEvent('ViewContent', eventParams);
+    trackViewProperty({
+      property_id: propiedad.id,
+      property_title: propiedad.titulo,
+      property_type: propiedad.tipos_propiedad?.nombre,
+      operation_type: tipoOperacionNombre,
+      value: operacionPrincipal?.precio,
+      currency: operacionPrincipal?.moneda,
+    });
   }, [propiedad, operacionPrincipal?.precio, operacionPrincipal?.moneda, tipoOperacionNombre]);
 
   if (loading) {
@@ -424,6 +434,12 @@ ${visitForm.mensaje ? `
       mensaje: mensajeCompleto,
       property_id: propiedad.id,
       propertyId: propiedad.id,
+      property_title: propiedad.titulo,
+      ...buildLeadTrackingPayload({
+        property_id: propiedad.id,
+        property_title: propiedad.titulo,
+        lead_type: 'property_visit'
+      }),
       event_id: eventId,
       event_source_url: eventSourceUrl,
       user_agent: userAgent,
@@ -431,25 +447,35 @@ ${visitForm.mensaje ? `
       fbc
     };
 
-    // Usar el hook useApiRequest igual que ContactForm
-    await visitFormRequest(async () => {
-      const res = await fetch(`${API_URL}/contactos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('No se pudo enviar la solicitud de visita');
-      return await res.json();
-    });
+	    // Usar el hook useApiRequest igual que ContactForm
+	    let submitted = false;
 
-    // Manejar resultado igual que ContactForm
-    if (!visitFormError) {
+	    await visitFormRequest(async () => {
+	      const res = await fetch(`${API_URL}/contactos`, {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify(payload)
+	      });
+	      if (!res.ok) throw new Error('No se pudo enviar la solicitud de visita');
+	      const result = await res.json();
+	      submitted = true;
+	      return result;
+	    });
+	
+	    // Manejar resultado igual que ContactForm
+	    if (submitted) {
       showToast('success', '¡Solicitud de visita enviada! Te contactaremos pronto para coordinar la visita.');
       trackEvent('Lead', {
         content_name: propiedad.titulo,
         content_category: tipoOperacionNombre,
         content_ids: [propiedad.id],
+        lead_type: 'property_visit',
       }, { eventID: eventId });
+      trackGenerateLead({
+        lead_type: 'property_visit',
+        property_id: propiedad.id,
+        property_title: propiedad.titulo,
+      });
       setVisitForm({
         nombre: '',
         celular: '',
@@ -881,12 +907,17 @@ ${visitForm.mensaje ? `
 
               {/* Action Buttons */}
               <div className="space-y-3 mb-6">
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-[#ec520b] hover:bg-[#022550] text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 font-medium"
-                >
+	                <a
+	                  href={whatsappLink}
+	                  target="_blank"
+	                  rel="noopener noreferrer"
+	                  onClick={() => trackClickWhatsApp({
+	                    location: 'property_detail_sidebar',
+	                    property_id: propiedad.id,
+	                    property_title: propiedad.titulo,
+	                  })}
+	                  className="w-full bg-[#ec520b] hover:bg-[#022550] text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 font-medium"
+	                >
                   <MessageCircle className="h-5 w-5" />
                   Consultar por WhatsApp
                 </a>
@@ -988,12 +1019,17 @@ ${visitForm.mensaje ? `
       */}
 
       {/* Floating WhatsApp Button (sin cambios) */}
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 group"
-      >
+	      <a
+	        href={whatsappLink}
+	        target="_blank"
+	        rel="noopener noreferrer"
+	        onClick={() => trackClickWhatsApp({
+	          location: 'property_detail_floating',
+	          property_id: propiedad.id,
+	          property_title: propiedad.titulo,
+	        })}
+	        className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 group"
+	      >
         <MessageCircle className="h-6 w-6" />
         <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
           Contactar por WhatsApp

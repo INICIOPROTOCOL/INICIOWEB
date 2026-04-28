@@ -27,6 +27,8 @@ import Login from "@/pages/admin/Login";
 import PropertyDetail from "./pages/PropertyDetail";
 import { useForceRefresh } from "./hooks/useForceRefresh";
 import { trackPageView } from "@/utils/metaPixel";
+import { captureTrackingAttribution } from "@/utils/trackingAttribution";
+import { initGoogleAnalytics, trackGaPageView } from "@/utils/googleAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -51,12 +53,35 @@ const MetaPixelPageView = () => {
   const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (!location.pathname.startsWith("/admin")) {
+      captureTrackingAttribution();
+    }
+
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
     if (location.pathname.startsWith("/admin")) return;
     trackPageView();
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
+const GoogleAnalyticsPageView = () => {
+  const location = useLocation();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin")) return;
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      initGoogleAnalytics();
+      return;
+    }
+
+    trackGaPageView(`${location.pathname}${location.search}`, document.title);
   }, [location.pathname, location.search]);
 
   return null;
@@ -71,6 +96,7 @@ const App = () => (
         <AuthProvider>
           <ToastProvider>
             <MetaPixelPageView />
+            <GoogleAnalyticsPageView />
             <Routes>
               {/* Layout público */}
               <Route element={<PublicLayout />}>

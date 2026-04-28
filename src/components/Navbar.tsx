@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, MessageCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { trackClickWhatsApp } from "@/utils/googleAnalytics";
 
 const servicios = [
   { href: "/nuestros-servicios#ventas", label: "Ventas" },
@@ -117,11 +118,11 @@ const Navbar = () => {
               <div className="flex flex-col h-full">
                 {/* Header del menú móvil */}
                 <div className="px-6 py-6 border-b border-white/10">
-                  <Link
-                    to="/"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-3"
-                  >
+	                  <Link
+	                    to="/"
+	                    onClick={() => setIsOpen(false)}
+	                    className="flex items-center space-x-3"
+	                  >
                     <img
                       src="/logo_grande_fondo_azul.svg"
                       alt="Logo INICIO"
@@ -217,11 +218,14 @@ const Navbar = () => {
                 <div className="px-6 py-4 border-t border-white/10">
                   <a
                     href="https://wa.me/5493515155669?text=Hola,%20quiero%20información%20sobre%20sus%20servicios"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium font-raleway"
-                  >
+	                    target="_blank"
+	                    rel="noopener noreferrer"
+	                    onClick={() => {
+	                      trackClickWhatsApp({ location: 'navbar_mobile' });
+	                      setIsOpen(false);
+	                    }}
+	                    className="flex items-center justify-center w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium font-raleway"
+	                  >
                     <MessageCircle className="h-5 w-5 mr-2" />
                     Contactar por WhatsApp
                   </a>
@@ -236,3 +240,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import ContactForm from '@/components/ContactForm';
 import { useScrollToHash } from '@/hooks/useScrollToHash';
+import { trackClickWhatsApp } from '@/utils/googleAnalytics';
 import { 
   ArrowRight, 
   Building, 
@@ -197,12 +198,13 @@ const NuestrosServicios = () => {
       {/* Botón Flotante de WhatsApp - SIN animación de pulso */}
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/message/2672WUGF2M56K1"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
-          aria-label="Contactar por WhatsApp"
-        >
+	          href="https://wa.me/message/2672WUGF2M56K1"
+	          target="_blank"
+	          rel="noopener noreferrer"
+	          onClick={() => trackClickWhatsApp({ location: 'servicios_floating' })}
+	          className="group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+	          aria-label="Contactar por WhatsApp"
+	        >
           <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8" />
           
           {/* Tooltip */}

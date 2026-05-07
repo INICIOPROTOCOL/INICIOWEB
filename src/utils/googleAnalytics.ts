@@ -34,20 +34,11 @@ const getDebugParams = (): GtagParams => (
 );
 
 export const initGoogleAnalytics = () => {
-  if (!isBrowser() || !GA_MEASUREMENT_ID || window.gtag) return;
+  if (!isBrowser() || !GA_MEASUREMENT_ID || !window.gtag) return;
 
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: Parameters<GtagFunction>) {
-    window.dataLayer?.push(args);
-  };
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  document.head.appendChild(script);
-
-  window.gtag('js', new Date());
-  window.gtag('config', GA_MEASUREMENT_ID, getDebugParams());
+  if (isDebugMode()) {
+    window.gtag('config', GA_MEASUREMENT_ID, getDebugParams());
+  }
 };
 
 export const trackGaPageView = (path: string, title?: string) => {

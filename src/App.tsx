@@ -28,7 +28,7 @@ import PropertyDetail from "./pages/PropertyDetail";
 import { useForceRefresh } from "./hooks/useForceRefresh";
 import { trackPageView } from "@/utils/metaPixel";
 import { captureTrackingAttribution } from "@/utils/trackingAttribution";
-import { initGoogleAnalytics, trackGaPageView } from "@/utils/googleAnalytics";
+import { ensureGoogleAnalytics, trackGaPageView } from "@/utils/googleAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -77,7 +77,7 @@ const GoogleAnalyticsPageView = () => {
 
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      initGoogleAnalytics();
+      ensureGoogleAnalytics();
       return;
     }
 

@@ -1,0 +1,33 @@
+---
+description: Reglas del frontend inmobiliario (React + Vite) — loft-luxe-hub
+alwaysApply: true
+---
+
+# Frontend inmobiliario (React + Vite)
+
+Este workspace es el **frontend** del sitio: React, TypeScript, Vite, React Router, TanStack Query, Tailwind y componentes UI (estilo shadcn). Incluye **sitio público** y **panel `/admin`**. El backend vive en otro servicio; aquí solo se consume por HTTP (y opcionalmente Supabase desde el cliente con claves anon).
+
+## Fuentes de verdad (leer antes de inventar)
+
+- Contratos y endpoints consumidos: `ENDPOINTS_FRONTEND.md`
+- Contexto de producto y alcance: `AGENTS.md`
+- Variables de entorno permitidas en build: solo prefijo `VITE_`. Plantilla: `.env.example`
+
+No inventar endpoints, query params, ni nombres de variables de entorno que no figuren en esos archivos o en el código existente.
+
+## Restricciones habituales del proyecto
+
+- No consumir la API de Tokko Broker desde el navegador; el catálogo público viene del backend propio.
+- No colocar secretos de servidor, service role de Supabase, ni API keys privadas en el frontend.
+- No asumir funcionalidades listadas como no implementadas en `AGENTS.md` (Chatwoot, WhatsApp/Evolution, IA, n8n, etc.) salvo que el usuario pida explícitamente implementarlas.
+
+## Estilo de trabajo (agentes)
+
+- Analizar la arquitectura y archivos tocados antes de refactors grandes; preferir cambios pequeños e incrementales.
+- Respetar la estructura de carpetas salvo razón fuerte acordada con el usuario.
+- Mantener loading / error / empty en flujos de datos cuando ya sea el patrón del archivo.
+- Tras modificar código, resumir archivos tocados y cómo verificar (build, ruta manual, etc.).
+
+## Alcance típico de tareas
+
+Coherente con `AGENTS.md`: propiedades, contacto, SEO básico, analítica opcional (Meta Pixel, GA), panel admin según rutas existentes. Evitar “full rewrites” sin plan explícito.

@@ -145,7 +145,7 @@ const ContactForm = ({
     const userAgent = navigator.userAgent;
     const { fbp, fbc } = getMetaCookies();
 
-    const API_URL = import.meta.env.VITE_API_URL || 'https://iniciowebbackend-production.up.railway.app/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
     
 
     

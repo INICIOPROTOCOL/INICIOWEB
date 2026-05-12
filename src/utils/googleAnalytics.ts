@@ -57,9 +57,9 @@ const hasGtagLoaderScript = (measurementId: string): boolean => {
 const ensureGtagQueue = () => {
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    window.gtag = function gtag() {
-      // Patrón oficial: la cola recibe el objeto `arguments` de cada llamada.
-      window.dataLayer!.push(arguments);
+    window.gtag = function gtag(...args: unknown[]) {
+      // Equivalente al snippet oficial (arguments): un elemento por invocación, array-like.
+      window.dataLayer!.push(args);
     } as GtagFunction;
   }
 };

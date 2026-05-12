@@ -36,6 +36,12 @@ const getDebugParams = (): GtagParams => (
   isDebugMode() ? { debug_mode: true } : {}
 );
 
+/** Logs estructurados solo en DEV o con ?ga_debug=true / localStorage ga_debug. Sin PII. */
+const gaDiag = (phase: string, detail: Record<string, unknown> = {}) => {
+  if (!import.meta.env.DEV && !isDebugMode()) return;
+  console.debug('[ga-diag]', phase, detail);
+};
+
 const logGa = (message: string) => {
   if (import.meta.env.DEV || isDebugMode()) {
     console.debug(`[GA] ${message}`);
@@ -69,14 +75,31 @@ const ensureGtagQueue = () => {
  * (page_path + page_title). Idempotente por flag de módulo y por script existente.
  */
 export const ensureGoogleAnalytics = () => {
-  if (!isBrowser() || !GA_MEASUREMENT_ID) return;
+  gaDiag('ensureGoogleAnalytics called', {
+    hasBrowser: isBrowser(),
+    hasMeasurementId: Boolean(GA_MEASUREMENT_ID),
+    gtagBeforeQueue: isBrowser() ? typeof window.gtag : 'n/a',
+  });
 
-  if (gaBootstrapDone) return;
+  if (!isBrowser() || !GA_MEASUREMENT_ID) {
+    gaDiag('ensureGoogleAnalytics exit', { reason: !isBrowser() ? 'no_browser' : 'no_measurement_id' });
+    return;
+  }
+
+  if (gaBootstrapDone) {
+    gaDiag('ensureGoogleAnalytics exit', { reason: 'already_bootstrapped' });
+    return;
+  }
   gaBootstrapDone = true;
 
   ensureGtagQueue();
 
   const id = GA_MEASUREMENT_ID;
+  gaDiag('ensureGoogleAnalytics bootstrap', {
+    measurementId: id,
+    gtagAfterQueue: typeof window.gtag,
+  });
+
   if (!hasGtagLoaderScript(id)) {
     const script = document.createElement('script');
     script.async = true;
@@ -97,6 +120,13 @@ export const ensureGoogleAnalytics = () => {
   });
 
   logGa('initial config sent');
+  gaDiag('ensureGoogleAnalytics gtag config dispatched', {
+    measurementId: id,
+    gtagExists: typeof window.gtag === 'function',
+    debugMode: isDebugMode(),
+    pagePathLength: pagePath.length,
+    hasSearch: window.location.search.length > 0,
+  });
 };
 
 export const initGoogleAnalytics = () => {
@@ -104,21 +134,67 @@ export const initGoogleAnalytics = () => {
 };
 
 export const trackGaPageView = (path: string, title?: string) => {
-  if (!isBrowser() || !GA_MEASUREMENT_ID || !window.gtag) return;
+  gaDiag('trackGaPageView called', {
+    pathLength: path.length,
+    hasSearch: path.includes('?'),
+    hasGtag: isBrowser() && typeof window.gtag === 'function',
+    hasMeasurementId: Boolean(GA_MEASUREMENT_ID),
+  });
+
+  if (!isBrowser() || !GA_MEASUREMENT_ID || !window.gtag) {
+    gaDiag('trackGaPageView exit', {
+      reason: !isBrowser()
+        ? 'no_browser'
+        : !GA_MEASUREMENT_ID
+          ? 'no_measurement_id'
+          : 'no_gtag',
+    });
+    return;
+  }
 
   window.gtag('config', GA_MEASUREMENT_ID, {
     page_path: path,
     page_title: title || document.title,
     ...getDebugParams(),
   });
+
+  gaDiag('trackGaPageView gtag config dispatched', {
+    measurementId: GA_MEASUREMENT_ID,
+    gtagExists: true,
+    debugMode: isDebugMode(),
+  });
 };
 
 export const trackGaEvent = (eventName: string, params: GtagParams = {}) => {
-  if (!isBrowser() || !GA_MEASUREMENT_ID || !window.gtag) return;
+  gaDiag('trackGaEvent called', {
+    eventName,
+    paramKeyCount: Object.keys(params).length,
+    hasGtag: isBrowser() && typeof window.gtag === 'function',
+    hasMeasurementId: Boolean(GA_MEASUREMENT_ID),
+  });
+
+  if (!isBrowser() || !GA_MEASUREMENT_ID || !window.gtag) {
+    gaDiag('trackGaEvent exit', {
+      eventName,
+      reason: !isBrowser()
+        ? 'no_browser'
+        : !GA_MEASUREMENT_ID
+          ? 'no_measurement_id'
+          : 'no_gtag',
+    });
+    return;
+  }
 
   window.gtag('event', eventName, {
     ...params,
     ...getDebugParams(),
+  });
+
+  gaDiag('trackGaEvent gtag event dispatched', {
+    eventName,
+    measurementId: GA_MEASUREMENT_ID,
+    gtagExists: true,
+    debugMode: isDebugMode(),
   });
 };
 

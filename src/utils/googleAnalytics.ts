@@ -17,6 +17,7 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | und
 
 /** Evita doble bootstrap (p. ej. React Strict Mode) y doble inserción de script. */
 let gaBootstrapDone = false;
+let gaLoaderPromise: Promise<void> | null = null;
 
 const isBrowser = () => typeof window !== 'undefined';
 
@@ -48,16 +49,16 @@ const logGa = (message: string) => {
   }
 };
 
-const hasGtagLoaderScript = (measurementId: string): boolean => {
+const getGtagLoaderScript = (measurementId: string): HTMLScriptElement | null => {
   const scripts = document.querySelectorAll<HTMLScriptElement>(
     'script[src*="googletagmanager.com/gtag/js"]'
   );
   for (const s of scripts) {
     if (s.src.includes(encodeURIComponent(measurementId)) || s.src.includes(measurementId)) {
-      return true;
+      return s;
     }
   }
-  return false;
+  return null;
 };
 
 const ensureGtagQueue = () => {
@@ -68,6 +69,43 @@ const ensureGtagQueue = () => {
       window.dataLayer!.push(args);
     } as GtagFunction;
   }
+};
+
+const loadGtagScript = (measurementId: string): Promise<void> => {
+  if (gaLoaderPromise) return gaLoaderPromise;
+
+  gaLoaderPromise = new Promise((resolve, reject) => {
+    const existingScript = getGtagLoaderScript(measurementId);
+    if (existingScript?.dataset.loaded === 'true') {
+      logGa('gtag/js already loaded');
+      resolve();
+      return;
+    }
+
+    const script = existingScript || document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+    script.onload = () => {
+      script.dataset.loaded = 'true';
+      logGa('gtag/js loader loaded');
+      resolve();
+    };
+    script.onerror = () => {
+      gaLoaderPromise = null;
+      gaBootstrapDone = false;
+      gaDiag('gtag/js loader error', { measurementId });
+      reject(new Error('Failed to load gtag/js'));
+    };
+
+    if (!existingScript) {
+      document.head.appendChild(script);
+      logGa('inserted gtag/js loader');
+    } else {
+      logGa('gtag/js already present, waiting for load');
+    }
+  });
+
+  return gaLoaderPromise;
 };
 
 /**
@@ -100,33 +138,32 @@ export const ensureGoogleAnalytics = () => {
     gtagAfterQueue: typeof window.gtag,
   });
 
-  if (!hasGtagLoaderScript(id)) {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-    document.head.appendChild(script);
-    logGa('inserted gtag/js loader');
-  } else {
-    logGa('gtag/js already present, skipping insert');
-  }
+  loadGtagScript(id)
+    .then(() => {
+      window.gtag!('js', new Date());
 
-  window.gtag!('js', new Date());
+      const pagePath = `${window.location.pathname}${window.location.search}`;
+      window.gtag!('config', id, {
+        page_path: pagePath,
+        page_title: document.title,
+        ...getDebugParams(),
+      });
 
-  const pagePath = `${window.location.pathname}${window.location.search}`;
-  window.gtag!('config', id, {
-    page_path: pagePath,
-    page_title: document.title,
-    ...getDebugParams(),
-  });
-
-  logGa('initial config sent');
-  gaDiag('ensureGoogleAnalytics gtag config dispatched', {
-    measurementId: id,
-    gtagExists: typeof window.gtag === 'function',
-    debugMode: isDebugMode(),
-    pagePathLength: pagePath.length,
-    hasSearch: window.location.search.length > 0,
-  });
+      logGa('initial config sent');
+      gaDiag('ensureGoogleAnalytics gtag config dispatched', {
+        measurementId: id,
+        gtagExists: typeof window.gtag === 'function',
+        debugMode: isDebugMode(),
+        pagePathLength: pagePath.length,
+        hasSearch: window.location.search.length > 0,
+      });
+    })
+    .catch((error) => {
+      gaDiag('ensureGoogleAnalytics loader failed', {
+        measurementId: id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    });
 };
 
 export const initGoogleAnalytics = () => {

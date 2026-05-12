@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GA4 connectivity test</title>
+</head>
+<body>
+  <p id="status">Iniciando…</p>
+  <p id="hint" style="font-family: monospace; font-size: 12px; color: #444"></p>
+  <script>
+    (function () {
+      var statusEl = document.getElementById('status');
+      var hintEl = document.getElementById('hint');
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+
+      if (!id || !/^G-[A-Z0-9]+$/i.test(id)) {
+        console.log('[ga-test] Falta o es inválido ?id= (se espera G-XXXXXXXX)');
+        statusEl.textContent = 'Falta el measurement ID.';
+        hintEl.textContent =
+          'Abrí: /ga-test.html?id=G-XXX&debug=1 (debug opcional: debug=1 o ga_debug=true).';
+        return;
+      }
+
+      var forceDebug = params.get('debug') === '1' || params.get('ga_debug') === 'true';
+      console.log('[ga-test] measurementId:', id);
+      console.log('[ga-test] debug_mode (config + evento):', forceDebug);
+
+      hintEl.textContent =
+        'Network: gtag/js + collect. GA4: Admin → DebugView si debug=1 o ga_debug=true.';
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      window.gtag = gtag;
+
+      console.log('[ga-test] Solicitando carga de gtag/js…');
+
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+
+      script.onerror = function () {
+        console.log('[ga-test] gtag/js: ERROR al cargar (red, CSP o bloqueo)');
+        statusEl.textContent = 'Falló la carga de gtag/js (red, CSP o bloqueo).';
+      };
+
+      script.onload = function () {
+        console.log('[ga-test] gtag/js: cargó OK (200)');
+        gtag('js', new Date());
+
+        var configOpts = forceDebug ? { debug_mode: true } : {};
+        gtag('config', id, configOpts);
+        console.log('[ga-test] gtag("config", …) disparado', forceDebug ? '(con debug_mode)' : '');
+
+        var eventOpts = {};
+        if (forceDebug) eventOpts.debug_mode = true;
+        gtag('event', 'ga4_connectivity_test', eventOpts);
+        console.log('[ga-test] evento ga4_connectivity_test disparado', forceDebug ? '(con debug_mode)' : '');
+
+        statusEl.textContent =
+          'Listo: config + ga4_connectivity_test. Revisá consola, Network y DebugView.';
+      };
+
+      document.head.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

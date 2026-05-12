@@ -61,12 +61,20 @@ const getGtagLoaderScript = (measurementId: string): HTMLScriptElement | null =>
   return null;
 };
 
+const hasLoadedGtagScript = (script: HTMLScriptElement): boolean => {
+  if (script.dataset.loaded === 'true') return true;
+
+  return performance
+    .getEntriesByType('resource')
+    .some((entry) => entry.name === script.src);
+};
+
 const ensureGtagQueue = () => {
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    window.gtag = function gtag(...args: unknown[]) {
-      // Equivalente al snippet oficial (arguments): un elemento por invocación, array-like.
-      window.dataLayer!.push(args);
+    window.gtag = function gtag() {
+      // Igual al snippet oficial y a public/ga-test.html.
+      window.dataLayer!.push(arguments);
     } as GtagFunction;
   }
 };
@@ -76,7 +84,8 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
 
   gaLoaderPromise = new Promise((resolve, reject) => {
     const existingScript = getGtagLoaderScript(measurementId);
-    if (existingScript?.dataset.loaded === 'true') {
+    if (existingScript && hasLoadedGtagScript(existingScript)) {
+      existingScript.dataset.loaded = 'true';
       logGa('gtag/js already loaded');
       resolve();
       return;

@@ -1,3 +1,5 @@
+import { trackEvent } from './metaPixel';
+
 type GtagCommand = 'js' | 'config' | 'event';
 type GtagParams = Record<string, unknown>;
 type GtagFunction = (
@@ -269,4 +271,11 @@ export const trackClickWhatsApp = (params: {
   property_title?: string;
 }) => {
   trackGaEvent('click_whatsapp', params);
+  trackEvent('Contact', {
+    content_name: params.property_title || 'WhatsApp',
+    content_category: 'WhatsApp',
+    contact_method: 'whatsapp',
+    location: params.location,
+    ...(params.property_id ? { content_ids: [params.property_id] } : {}),
+  });
 };

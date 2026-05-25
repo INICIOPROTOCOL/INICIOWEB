@@ -13,7 +13,7 @@ import PropertyMap from '@/components/PropertyMap';
 import axios from 'axios';
 import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
 import { trackClickWhatsApp, trackGenerateLead, trackViewProperty } from '@/utils/googleAnalytics';
-import { buildLeadTrackingPayload } from '@/utils/trackingAttribution';
+import { buildTrackingEnvelope } from '@/utils/trackingAttribution';
 // import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { capitalizeAndFixAccent, capitalizeTitle } from '@/utils/capitalize';
 
@@ -435,16 +435,14 @@ ${visitForm.mensaje ? `
       property_id: propiedad.id,
       propertyId: propiedad.id,
       property_title: propiedad.titulo,
-      ...buildLeadTrackingPayload({
-        property_id: propiedad.id,
-        property_title: propiedad.titulo,
-        lead_type: 'property_visit'
+      tracking: buildTrackingEnvelope({
+        event_id: eventId,
+        event_source_url: eventSourceUrl,
+        fbp,
+        fbc,
+        user_agent: userAgent,
+        lead_type: 'form',
       }),
-      event_id: eventId,
-      event_source_url: eventSourceUrl,
-      user_agent: userAgent,
-      fbp,
-      fbc
     };
 
 	    // Usar el hook useApiRequest igual que ContactForm
@@ -469,10 +467,10 @@ ${visitForm.mensaje ? `
         content_name: propiedad.titulo,
         content_category: tipoOperacionNombre,
         content_ids: [propiedad.id],
-        lead_type: 'property_visit',
+        lead_type: 'form',
       }, { eventID: eventId });
       trackGenerateLead({
-        lead_type: 'property_visit',
+        lead_type: 'form',
         property_id: propiedad.id,
         property_title: propiedad.titulo,
       });

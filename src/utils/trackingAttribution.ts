@@ -30,6 +30,15 @@ export type LeadTrackingPayload = TrackingAttribution & {
   lead_type?: string;
 };
 
+export type TrackingEnvelope = TrackingAttribution & {
+  event_id?: string;
+  event_source_url?: string;
+  current_page?: string;
+  referrer?: string;
+  user_agent?: string;
+  lead_type?: string;
+};
+
 const isBrowser = () => typeof window !== 'undefined';
 
 const readStoredAttribution = (): TrackingAttribution => {
@@ -115,4 +124,26 @@ export const buildLeadTrackingPayload = (
   }
 
   return payload;
+};
+
+export const buildTrackingEnvelope = (context: {
+  event_id: string;
+  event_source_url?: string;
+  fbp?: string;
+  fbc?: string;
+  user_agent?: string;
+  lead_type?: string;
+}): TrackingEnvelope => {
+  const attribution = buildLeadTrackingPayload({
+    lead_type: context.lead_type,
+  });
+
+  return {
+    ...attribution,
+    event_id: context.event_id,
+    event_source_url: context.event_source_url || attribution.current_page,
+    ...(context.fbp ? { fbp: context.fbp } : {}),
+    ...(context.fbc ? { fbc: context.fbc } : {}),
+    ...(context.user_agent ? { user_agent: context.user_agent } : {}),
+  };
 };

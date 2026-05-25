@@ -26,7 +26,7 @@ import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import Login from "@/pages/admin/Login";
 import PropertyDetail from "./pages/PropertyDetail";
 import { useForceRefresh } from "./hooks/useForceRefresh";
-import { trackPageView } from "@/utils/metaPixel";
+import { initializeMetaPixel, trackPageView } from "@/utils/metaPixel";
 import { captureTrackingAttribution } from "@/utils/trackingAttribution";
 import { ensureGoogleAnalytics, trackGaPageView } from "@/utils/googleAnalytics";
 
@@ -53,15 +53,20 @@ const MetaPixelPageView = () => {
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (!location.pathname.startsWith("/admin")) {
+    const isAdminRoute = location.pathname.startsWith("/admin");
+
+    if (!isAdminRoute) {
+      const initializedNow = initializeMetaPixel();
       captureTrackingAttribution();
+
+      if (!isFirstRender.current && initializedNow) return;
     }
 
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    if (location.pathname.startsWith("/admin")) return;
+    if (isAdminRoute) return;
     trackPageView();
   }, [location.pathname, location.search]);
 

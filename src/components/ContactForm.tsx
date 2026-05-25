@@ -5,7 +5,7 @@ import { useApiRequest } from '@/hooks/useApiRequest';
 import { Card, CardContent } from '@/components/ui/card';
 import { createEventId, getMetaCookies, trackEvent } from '@/utils/metaPixel';
 import { trackClickWhatsApp, trackGenerateLead } from '@/utils/googleAnalytics';
-import { buildLeadTrackingPayload } from '@/utils/trackingAttribution';
+import { buildTrackingEnvelope } from '@/utils/trackingAttribution';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -43,7 +43,7 @@ const ContactForm = ({
   defaultTipoInmueble = "", // Nuevo prop con valor por defecto
   propertyId, // Recibir el ID de la propiedad
   propertyTitle,
-  leadType = "contact_form"
+  leadType = "form"
 }: ContactFormProps) => {
   // Estado para el formulario de contacto
   const [contactForm, setContactForm] = useState({
@@ -149,6 +149,15 @@ const ContactForm = ({
     
 
     
+    const tracking = buildTrackingEnvelope({
+      event_id: eventId,
+      event_source_url: eventSourceUrl,
+      fbp,
+      fbc,
+      user_agent: userAgent,
+      lead_type: leadType,
+    });
+
     const payload = {
       nombre: contactForm.nombre,
       apellido: contactForm.apellido,
@@ -156,19 +165,9 @@ const ContactForm = ({
       email: contactForm.email,
       tipoInmueble: contactForm.tipoInmueble,
       mensaje: contactForm.mensaje,
-      propertyId, // Incluir el ID de la propiedad en el payload
       property_id: propertyId,
       property_title: propertyTitle,
-      ...buildLeadTrackingPayload({
-        property_id: propertyId,
-        property_title: propertyTitle,
-        lead_type: leadType
-      }),
-      event_id: eventId,
-      event_source_url: eventSourceUrl,
-      user_agent: userAgent,
-      fbp,
-      fbc
+      tracking,
     };
     
 	    try {

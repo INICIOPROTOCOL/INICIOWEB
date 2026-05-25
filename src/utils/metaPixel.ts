@@ -7,6 +7,14 @@ declare global {
   }
 }
 
+let metaPixelInitialized = false;
+
+const isBrowser = () => typeof window !== "undefined";
+
+const isAdminPath = () => (
+  isBrowser() && window.location.pathname.startsWith("/admin")
+);
+
 /**
  * Initialize Meta Pixel if VITE_META_PIXEL_ID is configured
  * This should be called once in App.tsx or main.tsx
@@ -14,10 +22,16 @@ declare global {
 export const initializeMetaPixel = () => {
   const pixelId = import.meta.env.VITE_META_PIXEL_ID;
   
+  if (!isBrowser() || isAdminPath() || metaPixelInitialized || window.fbq) {
+    return false;
+  }
+
   if (!pixelId) {
     console.debug("Meta Pixel ID not configured, skipping initialization");
-    return;
+    return false;
   }
+
+  metaPixelInitialized = true;
 
   // Load Meta Pixel script
   const script = document.createElement("script");
@@ -38,6 +52,8 @@ export const initializeMetaPixel = () => {
   if (window.fbq) {
     window.fbq("track", "PageView");
   }
+
+  return true;
 };
 
 export const trackPageView = () => {

@@ -1278,7 +1278,7 @@ const Propiedades: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => removeImagenExistente(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -1321,7 +1321,7 @@ const Propiedades: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => removeImagen(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -1496,7 +1496,7 @@ const Propiedades: React.FC = () => {
                       </h3>
                       <p className="text-sm text-gray-600 truncate">{propiedad.direccion}</p>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+                    <div className="flex gap-1 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-200 ml-2">
                       {/* Botón Toggle Destacada (solo para propiedades Tokko) */}
                       {propiedad.tokko_id && (
                         <Button
